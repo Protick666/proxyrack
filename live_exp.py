@@ -15,9 +15,9 @@ username = 'tijay'
 password = 'c2d49c-5bfff2-498fe7-b1f5cd-3f3212'
 PROXY_RACK_DNS = "premium.residential.proxyrack.net:9000"
 
-ALLOWED_CHUNK = 30
+ALLOWED_CHUNK = 60
 ALLOWED_TTL = 60
-ALLOWED_PROCESS = 20
+ALLOWED_PROCESS = 40
 
 def shift(seq, n=0):
     a = n % len(seq)
@@ -139,12 +139,11 @@ def process_chunks(hops, chunk_size, ttl, phase_1_dump, phase_1_info, phase=1):
     for chunk in asn_chunks:
         send_reqs(chosen_hop_list=chunk, phase_1_dump=phase_1_dump, phase_1_info=phase_1_info, phase=phase)
         time_now = time.time()
-        if time_now - starting_time > ttl or ttl - (time_now - starting_time) <= 10:
+        if time_now - starting_time > ttl or ttl - (time_now - starting_time) <= 5:
             break
 
 
 def carry_out_exp(hops, ttl, cool_down, chunk_size, phase_1_dump, phase_1_info):
-
 
     change_bind_config(file_version='first', bucket_id=1)
     process_chunks(hops, chunk_size, ttl, phase_1_dump, phase_1_info, phase=1)
@@ -169,7 +168,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index):
     import json
 
     solo_hop_list = json.load(f)
-    solo_hop_list = shift(solo_hop_list, index * 20)
+    solo_hop_list = shift(solo_hop_list, index * 30)
 
     chosen_hop_list = []
     for i in range(5):
@@ -195,7 +194,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index):
 
 
 def zeus(ttl):
-    for i in range(60):
+    for i in range(100):
         luminati_asn_ttl_crawler_req(exp_id="proxy_check",
                                      TTL_IN_SEC=ttl,
                                      chunk_size=ALLOWED_CHUNK, index = i)
