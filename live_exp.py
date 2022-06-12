@@ -43,7 +43,7 @@ def change_bind_config(file_version, bucket_id, depth=0):
     if r.status_code != 200:
         print("!!!!!!!!!! Bind server API not working")
         return change_bind_config(file_version, bucket_id, depth + 1)
-    print("Bind server API working")
+    #print("Bind server API working")
     return True
 
 
@@ -75,7 +75,7 @@ def ip_test(phase_1_dump, phase_1_info, tp, is_second=False):
         except Exception as e:
             result = str(e)
             s.close()
-            print("!!!!!!!!!! Fail")
+            #print("!!!!!!!!!! Fail")
             return
         try:
             r = s.recv(1024)
@@ -85,10 +85,10 @@ def ip_test(phase_1_dump, phase_1_info, tp, is_second=False):
         except:
             result = 'noResponse'
             s.close()
-            print("!!!!!!!!!! Fail")
+            #print("!!!!!!!!!! Fail")
             return
 
-        print("!!!!!!!!!! Success")
+        #print("!!!!!!!!!! Success")
         parsed_result = dnslib.DNSRecord.parse(response)
         a = 1
         ip = str(parsed_result.rr[0].rdata)
