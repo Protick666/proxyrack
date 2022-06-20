@@ -9,7 +9,7 @@ import dnslib
 import requests
 from aiohttp_socks import open_connection
 
-from local import LOCAL
+LOCAL = False
 
 QUERY_URL = 'ttlexp.exp.net-measurement.net'
 username = 'tijay'
