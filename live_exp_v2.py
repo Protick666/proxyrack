@@ -8,8 +8,7 @@ import uuid
 import dnslib
 import requests
 from aiohttp_socks import open_connection
-
-LOCAL = False
+from local import LOCAL
 
 QUERY_URL = 'ttlexp.exp.net-measurement.net'
 username = 'tijay'
@@ -220,6 +219,4 @@ def zeus(ttl):
         time.sleep(5)
 
 
-if __name__ == '__main__':
-    print("Yo")
-    zeus(ALLOWED_TTL)
+zeus(ALLOWED_TTL)
