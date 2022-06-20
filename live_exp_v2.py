@@ -221,4 +221,5 @@ def zeus(ttl):
 
 
 if __name__ == '__main__':
+    print("Yo")
     zeus(ALLOWED_TTL)
