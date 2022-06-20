@@ -87,13 +87,13 @@ def analyze_proxy_rack_info():
             except:
                 pass
 
+
 if __name__ == '__main__':
     analyze_proxy_rack_info()
     a = 1
-    f = open("dishonor_data.json")
+    f = open("1_min_resolvers.json")
     data = json.load(f)
-    overlap = find_overlapping_asns(data['ttl_to_dishonoring_resolvers'])
-    a = 1
+    overlap = find_overlapping_asns(data)
 
 
 
@@ -109,8 +109,6 @@ if __name__ == '__main__':
     a = 1
     with open("target_list.json", "w") as ouf:
         json.dump(final_list, fp=ouf)
-
-
 
 
     #

@@ -8,7 +8,7 @@ import dnslib
 import requests
 import socks
 
-
+# TODO uid, bucket,
 QUERY_URL = 'ttlexp.exp.net-measurement.net'
 
 username = 'tijay'
@@ -185,7 +185,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index):
     # TODO store
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check/"
+    dump_directory = "cross_check_v2/"
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     import json
