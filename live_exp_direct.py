@@ -73,7 +73,7 @@ async def ip_test(tp):
 
         req_sent_time = time.time()
 
-        print(phase)
+        #print(phase)
 
         if phase == 1:
             phase_1_dump.append(req_uid)
@@ -122,7 +122,7 @@ def process_chunks(hops, chunk_size, ttl, phase=1):
         asyncio.run(send_reqs(chosen_hop_list=chunk))
         done_chunks += 1
         time_now = time.time()
-        print(time_now - starting_time)
+        #print(time_now - starting_time)
         if time_now - starting_time > ttl or ttl - (time_now - starting_time) <= 5:
             break
 
