@@ -18,7 +18,7 @@ def general_test():
 
 def ip_test(url):
     # d = dnslib.DNSRecord.question("VolumeDrive.219.ttlexp.exp.net-measurement.net")
-    d = dnslib.DNSRecord.question("google.com")
+    d = dnslib.DNSRecord.question("status.rapidssl.com")
     query_data = d.pack()
     dnsPacket = query_data
 
@@ -49,9 +49,17 @@ def ip_test(url):
     print(parsed_result)
 
 
+#curl -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=example.com&type=AAAA'
+import json
+
+r=requests.get("https://cloudflare-dns.com/dns-query?name=asd1.7.ttlexp.exp.net-measurement.net&type=txt", headers={"accept":"application/dns-json"})
+answer = json.loads(r.text)['Answer'][0]
+a = 1
 
 try:
-    general_test()
+    print("yo")
+    for i in range(100):
+        ip_test('1.1.1.1')
 except:
     pass
 
