@@ -23,12 +23,14 @@ def fetch_top_websites(total):
 
 
 async def fetch(website_rank_tuple, session):
+    global mother_dict
     try:
         rank, website = website_rank_tuple
         from ocsp_custom_func import get_ocsp_status
         # results, ocsp_response, has_cert, responder_key_hash, issuer_key_hash, ocsp_url
         results, ocsp_response, has_cert, responder_key_hash, issuer_key_hash, ocsp_url = await get_ocsp_status(website, session)
         response_len = len(ocsp_response)
+        print(response_len)
 
         mother_dict[website] = {
             "rank": rank,
@@ -40,7 +42,7 @@ async def fetch(website_rank_tuple, session):
         }
 
     except Exception as e:
-        a = 1
+        print(e)
 
 
 async def fetch_all(websites):
@@ -60,6 +62,7 @@ def fetch_async(websites):
 
 
 def init():
+    global mother_dict
     init = time.time()
     top_websites = fetch_top_websites(total=1000000)
     fetch_async(websites=top_websites)
