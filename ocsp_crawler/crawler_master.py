@@ -108,13 +108,16 @@ def fetch_async(websites):
     chunks = get_chunks(lst=websites, n=CHUNK)
     c_index = 0
     for chunk in chunks:
+        print("init")
         init = time.time()
         domains = get_domain_tuple(chunk)
         certs = get_domain_certs(domains)
+        print("Done 1")
         certs = filter_cert_res(certs)
         certs = pemify_certs(certs)
         a = 1
         asyncio.run(fetch_all(websites=chunk, cert_dict=certs))
+        print("Done 2")
         a = 1
         delta = time.time() - init
         print("time taken for chunk {}  {}".format(c_index, delta))
