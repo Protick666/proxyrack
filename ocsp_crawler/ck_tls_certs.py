@@ -59,7 +59,7 @@ def fatal(msg):
 
 
 def _get_cert_from_domain(domain):
-    # init = time.time()
+    init = time.time()
     ctx = OpenSSL.SSL.Context(OpenSSL.SSL.SSLv23_METHOD)
     sock = socket.socket()
     sock.settimeout(3)
@@ -67,16 +67,16 @@ def _get_cert_from_domain(domain):
     wrapped_sock = OpenSSL.SSL.Connection(ctx, sock)
     wrapped_sock.set_tlsext_host_name(domain.host.encode('ascii'))
     wrapped_sock.connect((domain.connection_host, domain.port))
-    # wrapped_sock.settimeout(1)
+    wrapped_sock.settimeout(1)
 
     while True:
         try:
             wrapped_sock.do_handshake()
             break
         except OpenSSL.SSL.WantReadError:
-            # time_now = time.time()
-            # if time_now - init > 3:
-            #     break
+            time_now = time.time()
+            if time_now - init > 3:
+                break
             select.select([wrapped_sock], [], [])
     return wrapped_sock.get_peer_cert_chain()
 
@@ -86,10 +86,10 @@ def get_cert_from_domain(domain):
         return (domain, None)
     try:
         data = _get_cert_from_domain(domain)
-        print("thik")
+        #print("thik")
     except Exception as e:
         data = e
-        print("thak")
+        #print("thik")
     return (domain, data)
 
 
