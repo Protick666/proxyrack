@@ -59,7 +59,7 @@ openssl_errors: dict = {
 }
 
 
-async def get_ocsp_status(host, session) -> list:
+async def get_ocsp_status(host, session, cert_dict) -> list:
     """Main function with two inputs: host, and port.
     Port defaults to TCP 443"""
 
@@ -88,8 +88,14 @@ async def get_ocsp_status(host, session) -> list:
         return results
 
     try:
-        # Get the remote certificate chain
-        cert_chain = get_certificate_chain(host, port)
+        #Get the remote certificate chain
+        #cert_chain_remote = get_certificate_chain(host, port)
+
+        if host not in cert_dict:
+            results.append("Error: " + "not in cert dict")
+            return results
+
+        cert_chain = cert_dict[host]
 
         # Extract OCSP URL from leaf certificate
         ocsp_url = extract_ocsp_url(cert_chain)
@@ -114,7 +120,7 @@ async def get_ocsp_status(host, session) -> list:
 
 
     except Exception as err:
-        print(err)
+        #print(err)
         results.append("Error: " + str(err))
         return results
 
@@ -238,6 +244,8 @@ def extract_ocsp_url(cert_chain: List[str]) -> str:
     certificate = x509.load_pem_x509_certificate(
         str.encode(cert_chain[0]), default_backend()
     )
+
+    a = 1
 
     # Check to ensure it has an AIA extension and if so, extract ocsp url
     try:
