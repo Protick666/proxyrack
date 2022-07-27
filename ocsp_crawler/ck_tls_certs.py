@@ -86,9 +86,10 @@ def get_cert_from_domain(domain):
         return (domain, None)
     try:
         data = _get_cert_from_domain(domain)
-        #print("Done")
+        print("thik")
     except Exception as e:
         data = e
+        print("thak")
     return (domain, data)
 
 
