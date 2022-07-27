@@ -11,7 +11,7 @@ import itertools
 # import nest_asyncio
 # nest_asyncio.apply()
 
-CHUNK = 200
+CHUNK = 500
 
 mother_dict = {}
 
