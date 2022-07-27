@@ -66,8 +66,9 @@ def _get_cert_from_domain(domain):
     ctx.set_timeout(3)
     wrapped_sock = OpenSSL.SSL.Connection(ctx, sock)
     wrapped_sock.set_tlsext_host_name(domain.host.encode('ascii'))
-    wrapped_sock.connect((domain.connection_host, domain.port))
     wrapped_sock.settimeout(1)
+    wrapped_sock.connect((domain.connection_host, domain.port))
+
 
     while True:
         try:
