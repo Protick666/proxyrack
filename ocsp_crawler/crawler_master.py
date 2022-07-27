@@ -11,7 +11,7 @@ import itertools
 # import nest_asyncio
 # nest_asyncio.apply()
 
-CHUNK = 500
+CHUNK = 200
 
 mother_dict = {}
 
@@ -105,7 +105,6 @@ def pemify_certs(certs):
 
 
 def fetch_async(websites):
-    loop = asyncio.get_event_loop()
     chunks = get_chunks(lst=websites, n=CHUNK)
     c_index = 0
     for chunk in chunks:
