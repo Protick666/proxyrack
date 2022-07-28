@@ -59,6 +59,18 @@ openssl_errors: dict = {
 }
 
 
+async def get_ocsp_status_from_response(ocsp_response):
+    results: list = []
+
+    try:
+        ocsp_result, has_cert, resp_class, responder_key_hash, issuer_key_hash = extract_ocsp_result(ocsp_response)
+    except Exception as err:
+        results.append("Error: " + str(err))
+        return results
+
+    return results, ocsp_response, has_cert, responder_key_hash, issuer_key_hash
+
+
 async def get_ocsp_status(host, session, cert_dict) -> list:
     """Main function with two inputs: host, and port.
     Port defaults to TCP 443"""
