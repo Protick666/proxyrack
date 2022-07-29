@@ -326,12 +326,12 @@ def fetch_async(websites):
 
 def init():
     print(pkg_resources.get_distribution("asyncio").version)
-    # global mother_dict
-    # init = time.time()
-    # top_websites = fetch_top_websites(total=1000000)
-    # fetch_async(websites=top_websites)
-    # delta = time.time() - init
-    # a = 1
+    global mother_dict
+    init = time.time()
+    top_websites = fetch_top_websites(total=1000000)
+    fetch_async(websites=top_websites)
+    delta = time.time() - init
+    a = 1
 
 
 init()
