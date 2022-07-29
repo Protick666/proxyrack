@@ -232,7 +232,7 @@ async def fetch_all(websites, cnt):
     # certs = pemify_certs(certs)
     # cert_dict = certs
 
-    a = 1
+    print("Init")
     tasks = []
     for website in websites:
         task = asyncio.ensure_future(fetch_cert(website[1]))
@@ -240,7 +240,7 @@ async def fetch_all(websites, cnt):
     all_cert = await asyncio.gather(*tasks)
     a = 1
     # a = 1
-
+    print("Duos")
 
     tasks = []
 
@@ -250,6 +250,8 @@ async def fetch_all(websites, cnt):
             task = asyncio.ensure_future(fetch(website, session))
             tasks.append(task)
         _ = await asyncio.gather(*tasks)
+
+    print("Tres")
 
     global mother_dict
     global web_to_cert_dict
