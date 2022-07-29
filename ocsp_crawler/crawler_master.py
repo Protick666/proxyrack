@@ -29,7 +29,7 @@ import random
 import binascii
 import hashlib
 
-CHUNK = 1000
+CHUNK = 100
 
 mother_dict = {}
 
