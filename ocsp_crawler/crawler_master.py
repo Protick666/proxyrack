@@ -38,8 +38,8 @@ if LOCAL:
     redis_host = LOCAL_REDIS_HOST
 else:
     redis_host = REMOTE_REDIS_HOST
-    sys.stdout = open("test.txt", "w")
-    sys.stderr = open("err.txt", "w")
+    # sys.stdout = open("test.txt", "w")
+    # sys.stderr = open("err.txt", "w")
 
 
 
@@ -331,5 +331,5 @@ def init():
 
 
 init()
-if not LOCAL:
-    sys.stdout.close()
+# if not LOCAL:
+#     sys.stdout.close()
