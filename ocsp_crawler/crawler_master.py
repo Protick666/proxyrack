@@ -200,7 +200,7 @@ async def fetch_cert(website):
             ssl=context,  # pass in the context.
         )
 
-        reader, writer = await asyncio.wait_for(fut, timeout=10)
+        reader, writer = await asyncio.wait_for(fut, timeout=6)
         #print("mamo")
         peercert = writer.get_extra_info('peercert')
         #print("mama", peercert)
@@ -245,11 +245,11 @@ async def fetch_all(websites, cnt):
     all_cert = await asyncio.gather(*tasks)
     a = 1
     print("Duos")
-    print(web_to_cert_dict)
+    print(len(list(web_to_cert_dict.keys())))
 
     tasks = []
 
-    my_timeout = ClientTimeout(total=10)
+    my_timeout = ClientTimeout(total=6)
     async with ClientSession(timeout=my_timeout) as session:
         for website in websites:
             task = asyncio.ensure_future(fetch(website, session))
@@ -257,7 +257,8 @@ async def fetch_all(websites, cnt):
         _ = await asyncio.gather(*tasks)
 
     print("Tres")
-    print(mother_dict)
+    print(len(list(mother_dict.keys())))
+    #print(mother_dict)
 
 
 
