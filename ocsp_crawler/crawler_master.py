@@ -29,7 +29,7 @@ import random
 import binascii
 import hashlib
 
-CHUNK = 100
+CHUNK = 20
 
 mother_dict = {}
 
@@ -221,6 +221,8 @@ async def fetch_cert(website):
 
 
 async def fetch_all(websites, cnt):
+    global mother_dict
+    global web_to_cert_dict
     a = 1
     domain_to_cert_chain = {}
     # rank, website = website_rank_tuple
@@ -239,8 +241,8 @@ async def fetch_all(websites, cnt):
         tasks.append(task)
     all_cert = await asyncio.gather(*tasks)
     a = 1
-    # a = 1
     print("Duos")
+    print(web_to_cert_dict)
 
     tasks = []
 
@@ -252,9 +254,9 @@ async def fetch_all(websites, cnt):
         _ = await asyncio.gather(*tasks)
 
     print("Tres")
+    print(mother_dict)
 
-    global mother_dict
-    global web_to_cert_dict
+
 
     Path("results").mkdir(parents=True, exist_ok=True)
 
