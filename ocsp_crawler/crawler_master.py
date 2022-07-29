@@ -3,6 +3,7 @@
 import ssl
 from csv import reader
 from pathlib import Path
+import pkg_resources
 
 import certifi
 import redis
@@ -200,8 +201,9 @@ async def fetch_cert(website):
         )
 
         reader, writer = await asyncio.wait_for(fut, timeout=10)
-
+        print("mamo")
         peercert = writer.get_extra_info('peercert')
+        print("mama", peercert)
         decoded_cert = x509.load_der_x509_certificate(peercert)
         akid = get_certs_akid(decoded_cert)
         akid = akid.upper()
@@ -216,6 +218,7 @@ async def fetch_cert(website):
         return True
         ###################################################################
     except Exception as e:
+
         a = 1
         return None
 
@@ -322,12 +325,13 @@ def fetch_async(websites):
 
 
 def init():
-    global mother_dict
-    init = time.time()
-    top_websites = fetch_top_websites(total=1000000)
-    fetch_async(websites=top_websites)
-    delta = time.time() - init
-    a = 1
+    print(pkg_resources.get_distribution("asyncio").version)
+    # global mother_dict
+    # init = time.time()
+    # top_websites = fetch_top_websites(total=1000000)
+    # fetch_async(websites=top_websites)
+    # delta = time.time() - init
+    # a = 1
 
 
 init()
