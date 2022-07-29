@@ -13,6 +13,7 @@ from pyasn1.codec.der import decoder
 from pyasn1.codec.der import encoder
 from pyasn1.type import univ
 import time
+import sys
 
 web_to_cert_dict = {}
 
@@ -37,6 +38,9 @@ if LOCAL:
     redis_host = LOCAL_REDIS_HOST
 else:
     redis_host = REMOTE_REDIS_HOST
+    sys.stdout = open("test.txt", "w")
+
+
 
 r = redis.Redis(host=redis_host, port=6379, db=0,
                 password="certificatesarealwaysmisissued")
@@ -322,3 +326,5 @@ def init():
 
 
 init()
+if not LOCAL:
+    sys.stdout.close()
