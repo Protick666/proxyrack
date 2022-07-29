@@ -30,7 +30,7 @@ import random
 import binascii
 import hashlib
 
-CHUNK = 20
+CHUNK = 100
 
 mother_dict = {}
 
@@ -201,9 +201,9 @@ async def fetch_cert(website):
         )
 
         reader, writer = await asyncio.wait_for(fut, timeout=10)
-        print("mamo")
+        #print("mamo")
         peercert = writer.get_extra_info('peercert')
-        print("mama", peercert)
+        #print("mama", peercert)
         decoded_cert = x509.load_der_x509_certificate(peercert)
         akid = get_certs_akid(decoded_cert)
         akid = akid.upper()
