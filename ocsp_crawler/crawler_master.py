@@ -39,6 +39,7 @@ if LOCAL:
 else:
     redis_host = REMOTE_REDIS_HOST
     sys.stdout = open("test.txt", "w")
+    sys.stderr = open("err.txt", "w")
 
 
 
