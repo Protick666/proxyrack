@@ -18,6 +18,8 @@ ALLOWED_TTL = 60
 phase_1_dump = list()
 phase_1_info = dict()
 
+resolver_to_server_version = {}
+
 if LOCAL:
     bucket = 4
 else:
@@ -73,7 +75,13 @@ async def ip_test(tp):
 
         req_sent_time = time.time()
 
-        #print(phase)
+        try:
+            z = message.make_query("version.bind", rdatatype.TXT, rdclass=3)
+            aa = await asyncquery.udp(z, url, timeout=3)
+            ans = str(list(aa.answer[0].items.keys())[0])
+            resolver_to_server_version[url] = ans
+        except:
+            pass
 
         if phase == 1:
             phase_1_dump.append(req_uid)
@@ -160,7 +168,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check_direct_v3/"
+    dump_directory = "cross_check_direct_v6/"
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     dump_index = str(uuid.uuid4())
@@ -183,6 +191,10 @@ def zeus(ttl):
     for i in range(3):
         chosen_hop_list = chosen_hop_list + solo_hop_list
 
+    target = len(chosen_hop_list)
+    # target = 50
+    done = 0
+
     for i in range(500):
         print("starting new iteration")
         done_chunks = luminati_asn_ttl_crawler_req(exp_id="proxy_check",
@@ -191,7 +203,16 @@ def zeus(ttl):
                                                  chosen_hop_list=chosen_hop_list)
         print("Done {}".format(done_chunks))
         chosen_hop_list = shift(chosen_hop_list, done_chunks * ALLOWED_CHUNK)
+        done += done_chunks * ALLOWED_CHUNK
+        print("Done {}/{}".format(done, target))
+        if done >= target:
+            break
         time.sleep(5)
+
+    import json
+    dump_directory = "cross_check_direct_v6/"
+    with open("{}/{}.json".format(dump_directory, "chaos"), "w") as ouf:
+        json.dump(resolver_to_server_version, fp=ouf)
 
 
 zeus(ALLOWED_TTL)
