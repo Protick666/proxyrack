@@ -96,12 +96,23 @@ async def test5():
             pass
 
     from pathlib import Path
-    dump_directory = "top_1_m_dns/"
+    dump_directory = "top_1_m_dns_V2/"
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     index = 0
     all_domains = fetch_top_websites()
-    semi_domains = chunks(all_domains, 100)
+    www_domains = []
+
+    for domain in all_domains:
+        if "www" not in domain:
+            temp = "www." + domain
+            www_domains.append(temp)
+        else:
+            www_domains.append(domain)
+
+    a = 1
+
+    semi_domains = chunks(all_domains, 200)
     for chunk in semi_domains:
         index += 1
         p = await asyncio.gather(*(resolve(domain) for domain in chunk))
