@@ -96,7 +96,7 @@ async def test5():
             pass
 
     from pathlib import Path
-    dump_directory = "top_1_m_dns_v3/"
+    dump_directory = "top_1_m_dns_v4/"
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     index = 0
@@ -114,13 +114,14 @@ async def test5():
 
     semi_domains = chunks(www_domains, 200)
     index = 1
+    t_init = time.time()
     for chunk in semi_domains:
         index += 1
         p = await asyncio.gather(*(resolve(domain) for domain in chunk))
         import json
         with open("{}/{}.json".format(dump_directory, index), "w") as ouf:
             json.dump(p, fp=ouf)
-        print("Done {}".format(index * 200))
+        print("Done {}, time {}".format(index * 200, time.time() - t_init))
         index += 1
 
 # pool = ThreadPool(len(domains))
