@@ -87,11 +87,12 @@ async def test5():
             if domain.startswith("www."):
                 domain = domain[4:]
             resolver = dns.asyncresolver.Resolver()
-            # resolver.nameservers = ['8.8.8.8']
+            resolver.nameservers = ['198.82.247.69']
             addr = await resolver.resolve(domain, rdtype=2)
             ans_list = []
             additional_lst =[]
             for e in addr.response.answer:
+
                 ans_list.append(str(e))
             for e in addr.response.additional:
                 additional_lst.append(str(e))
@@ -100,7 +101,7 @@ async def test5():
             a = 1
 
     from pathlib import Path
-    dump_directory = "top_1_m_dns_v10/"
+    dump_directory = "top_1_m_dns_v12/"
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     index = 0
