@@ -84,45 +84,49 @@ def fetch_top_websites():
 async def test5():
     async def resolve(domain):
         try:
+            if domain.startswith("www."):
+                domain = domain[4:]
             resolver = dns.asyncresolver.Resolver()
-            resolver.nameservers = ['8.8.8.8']
-            addr = await resolver.resolve(domain)
+            # resolver.nameservers = ['8.8.8.8']
+            addr = await resolver.resolve(domain, rdtype=2)
             ans_list = []
+            additional_lst =[]
             for e in addr.response.answer:
                 ans_list.append(str(e))
-
-            return (domain, ans_list)
-        except:
-            pass
+            for e in addr.response.additional:
+                additional_lst.append(str(e))
+            return (domain, [additional_lst, ans_list])
+        except Exception as e:
+            a = 1
 
     from pathlib import Path
-    dump_directory = "top_1_m_dns_v4/"
+    dump_directory = "top_1_m_dns_v10/"
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     index = 0
     all_domains = fetch_top_websites()
-    www_domains = []
+    # www_domains = []
 
-    for domain in all_domains:
-        if "www" not in domain:
-            temp = "www." + domain
-            www_domains.append(temp)
-        else:
-            www_domains.append(domain)
+    # for domain in all_domains:
+    #     if "www" not in domain:
+    #         temp = "www." + domain
+    #         www_domains.append(temp)
+    #     else:
+    #         www_domains.append(domain)
 
     a = 1
 
-    semi_domains = chunks(www_domains, 200)
+    semi_domains = chunks(all_domains, 200)
     index = 1
     t_init = time.time()
     for chunk in semi_domains:
-        index += 1
         p = await asyncio.gather(*(resolve(domain) for domain in chunk))
         import json
         with open("{}/{}.json".format(dump_directory, index), "w") as ouf:
             json.dump(p, fp=ouf)
-        print("Done {}, time {}".format(index * 200, time.time() - t_init))
         index += 1
+        print("Done {}, time {}".format(index * 200, time.time() - t_init))
+
 
 # pool = ThreadPool(len(domains))
 
