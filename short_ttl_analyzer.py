@@ -409,7 +409,7 @@ def proc_e(e, domain_to_a):
 def get_ns_records():
         domain_to_a = get_a()
         a = 1
-        base_dir = "top_1_m_dns_v10/"
+        base_dir = "top_1_m_dns_v12/"
         files = get_files_from_dir(base_dir)
         ans_list = []
         tot_file = len(files)
