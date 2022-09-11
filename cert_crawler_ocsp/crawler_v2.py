@@ -86,6 +86,7 @@ def finish_task(chunk, index, crom):
     with open(save_path + "{}.json".format(crom), "w") as ouf:
         json.dump(mother_list, fp=ouf)
     mother_list = []
+    print(crom)
 
 
 def init_point(index):
