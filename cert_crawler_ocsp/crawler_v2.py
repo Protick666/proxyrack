@@ -79,7 +79,7 @@ def finish_task(chunk, index, crom):
     green_lets = []
     for scraper_id in range(0, len(chunk)):
         green_lets.append(gevent.spawn(fetch, chunk[scraper_id]))
-    gevent.joinall(green_lets, timeout=5)
+    gevent.joinall(green_lets, timeout=4)
 
     save_path = "cert_crawl/{}/".format(index)
     Path(save_path).mkdir(parents=True, exist_ok=True)
