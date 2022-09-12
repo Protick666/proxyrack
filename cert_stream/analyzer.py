@@ -15,7 +15,7 @@ def read_data_as_s(file_name):
     st = str(file_name)
     if len(st) == 1:
         st = "0" + st
-    d = open("/net/data/dns-ttl/certstream/x{}".format(file_name)).read().splitlines()
+    d = open("/net/data/dns-ttl/certstream/x{}".format(st)).read().splitlines()
     return d
 
 def get_data(file_name, filter_by_message_type):
