@@ -12,7 +12,10 @@ import json
 
 
 def read_data_as_s(file_name):
-    d = open("/net/data/dns-ttl/certstream/{}".format(file_name)).read().splitlines()
+    st = str(file_name)
+    if len(st) == 1:
+        st = "0" + st
+    d = open("/net/data/dns-ttl/certstream/x{}".format(file_name)).read().splitlines()
     return d
 
 def get_data(file_name, filter_by_message_type):
@@ -36,8 +39,11 @@ def get_data(file_name, filter_by_message_type):
             a = 1
     return cert_entries
 
-f_names = ["dump2.json", "dump1.json", "dump.json"]
-for f_name in f_names:
-    certs = get_data(file_name=f_name, filter_by_message_type=False)
-    with open("data_refined/{}".format(f_name), "w") as ouf:
-        json.dump(certs, fp=ouf)
+
+for f_name in range(2, 20):
+    try:
+        certs = get_data(file_name=f_name, filter_by_message_type=False)
+        with open("data_refined/{}.json".format(f_name), "w") as ouf:
+            json.dump(certs, fp=ouf)
+    except:
+        pass
