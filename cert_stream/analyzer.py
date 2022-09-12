@@ -19,7 +19,9 @@ def read_data_as_s(file_name):
     return d
 
 def get_data(file_name, filter_by_message_type):
+    print("analyzing{}".format(file_name))
     d = read_data_as_s(file_name=file_name)
+
     print("File loaded {}".format(file_name))
     cert_entries = []
     line_count = 0
@@ -45,5 +47,5 @@ for f_name in range(2, 20):
         certs = get_data(file_name=f_name, filter_by_message_type=False)
         with open("data_refined/{}.json".format(f_name), "w") as ouf:
             json.dump(certs, fp=ouf)
-    except:
-        pass
+    except Exception as e:
+        print(f_name, e)
