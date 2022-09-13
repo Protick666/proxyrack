@@ -65,7 +65,8 @@ def def_get_certs():
     files = get_files_from_dir("/home/protick/proxyrack/cert_stream/data_refined/")
     certs = []
     for file in files:
-        d = json.load(file)
+        f = open(file)
+        d = json.load(f)
         certs = certs + d
         print("processed {}".format(file))
     return certs
