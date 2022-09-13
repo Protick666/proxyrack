@@ -244,4 +244,49 @@ def analyze_domain_to_cert_mapping():
 # print(get_anchestors("adas.asfdasdfsdafsd.p.com"))
 
 
+'''
+
+    Two CDFs
+    According to number of serials
+    According to number of CAs
+    
+'''
+
+def make_cdn_data():
+    f = open("data_refined/domain_to_serials_list.json")
+    domain_to_serials_list = json.load(f)
+
+    f = open("data_refined/serial_to_issuer.json")
+    serial_to_issuer = json.load(f)
+
+    lens = []
+    ca_lens = []
+    without_star = []
+    for domain in domain_to_serials_list:
+        ca_set = set()
+        if len(domain_to_serials_list[domain]) > 1:
+            if not domain.startswith("*"):
+                without_star.append(domain)
+            for serial in domain_to_serials_list[domain]:
+                ca_set.add(serial_to_issuer[serial])
+            lens.append(len(domain_to_serials_list[domain]))
+            ca_lens.append(len(ca_set))
+
+    print("without star {}".format(len(without_star)))
+    cdf_data_cert_stream = {
+        "ca_lens": ca_lens,
+        "lens": lens
+    }
+
+    with open("data_refined/cdf_data_cert_stream.json", "w") as ouf:
+        json.dump(cdf_data_cert_stream, fp=ouf)
+
+
+    # serial_to_issuer.json
+    # Google
+    # Let's Encrypt
+
+
+
+
 
