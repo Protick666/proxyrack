@@ -152,9 +152,13 @@ def analyze_domain_to_cert_mapping():
     print("step 1")
     tot = 0
 
+    only_culprit_domains = []
+
     for e in domain_to_serials:
         if len(domain_to_serials[e]) > 1:
             tot += 1
+            only_culprit_domains.append(e)
+
 
     print("{} / {}".format(tot, len(domain_set)))
     print("total serials {}".format(len(serials)))
@@ -162,6 +166,9 @@ def analyze_domain_to_cert_mapping():
     domain_to_serials_list = defaultdict(lambda: list())
     with open("data_refined/domain_to_serials_list.json", "w") as ouf:
         json.dump(domain_to_serials_list, fp=ouf)
+
+    with open("data_refined/only_culprit_domains.json", "w") as ouf:
+        json.dump(only_culprit_domains, fp=ouf)
 
 
 
