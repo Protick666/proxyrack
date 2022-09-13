@@ -124,10 +124,13 @@ def analyze_domain_to_cert_mapping():
     '''
         *.domain.com -> a, b, c
         a.domain.com -> d, a, b, c
-        
+        *.domain.a.com
+        b.c.a.com
     '''
 
     domain_to_final_serials = defaultdict(lambda: set())
+
+    mult_domains = []
 
     for e in domain_list:
         _, _, domain = e
@@ -136,23 +139,29 @@ def analyze_domain_to_cert_mapping():
         for ancestor in ancestors:
             if ancestor in domain_to_serials:
                 domain_to_final_serials[domain].update(domain_to_serials[ancestor])
+        if len(domain_to_final_serials[domain]) > 1:
+            mult_domains.append((domain, len(domain_to_final_serials[domain])))
+        if not domain.startswith("*"):
+            domain_to_final_serials.pop(domain, None)
 
     print("step 3")
 
-    domain_to_final_serial_list = defaultdict(lambda: list())
-    tot = 0
-    for domain in domain_to_final_serials:
-        domain_to_final_serial_list[domain] = list(domain_to_final_serials[domain])
-        if len(domain_to_final_serial_list[domain]) > 1:
-            tot += 1
+
+
+    # domain_to_final_serial_list = defaultdict(lambda: list())
+    # tot = 0
+    # for domain in domain_to_final_serials:
+    #     domain_to_final_serial_list[domain] = list(domain_to_final_serials[domain])
+    #     if len(domain_to_final_serial_list[domain]) > 1:
+    #         tot += 1
     print("Total Certs {}".format(len(serials)))
     print("Total domains {}".format(len(domain_set)))
-    print("Found {}".format(tot))
+    print("Found {}".format(len(mult_domains)))
 
     print("step 4")
 
-    with open("data_refined/domain_to_final_serial_list.json", "w") as ouf:
-        json.dump(domain_to_final_serial_list, fp=ouf)
+    with open("data_refined/multi_domains.json", "w") as ouf:
+        json.dump(mult_domains, fp=ouf)
 
 
 # print(get_anchestors("adas.asfdasdfsdafsd.p.com"))
