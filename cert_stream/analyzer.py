@@ -83,9 +83,12 @@ def get_anchestors(domain):
 
 
 def analyze_domain_to_cert_mapping():
-    all_certs = def_get_certs()
-    with open("data_refined/all_certs_compact.json", "w") as ouf:
-        json.dump(all_certs, fp=ouf)
+    # all_certs = def_get_certs()
+    # with open("data_refined/all_certs_compact.json", "w") as ouf:
+    #     json.dump(all_certs, fp=ouf)
+
+    f = open("data_refined/all_certs_compact.json")
+    all_certs = json.load(f)
 
     from collections import defaultdict
 
@@ -103,6 +106,8 @@ def analyze_domain_to_cert_mapping():
         for domain in domains:
             domain_to_serials[domain].add(serial)
 
+    print("step 1")
+
     for domain in domain_set:
         level_segments = domain.split(".")
         levels = len(level_segments)
@@ -115,6 +120,7 @@ def analyze_domain_to_cert_mapping():
 
     domain_list.sort()
 
+    print("step 2")
     '''
         *.domain.com -> a, b, c
         a.domain.com -> d, a, b, c
@@ -131,6 +137,8 @@ def analyze_domain_to_cert_mapping():
             if ancestor in domain_to_serials:
                 domain_to_final_serials[domain].update(domain_to_serials[ancestor])
 
+    print("step 3")
+
     domain_to_final_serial_list = defaultdict(lambda: list())
     tot = 0
     for domain in domain_to_final_serials:
@@ -141,9 +149,10 @@ def analyze_domain_to_cert_mapping():
     print("Total domains {}".format(len(domain_set)))
     print("Found {}".format(tot))
 
+    print("step 4")
+
     with open("data_refined/domain_to_final_serial_list.json", "w") as ouf:
         json.dump(domain_to_final_serial_list, fp=ouf)
-
 
 
 # print(get_anchestors("adas.asfdasdfsdafsd.p.com"))
