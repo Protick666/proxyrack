@@ -252,6 +252,14 @@ def analyze_domain_to_cert_mapping():
     
 '''
 
+def get_ca_str(str):
+    if "Google" in str:
+        return "Google"
+    elif "Let's Encrypt" in str:
+        return "Let's Encrypt"
+    else:
+        return str
+
 def make_cdn_data():
     f = open("data_refined/domain_to_serials_list.json")
     domain_to_serials_list = json.load(f)
@@ -268,7 +276,7 @@ def make_cdn_data():
             if not domain.startswith("*"):
                 without_star.append(domain)
             for serial in domain_to_serials_list[domain]:
-                ca_set.add(serial_to_issuer[serial])
+                ca_set.add(get_ca_str(serial_to_issuer[serial]))
             lens.append(len(domain_to_serials_list[domain]))
             ca_lens.append(len(ca_set))
 
