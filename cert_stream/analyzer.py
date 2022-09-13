@@ -107,6 +107,12 @@ def analyze_domain_to_cert_mapping():
             domain_to_serials[domain].add(serial)
 
     print("step 1")
+    tot = 0
+    for e in domain_to_serials:
+        if len(e) > 1:
+            tot += 1
+    print("{} / {}".format(tot, len(domain_set)))
+
 
     for domain in domain_set:
         level_segments = domain.split(".")
@@ -132,6 +138,7 @@ def analyze_domain_to_cert_mapping():
 
     mult_domains = []
 
+    mx = 0
     for e in domain_list:
         _, _, domain = e
         domain_to_final_serials[domain].update(domain_to_serials[domain])
@@ -141,6 +148,12 @@ def analyze_domain_to_cert_mapping():
                 domain_to_final_serials[domain].update(domain_to_serials[ancestor])
         if len(domain_to_final_serials[domain]) > 1:
             mult_domains.append((domain, len(domain_to_final_serials[domain])))
+
+        if len(domain_to_final_serials[domain]) >= mx:
+            print("{} {}".format(domain, len(domain_to_final_serials[domain])))
+            if len(domain_to_final_serials[domain]) > mx:
+                mx = len(domain_to_final_serials[domain])
+
         if not domain.startswith("*"):
             domain_to_final_serials.pop(domain, None)
 
