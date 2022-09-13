@@ -109,7 +109,7 @@ def analyze_domain_to_cert_mapping():
     print("step 1")
     tot = 0
     for e in domain_to_serials:
-        if len(e) > 1:
+        if len(domain_to_serials[e]) > 1:
             tot += 1
     print("{} / {}".format(tot, len(domain_set)))
 
