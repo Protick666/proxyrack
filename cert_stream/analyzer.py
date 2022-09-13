@@ -3,9 +3,11 @@ import json
 
 '''
 
-    * Find out -> Total distinct certs in this period
+    * Find out -> Total distinct certs in this period -> 19960045
 
-    * Distinct domains it was mapped for -> *
+    * Distinct domains it was mapped for -> 34388557
+    
+    * Distinct domains where it was mult domains-> 3286129
 
     * All distinct domains -> [serial numbers]
 
@@ -164,6 +166,9 @@ def analyze_domain_to_cert_mapping():
     print("total serials {}".format(len(serials)))
 
     domain_to_serials_list = defaultdict(lambda: list())
+    for domain in domain_to_serials:
+        domain_to_serials_list[domain] = list(domain_to_serials[domain])
+
     with open("data_refined/domain_to_serials_list.json", "w") as ouf:
         json.dump(domain_to_serials_list, fp=ouf)
 
