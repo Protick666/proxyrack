@@ -253,6 +253,9 @@ def analyze_domain_to_cert_mapping():
 '''
 
 def get_ca_str(str):
+    if str is None:
+        return "None"
+
     if "Google" in str:
         return "Google"
     elif "Let's Encrypt" in str:
