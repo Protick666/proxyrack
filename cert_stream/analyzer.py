@@ -176,8 +176,6 @@ def analyze_domain_to_cert_mapping():
         json.dump(only_culprit_domains, fp=ouf)
 
 
-
-
     # for domain in domain_set:
     #     level_segments = domain.split(".")
     #     levels = len(level_segments)
@@ -243,7 +241,6 @@ def analyze_domain_to_cert_mapping():
 
 # print(get_anchestors("adas.asfdasdfsdafsd.p.com"))
 
-
 '''
 
     Two CDFs
@@ -262,6 +259,35 @@ def get_ca_str(str):
         return "Let's Encrypt"
     else:
         return str
+
+
+
+def identify_weird_cases():
+    from collections import defaultdict
+    f = open("data_refined/domain_to_serials_list.json")
+    domain_to_serials_list = json.load(f)
+
+    f = open("data_refined/serial_to_issuer.json")
+    serial_to_issuer = json.load(f)
+
+    ans = []
+    for domain in domain_to_serials_list:
+
+        if len(domain_to_serials_list[domain]) > 100:
+            ca_count = defaultdict(lambda: 0)
+            for serial in domain_to_serials_list[domain]:
+                ca_count[get_ca_str(serial_to_issuer[serial])] += 1
+            s = ""
+            for key in ca_count:
+                s = s + "{}: {},".format(key, ca_count[key])
+
+            ans.append((len(domain_to_serials_list[domain]), domain, s))
+
+    ans.sort(reverse=True)
+
+    with open("data_refined/weird_cases.json", "w") as ouf:
+        json.dump(ans, fp=ouf)
+
 
 def make_cdn_data():
     f = open("data_refined/domain_to_serials_list.json")
