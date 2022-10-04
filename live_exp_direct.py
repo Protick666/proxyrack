@@ -69,19 +69,19 @@ async def ip_test(tp):
         domain = "{}.{}.ttlexp.exp.net-measurement.net".format(req_uid, bucket)
 
         q = message.make_query(domain, rdatatype.A)
-        a = await asyncquery.udp(q, url, timeout=3)
+        a = await asyncquery.udp(q, url, timeout=2)
         ip = str(list(a.answer[0].items.keys())[0])
         ttl = a.answer[0].ttl
 
         req_sent_time = time.time()
 
-        try:
-            z = message.make_query("version.bind", rdatatype.TXT, rdclass=3)
-            aa = await asyncquery.udp(z, url, timeout=3)
-            ans = str(list(aa.answer[0].items.keys())[0])
-            resolver_to_server_version[url] = ans
-        except:
-            pass
+        # try:
+        #     z = message.make_query("version.bind", rdatatype.TXT, rdclass=3)
+        #     aa = await asyncquery.udp(z, url, timeout=2)
+        #     ans = str(list(aa.answer[0].items.keys())[0])
+        #     resolver_to_server_version[url] = ans
+        # except:
+        #     pass
 
         if phase == 1:
             phase_1_dump.append(req_uid)
@@ -168,7 +168,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check_direct_v6/"
+    dump_directory = "cross_check_direct_v20/"
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     dump_index = str(uuid.uuid4())
@@ -188,7 +188,7 @@ def zeus(ttl):
     random.shuffle(solo_hop_list)
     # TODO calc shift
     chosen_hop_list = []
-    for i in range(3):
+    for i in range(8):
         chosen_hop_list = chosen_hop_list + solo_hop_list
 
     target = len(chosen_hop_list)
@@ -209,10 +209,10 @@ def zeus(ttl):
             break
         time.sleep(5)
 
-    import json
-    dump_directory = "cross_check_direct_v6/"
-    with open("{}/{}.json".format(dump_directory, "chaos"), "w") as ouf:
-        json.dump(resolver_to_server_version, fp=ouf)
+    # import json
+    # dump_directory = "cross_check_direct_v7/"
+    # with open("{}/{}.json".format(dump_directory, "chaos"), "w") as ouf:
+    #     json.dump(resolver_to_server_version, fp=ouf)
 
 
 zeus(ALLOWED_TTL)

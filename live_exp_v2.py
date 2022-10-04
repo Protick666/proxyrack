@@ -23,11 +23,7 @@ ALLOWED_TTL = 60
 phase_1_dump = list()
 phase_1_info = dict()
 
-if LOCAL:
-    bucket = 9
-else:
-    instance_id = int(os.environ['instance_id'])
-    bucket = 10 + instance_id
+bucket = 1
 
 resolver_to_server_version = {}
 
@@ -101,36 +97,36 @@ async def ip_test(tp):
         ttl = parsed_result.rr[0].ttl
 
 
-        try:
-            d = dnslib.DNSRecord.question("version.bind", qtype="TXT", qclass="CH")
-            query_data = d.pack()
-            dnsPacket = query_data
-            pack_to_send = dnslib.struct.pack('>h', len(dnsPacket)) + dnsPacket
-            user = username + "-timeoutSeconds-10-country-{}-isp-{}".format(cn, isp)
-
-            reader, writer = await open_connection(
-                proxy_url='socks5://{}:{}@premium.residential.proxyrack.net:9000'.format(user, password),
-                host=url,
-                port=53
-            )
-
-            req_sent_time = time.time()
-
-            writer.write(pack_to_send)
-
-            # await asyncio.wait_for(writer.write(pack_to_send), timeout=10)
-
-            ret = await asyncio.wait_for(reader.read(1024), timeout=10)
-
-            # ret = await reader.read(1024)
-
-            r = ret.hex()
-            response = binascii.unhexlify(r[4:])
-            parsed_result = dnslib.DNSRecord.parse(response)
-            yo = str(parsed_result.rr[0].rdata)
-            resolver_to_server_version[url] = yo
-        except Exception as e:
-            qq = 1
+        # try:
+        #     d = dnslib.DNSRecord.question("version.bind", qtype="TXT", qclass="CH")
+        #     query_data = d.pack()
+        #     dnsPacket = query_data
+        #     pack_to_send = dnslib.struct.pack('>h', len(dnsPacket)) + dnsPacket
+        #     user = username + "-timeoutSeconds-10-country-{}-isp-{}".format(cn, isp)
+        #
+        #     reader, writer = await open_connection(
+        #         proxy_url='socks5://{}:{}@premium.residential.proxyrack.net:9000'.format(user, password),
+        #         host=url,
+        #         port=53
+        #     )
+        #
+        #     req_sent_time = time.time()
+        #
+        #     writer.write(pack_to_send)
+        #
+        #     # await asyncio.wait_for(writer.write(pack_to_send), timeout=10)
+        #
+        #     ret = await asyncio.wait_for(reader.read(1024), timeout=10)
+        #
+        #     # ret = await reader.read(1024)
+        #
+        #     r = ret.hex()
+        #     response = binascii.unhexlify(r[4:])
+        #     parsed_result = dnslib.DNSRecord.parse(response)
+        #     yo = str(parsed_result.rr[0].rdata)
+        #     resolver_to_server_version[url] = yo
+        # except Exception as e:
+        #     qq = 1
 
         #print(phase)
 
@@ -195,7 +191,7 @@ def carry_out_exp(hops, ttl, cool_down, chunk_size):
     change_bind_config(file_version='second', bucket_id=bucket)
     from time import sleep
     print("wait start")
-    sleep(cool_down + 5)
+    sleep(cool_down + 2)
     print("wait end")
 
     global phase_1_dump
@@ -218,7 +214,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check_v6/"
+    dump_directory = "cross_check_v20/"
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     dump_index = str(uuid.uuid4())
@@ -238,7 +234,7 @@ def zeus(ttl):
     random.shuffle(solo_hop_list)
     # TODO calc shift
     chosen_hop_list = []
-    for i in range(3):
+    for i in range(8):
         chosen_hop_list = chosen_hop_list + solo_hop_list
 
     target = len(chosen_hop_list)
@@ -257,12 +253,12 @@ def zeus(ttl):
         print("Done {}/{}".format(done, target))
         if done >= target:
             break
-        time.sleep(5)
+        time.sleep(1)
 
-    import json
-    dump_directory = "cross_check_v6/"
-    with open("{}/{}.json".format(dump_directory, "chaos"), "w") as ouf:
-        json.dump(resolver_to_server_version, fp=ouf)
+    # import json
+    # dump_directory = "cross_check_v6/"
+    # with open("{}/{}.json".format(dump_directory, "chaos"), "w") as ouf:
+    #     json.dump(resolver_to_server_version, fp=ouf)
 
 
 zeus(ALLOWED_TTL)
