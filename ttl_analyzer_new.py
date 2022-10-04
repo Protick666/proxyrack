@@ -23,7 +23,7 @@ ip_to_asn = {}
 
 
 def get_verdict_list(ttl):
-    f = open("/Users/protick.bhowmick/PriyoRepos/dns_test_ground/emni/ttl_new_results/mother_info.json")
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
     d = json.load(f)
     return d[str(ttl)]['resolver_ip_to_verdict_list_dump']
 
