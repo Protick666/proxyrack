@@ -20,11 +20,7 @@ phase_1_info = dict()
 
 resolver_to_server_version = {}
 
-if LOCAL:
-    bucket = 4
-else:
-    instance_id = int(os.environ['instance_id'])
-    bucket = 5 + instance_id
+bucket = 1
 
 
 def shift(seq, n=0):
