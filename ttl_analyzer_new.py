@@ -127,13 +127,13 @@ def table_maker():
             in_correct_count = 0
             exitnode_set = set()
             if org in c_ans:
-                correct_count = c_ans[key][0]
-                exitnode_set = exitnode_set.union(c_ans[key][1])
+                correct_count = c_ans[org][0]
+                exitnode_set = exitnode_set.union(c_ans[org][1])
             if org in ans:
-                in_correct_count = ans[key][0]
-                exitnode_set = exitnode_set.union(ans[key][1])
+                in_correct_count = ans[org][0]
+                exitnode_set = exitnode_set.union(ans[org][1])
 
-            ans_lst.append((correct_count, in_correct_count, len(exitnode_set), key, cn[key]))
+            ans_lst.append((correct_count, in_correct_count, len(exitnode_set), key, cn[org]))
 
         with open(parent_path + "table_data.json", "w") as ouf:
             json.dump(ans_lst, fp=ouf)
