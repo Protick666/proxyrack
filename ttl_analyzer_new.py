@@ -13,7 +13,7 @@ import pyasn
 from asn_org_tools.org_finder import AS2ISP
 from multiprocessing.dummy import Pool as ThreadPool
 import time
-asndb = pyasn.pyasn('../asn_org_tools/data/ipsan_db.dat')
+asndb = pyasn.pyasn('asn_org_tools/data/ipsan_db.dat')
 as2isp = AS2ISP()
 
 
