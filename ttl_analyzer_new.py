@@ -59,6 +59,7 @@ def preprocess_resolver(ip):
             org, cn = get_org_cn(asn)
             ip_to_org_cn[ip] = org, cn
         except:
+            print(ip)
             pass
 
 
@@ -133,7 +134,7 @@ def table_maker():
                 in_correct_count = ans[org][0]
                 exitnode_set = exitnode_set.union(ans[org][1])
 
-            ans_lst.append((correct_count, in_correct_count, len(exitnode_set), key, cn[org]))
+            ans_lst.append((correct_count, in_correct_count, len(exitnode_set), org, cn[org]))
 
         with open(parent_path + "table_data.json", "w") as ouf:
             json.dump(ans_lst, fp=ouf)
