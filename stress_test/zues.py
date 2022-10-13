@@ -10,7 +10,6 @@ bin_path = '/Users/protick.bhowmick/go/bin'
 
 # TODO
 
-
 def get_resolver_list():
     resolvers = []
     with open("data/nameservers.txt") as file:

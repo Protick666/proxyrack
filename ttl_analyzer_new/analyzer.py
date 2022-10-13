@@ -195,17 +195,58 @@ def geographic_correct_incorrect_distribution_all_over():
     with open(parent_path + "geographic_corr_incorr_distro_global.json", "w") as ouf:
         json.dump(geo_distro, fp=ouf)
 
-start_time = time.time()
-preprocess_resolvers()
-analyzed_resolvers = time.time()
-print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
+def init():
+    start_time = time.time()
+    preprocess_resolvers()
+    analyzed_resolvers = time.time()
+    print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-table_maker()
+    table_maker()
 
-analyzed_table = time.time()
-print("Analyze table {}".format((analyzed_table - start_time) / 60))
+    analyzed_table = time.time()
+    print("Analyze table {}".format((analyzed_table - start_time) / 60))
 
-geographic_correct_incorrect_distribution_all_over()
+    geographic_correct_incorrect_distribution_all_over()
 
-analyzed_geographic = time.time()
-print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
+    analyzed_geographic = time.time()
+    print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
+
+
+def find_one_mid_dishonoring_resolvers():
+    resolver_set = set()
+    for ttl in ["60"]:
+        final_dict = get_verdict_list(ttl)
+
+        ans = defaultdict(lambda: [0, set()])
+        c_ans = defaultdict(lambda: [0, set()])
+        cn = {}
+        org_set = set()
+
+        for key in final_dict:
+            correct_set = set()
+            incorrect_set = set()
+            for e in final_dict[key]["b"]:
+                incorrect_set.add(e)
+            for e in final_dict[key]["g"]:
+                correct_set.add(e)
+
+            total_set = correct_set.union(incorrect_set)
+            total = len(total_set)
+
+            if total == 0:
+                continue
+
+            ratio = len(incorrect_set) / total
+
+            if ratio >= 1:
+                resolver_set.add(key)
+
+    pool = ThreadPool(30)
+    results = pool.map(preprocess_resolver, list(resolver_set))
+    pool.close()
+    pool.join()
+
+    to_dump = []
+    for r in resolver_set:
+        to_dump.append((r, ip_to_asn[r]))
+

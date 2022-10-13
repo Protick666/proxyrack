@@ -6,6 +6,7 @@ import requests
 import dnslib
 import binascii
 from multiprocessing import Pool, Manager
+from ttl_analyzer_new import find_one_min_dishonoring_resolvers
 
 available_asn_in_proxy_rack = dict()
 asn_to_info_proxy_rack = dict()
@@ -89,29 +90,43 @@ def analyze_proxy_rack_info():
 
 
 if __name__ == '__main__':
+    find_one_min_dishonoring_resolvers()
+
     analyze_proxy_rack_info()
     a = 1
-    f = open("1_min_resolvers.json")
+    f = open("data/ips_with_asns.json")
+
     data = json.load(f)
-    overlap = find_overlapping_asns(data)
+    ans = []
 
-
+    for ip, asn in data:
+        try:
+            asn = int(asn)
+            if asn in available_asn_in_proxy_rack:
+                # ip, asn, cn, isp
+                save_tup = (ip, asn, asn_to_info_proxy_rack[asn][1], asn_to_info_proxy_rack[asn][0])
+                ans.append(save_tup)
+            else:
+                a = 1
+        except:
+            pass
 
     target_list = []
-    for ttl in overlap:
-        for element in overlap[ttl]:
-            ip, asn, cn, isp = element
-            target_list.append((ip, asn, cn, isp))
-            # print(ip_test(ip, cn, isp))
+    target_list_direct = []
+    for element in ans:
+        ip, asn, cn, isp = element
+        target_list.append((ip, asn, cn, isp))
+    for e in data:
+        target_list_direct.append((e[0], 'x', 'x', 'x'))
+
+
     final_list = []
-    for r in range(1):
+    for r in range(2):
         final_list = final_list + target_list
     a = 1
-    with open("target_list.json", "w") as ouf:
+    with open("data/target_list.json", "w") as ouf:
         json.dump(final_list, fp=ouf)
 
-
-    #
-    # p = Pool(50)
-    # result = p.map(ip_test, target_list)
-    # p.close()
+    target_list_direct = target_list_direct + target_list_direct
+    with open("data/target_list_direct.json", "w") as ouf:
+        json.dump(target_list_direct, fp=ouf)

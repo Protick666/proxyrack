@@ -261,7 +261,6 @@ def get_ca_str(str):
         return str
 
 
-
 def identify_weird_cases():
     from collections import defaultdict
     f = open("data_refined/domain_to_serials_list.json")

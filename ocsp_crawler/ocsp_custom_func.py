@@ -336,7 +336,7 @@ async def get_ocsp_response(ocsp_url, ocsp_request_data, session):
 
     return result_data
 
-
+# TODO serial number -, size of ocsp response
 def get_delegated_certs_public_key_hash(ocsp_response):
     a = 1
     for extension in ocsp_response.certificates[0].extensions:

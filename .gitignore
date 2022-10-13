@@ -20,3 +20,11 @@
 /top_1_m_dns/
 /top_1_m_dns_V2/
 /top_1_m_dns_v4/
+/cert_crawler_ocsp/cert_crawl/
+/cert_stream/data_refined/
+/cert_stream/data/
+/ocsp_simulation/graph/*
+/ocsp_simulation/graph_pre/*
+/ocsp_simulation/images/*
+/ocsp_simulation/graph/
+/ocsp_simulation/graph_pre/

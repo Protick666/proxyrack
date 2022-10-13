@@ -27,6 +27,7 @@ CDNS = ['Akamai',
         'Highwinds',
         'Internap',
         'KeyCDN',
+        'google',
         'Level3',
         'Limelight',
         'MaxCDN',
@@ -361,6 +362,65 @@ def prep_graph():
         with open("mother_ttl_dict.json", "w") as ouf:
                 json.dump(ttl_dict, fp=ouf, indent=2)
 
+def prep_graph_v2():
+        f = open("ns_org_list.json")
+        mo_tuple = json.load(f)
+
+        domain_to_ns_org_a_org = {}
+        for e in mo_tuple:
+                domain_to_ns_org_a_org[e[0]] = (e[1], e[2])
+
+        '''
+                        base -> base    'same_base'
+                        base -> non_cdn 'base_ncdn'
+                        non_cdn -> cdn1 'ncdn_cdn'
+                        non_cdn -> non_cdn 'ncdn_ncdn'
+                        base -> cdn1    'base_cdn'
+                        cdn1 -> cdn1    'same_cdn'
+                        cdn1 -> cdn1
+                        cdn1 -> cdn2    'diff_cdn'
+                        cdn2 -> IP      'end'
+        '''
+        f = open("mother_dict.json")
+        d = json.load(f)
+
+        no_cdn_a = []
+        cdn_a = []
+        cdn_mid = []
+
+        for domain in d:
+                key = domain
+                if key.startswith("www."):
+                        key = key[4:]
+
+                is_cdn_involved, events = d[domain]['cdn'],  d[domain]['events']
+                if not is_cdn_involved:
+                        ttl = find_ttl(events, 'end')
+
+                        if key in domain_to_ns_org_a_org:
+                                ns_org, a_org = domain_to_ns_org_a_org[key]
+                                if is_cdn(ns_org) and is_cdn(a_org):
+                                        cdn_a.append(ttl)
+                                        continue
+                        no_cdn_a.append(ttl)
+                else:
+                        ttl = find_ttl(events, 'end')
+                        cdn_a.append(ttl)
+
+                        # ttl = find_ttl(events, 'mid')
+                        # cdn_mid.append(ttl)
+
+        ttl_dict = {
+                "no_cdn_a": no_cdn_a,
+                "cdn_a": cdn_a,
+        }
+        # 21600, 3600
+        a = 1
+
+        with open("mother_ttl_dict.json", "w") as ouf:
+                json.dump(ttl_dict, fp=ouf)
+
+
 asn_to_org = {}
 
 def get_org(ip):
@@ -373,6 +433,7 @@ def get_org(ip):
         org = str(as2isp.getISP("20221212", asn)[0])
         asn_to_org[asn] = org
         return org
+
 
 def proc_e(e, domain_to_a):
         domain = e[0]
@@ -448,8 +509,8 @@ def get_ns_records():
 # make_master_list()
 # analyze_init()
 # a = 1
-# prep_graph()
-get_ns_records()
+prep_graph_v2()
+# get_ns_records()
 
 
 a = 1

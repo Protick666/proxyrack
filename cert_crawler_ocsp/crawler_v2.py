@@ -9,6 +9,7 @@ import socket
 import ssl
 socket.setdefaulttimeout(2)
 from pathlib import Path
+from multiprocessing.pool import ThreadPool
 
 mother_list = []
 
@@ -76,10 +77,22 @@ def finish_task(chunk, index, crom):
     global mother_list
     # POOL_SIZE = len(chunk)
     # pool = Pool(POOL_SIZE)
-    green_lets = []
+
+    #
+    # green_lets = []
+    # for scraper_id in range(0, len(chunk)):
+    #     green_lets.append(gevent.spawn(fetch, chunk[scraper_id]))
+    # gevent.joinall(green_lets, timeout=4)
+
+    pool = ThreadPool(processes=1)
+    async_results = []
     for scraper_id in range(0, len(chunk)):
-        green_lets.append(gevent.spawn(fetch, chunk[scraper_id]))
-    gevent.joinall(green_lets, timeout=4)
+         async_results.append(pool.apply_async(fetch, chunk[scraper_id]))
+    for e in async_results:
+        e.get(2)
+    a = 1
+
+
 
     save_path = "cert_crawl/{}/".format(index)
     Path(save_path).mkdir(parents=True, exist_ok=True)
@@ -109,7 +122,7 @@ def init_point(index):
         crom += 1
 
 
-# init_point(2)
+init_point(2)
 
 
 

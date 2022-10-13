@@ -118,7 +118,15 @@ def makeOcspRequest(issuerCert, userSerialNumber=None, userCert=None, add_nonce=
     return ocspRequest
 
 
+def fetch_top_websites(total):
 
+    websites = []
+    with open('data/top-1m.csv', 'r') as read_obj:
+        csv_reader = reader(read_obj)
+        for row in csv_reader:
+            websites.append((row[0], row[1]))
+    # return [(1, 'google.com')]
+    return websites[: total]
 
 
 async def fetch(website_rank_tuple, session):
@@ -210,6 +218,7 @@ async def fetch_cert(website):
         return True
         ###################################################################
     except Exception as e:
+        a = 1
         return None
 
 
@@ -249,8 +258,6 @@ async def fetch_all(websites, cnt):
     print("Tres")
     print(len(list(mother_dict.keys())))
     #print(mother_dict)
-
-
 
     Path("results").mkdir(parents=True, exist_ok=True)
 
@@ -303,7 +310,7 @@ def pemify_certs(certs):
 
 
 def fetch_async(websites):
-    chunks = get_chunks(lst=websites, n=CHUNK)
+    chunks = get_chunks(lst=websites, n=10)
     c_index = 0
     for chunk in chunks:
         init = time.time()

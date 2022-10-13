@@ -67,8 +67,6 @@ def preprocess_resolvers():
     d = json.load(f)
     resolver_set = set()
 
-
-
     for ttl in allowed_ttl:
         for resolver in d[str(ttl)]['resolver_ip_to_verdict_list_dump']:
             resolver_set.add(resolver)
@@ -256,4 +254,4 @@ def find_one_min_dishonoring_resolvers():
 
 # find_one_min_dishonoring_resolvers()
 
-init()
+# init()

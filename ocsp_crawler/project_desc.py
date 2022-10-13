@@ -5,5 +5,5 @@
 # Delegated count **
 from ocspchecker import get_ocsp_status
 
-a = get_ocsp_status("google.com")
+a = get_ocsp_status('uczelnie.pl')
 a = 1

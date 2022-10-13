@@ -92,6 +92,34 @@ def get_resolver_to_dishonor_dict():
     return resolver_to_is_dishonor_vote
 
 
+def get_resolver_to_dishonor_dict_v2():
+    proxy_rack_dump_files = get_files_from_dir("/Users/protick.bhowmick/PriyoRepos/proxyRack/cross_check_direct_v20/")
+    direct_dump_files = get_files_from_dir("/Users/protick.bhowmick/PriyoRepos/proxyRack/cross_check_v20/")
+
+    from collections import defaultdict
+    resolver_to_is_dishonor_vote = {}
+
+    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1)
+    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2)
+
+    return resolver_to_is_dishonor_vote
+
+
+def get_chaos_files():
+    resolver_to_chaos = {}
+    proxy_rack_dump_files = get_files_from_dir("/Users/protick.bhowmick/PriyoRepos/proxyRack/phrarh/cross_check_v6/")
+    #direct_dump_files = get_files_from_dir("/Users/protick.bhowmick/PriyoRepos/dns_test_ground/ttl_result/cross_check_direct_v3/")
+
+    from collections import defaultdict
+
+    for file in proxy_rack_dump_files:
+        f = open(file)
+        d = json.load(f)
+        for key in d:
+            resolver_to_chaos[key] = d[key][1: -1]
+    return resolver_to_chaos
+
+
 def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
     for key in resolver_to_dishonor_dict:
         s = set()
@@ -99,6 +127,86 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
             s.add(element[0])
         if len(s) > 1:
             print(key, resolver_to_dishonor_dict[key], "-->", ratio_dict[key])
+
+
+def entry_v2():
+    resolver_to_dishonor_dict = get_resolver_to_dishonor_dict_v2()
+    f = open("yo.json")
+    d = json.load(f)
+    inc, cor = 0, 0
+
+    # p = get_chaos_files()
+    from collections import defaultdict
+
+    for e in d:
+        ip = e[0]
+        if ip in resolver_to_dishonor_dict:
+            if resolver_to_dishonor_dict[ip] is True:
+                cor += 1
+            else:
+                inc += 1
+    a = 1
+
+
+
+def entry_v3():
+    resolver_to_dishonor_dict = get_resolver_to_dishonor_dict_v2()
+    f = open("yo.json")
+    d = json.load(f)
+    z_inc, z_cor, o_inc, o_cor = 0, 0, 0, 0
+
+    # p = get_chaos_files()
+    from collections import defaultdict
+
+
+    dd = {
+        2: {
+            "tot": 0,
+            "found": 0,
+            "inc": 0
+        },
+        4: {
+            "tot": 0,
+            "found": 0,
+            "inc": 0
+        },
+        -1: {
+            "tot": 0,
+            "found": 0,
+            "inc": 0
+        }
+    }
+
+
+    for e in d:
+        ip, ratio = e[0], e[1]
+        is_dishonor = -1
+
+        if ip in resolver_to_dishonor_dict:
+            if resolver_to_dishonor_dict[ip] is True:
+                is_dishonor = False
+            else:
+                is_dishonor = True
+
+        index = 0
+
+        if ratio <= .2:
+            index = 2
+        elif .2 < ratio <= .4:
+            index = 4
+        else:
+            index = -1
+
+        dd[index]["tot"] += 1
+        if is_dishonor != -1:
+            dd[index]["found"] += 1
+            if is_dishonor:
+                dd[index]["inc"] += 1
+
+
+
+
+    a = 1
 
 
 def entry():
@@ -153,7 +261,7 @@ def entry():
 
 
 
-entry()
+entry_v2()
 
 def unknown():
     global_dishonoring_resolver_list = get_dishonoring_ori_set()
