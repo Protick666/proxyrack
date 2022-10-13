@@ -241,6 +241,7 @@ def entry():
         bucket_to_total_count[ratio_bucket] += 1
         if resolver in resolver_to_dishonor_dict:
             detected_in_proxy_rack += 1
+
             bucket_to_detected_count[ratio_bucket] += 1
             if resolver_to_dishonor_dict[resolver] is False:
                 bucket_to_dishonoring_count[ratio_bucket] += 1
