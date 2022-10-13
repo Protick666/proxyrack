@@ -54,7 +54,7 @@ def get_ratio_dict():
     return data
 
 
-def analyze_files(files, resolver_to_is_dishonor_vote, flag):
+def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list):
     for file in files:
         f = open(file)
         d = json.load(f)
@@ -69,6 +69,9 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag):
                 t_1 = d[req_id]['timestamp_1']
                 t_2 = d[req_id]['timestamp_2']
                 time_def = t_2 - t_1
+
+                if ttl_1 > 60:
+                    ttl_list.append(ttl_1)
 
                 if ttl_1 > 60 or ip_2 == '52.44.221.99':
                     resolver_to_is_dishonor_vote[resolver] = False
@@ -93,16 +96,18 @@ def get_resolver_to_dishonor_dict():
 
 
 def get_resolver_to_dishonor_dict_v2():
+    ttl_list = []
+
     proxy_rack_dump_files = get_files_from_dir("cross_check_direct_v21/")
     direct_dump_files = get_files_from_dir("cross_check_v21/")
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
 
-    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1)
-    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2)
+    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1, ttl_list)
+    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2, ttl_list)
 
-    return resolver_to_is_dishonor_vote
+    return resolver_to_is_dishonor_vote, ttl_list
 
 
 def get_chaos_files():
@@ -130,7 +135,7 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
 
 
 def entry_v2():
-    resolver_to_dishonor_dict = get_resolver_to_dishonor_dict_v2()
+    resolver_to_dishonor_dict, ttl_list = get_resolver_to_dishonor_dict_v2()
     f = open("data/ips_with_asns.json")
     d = json.load(f)
     inc, cor = 0, 0
@@ -146,6 +151,9 @@ def entry_v2():
             else:
                 cor += 1
     print(cor, inc)
+    with open("data/min_ttl_list.json", "w") as ouf:
+        json.dump(ttl_list, fp=ouf)
+
 
 
 
@@ -254,7 +262,99 @@ def entry():
     # local -> both ips belong to 27665,
     # public -> 3 4134, 29286
 
-entry_v2()
+# entry_v2()
+
+def get_min_ttl():
+    global_dishonoring_resolver_list = get_dishonoring_ori_set()
+
+    dump_files = get_files_from_dir("cross_check")
+
+    reachable_ips = set()
+    cross_checked_dishonoring_ips = set()
+    momin = set()
+
+    '''
+        min-ttl
+        ttl good: increase
+        ttl good: static
+        ttl good: wrong decrease
+        ttl good: ttl 0
+
+    '''
+    min_ttl_vis = {}
+    min_ttl_cnt = list()
+    min_ttl_set = set()
+    ttl_increase = set()
+    ttl_decrease = set()
+    ttl_same = set()
+    ttl_zero = set()
+
+    for file in dump_files:
+        f = open("cross_check/{}".format(file))
+        d = json.load(f)
+
+        # dishonor case: ip2 = ! ip_2 or ttl != 60
+        # abnormal case: ttl < 60, (ttl == 60 but ip2 = ! ip_2)
+
+        for req_id in d:
+            try:
+                temp = d[req_id]
+                ttl_1 = d[req_id]["ttl_1"]
+                resolver = d[req_id]['tuple'][0]
+
+                ttl_2 = d[req_id]["ttl_2"]
+                ip_1 = d[req_id]["ip_1"]
+                ip_2 = d[req_id]["ip_2"]
+                t_1 = d[req_id]['timestamp_1']
+                t_2 = d[req_id]['timestamp_2']
+                time_def = t_2 - t_1
+
+                if resolver not in global_dishonoring_resolver_list:
+                    continue
+
+                reachable_ips.add(resolver)
+                if ttl_1 > 60 or ip_2 == '52.44.221.99':
+                    '''
+                        min-ttl
+                        ttl good: increase
+                        ttl good: static
+                        ttl good: wrong decrease
+                        ttl good: ttl 0
+
+                        min_ttl_vis = {}
+                        min_ttl_cnt = list()
+
+                        min_ttl_set = set()
+                        ttl_increase = set()
+                        ttl_decrease = set()
+                        ttl_zero = set()
+                        ttl_same = set()
+
+                    '''
+                    if ttl_1 > 60:
+                        min_ttl_set.add(resolver)
+                        if resolver not in min_ttl_vis:
+                            min_ttl_vis[resolver] = 1
+                            min_ttl_cnt.append(ttl_1)
+                    else:
+                        if ttl_2 > ttl_1:
+                            ttl_increase.add(resolver)
+                        elif ttl_2 < ttl_1 and ttl_2 != 0:
+                            ttl_decrease.add(resolver)
+                        elif ttl_2 == 0:
+                            ttl_zero.add(resolver)
+                        elif ttl_2 == ttl_1 == 60:
+                            ttl_same.add(resolver)
+
+                    cross_checked_dishonoring_ips.add(resolver)
+
+            except:
+                pass
+    min_ttl_cnt.sort()
+    a = 1
+
+    with open("data/min_ttl_list.json", "w") as ouf:
+        json.dump(min_ttl_cnt, fp=ouf)
 
 def unknown():
     global_dishonoring_resolver_list = get_dishonoring_ori_set()
@@ -345,5 +445,5 @@ def unknown():
     min_ttl_cnt.sort()
     a = 1
 
-    with open("min_ttl_list.json", "w") as ouf:
+    with open("data/min_ttl_list.json", "w") as ouf:
         json.dump(min_ttl_cnt, fp=ouf)
