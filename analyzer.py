@@ -262,7 +262,7 @@ def entry():
     # local -> both ips belong to 27665,
     # public -> 3 4134, 29286
 
-# entry_v2()
+entry_v2()
 
 def get_min_ttl():
     global_dishonoring_resolver_list = get_dishonoring_ori_set()
