@@ -93,8 +93,8 @@ def get_resolver_to_dishonor_dict():
 
 
 def get_resolver_to_dishonor_dict_v2():
-    proxy_rack_dump_files = get_files_from_dir("/Users/protick.bhowmick/PriyoRepos/proxyRack/cross_check_direct_v20/")
-    direct_dump_files = get_files_from_dir("/Users/protick.bhowmick/PriyoRepos/proxyRack/cross_check_v20/")
+    proxy_rack_dump_files = get_files_from_dir("cross_check_direct_v21/")
+    direct_dump_files = get_files_from_dir("cross_check_v21/")
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
@@ -131,7 +131,7 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
 
 def entry_v2():
     resolver_to_dishonor_dict = get_resolver_to_dishonor_dict_v2()
-    f = open("yo.json")
+    f = open("data/ips_with_asns.json")
     d = json.load(f)
     inc, cor = 0, 0
 
@@ -142,10 +142,10 @@ def entry_v2():
         ip = e[0]
         if ip in resolver_to_dishonor_dict:
             if resolver_to_dishonor_dict[ip] is True:
-                cor += 1
-            else:
                 inc += 1
-    a = 1
+            else:
+                cor += 1
+    print(cor, inc)
 
 
 
@@ -252,14 +252,6 @@ def entry():
     a = 1
     # local -> both ips belong to 27665,
     # public -> 3 4134, 29286
-
-
-
-
-
-
-
-
 
 entry_v2()
 
