@@ -254,4 +254,4 @@ def find_one_min_dishonoring_resolvers():
 
 # find_one_min_dishonoring_resolvers()
 
-# init()
+init()
