@@ -231,7 +231,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 def zeus(ttl):
     f = open("data/target_list_{}.json".format(global_str))
     import json
-    solo_hop_list = json.load(f)[: 50]
+    solo_hop_list = json.load(f)
     import random
     random.shuffle(solo_hop_list)
     # TODO calc shift
