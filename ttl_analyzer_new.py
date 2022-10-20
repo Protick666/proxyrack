@@ -254,11 +254,12 @@ def find_one_min_dishonoring_resolvers():
         to_dump.append((r, ip_to_asn[r]))
     for r in honoring_resolver_set:
         to_dump_honor.append((r, ip_to_asn[r]))
+
     with open(parent_path + "dishonring_ips_with_asns.json", "w") as ouf:
         json.dump(to_dump, fp=ouf)
     with open(parent_path + "honring_ips_with_asns.json", "w") as ouf:
         json.dump(to_dump_honor, fp=ouf)
 
-find_one_min_dishonoring_resolvers()
+# find_one_min_dishonoring_resolvers()
 
 # init()

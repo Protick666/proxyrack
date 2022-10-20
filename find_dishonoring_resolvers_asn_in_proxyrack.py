@@ -89,16 +89,8 @@ def analyze_proxy_rack_info():
                 pass
 
 
-if __name__ == '__main__':
-    find_one_min_dishonoring_resolvers()
-
-    analyze_proxy_rack_info()
-    a = 1
-    f = open("data/ips_with_asns.json")
-
-    data = json.load(f)
+def get_target_list_duo(data, honor_str):
     ans = []
-
     for ip, asn in data:
         try:
             asn = int(asn)
@@ -119,14 +111,24 @@ if __name__ == '__main__':
     for e in data:
         target_list_direct.append((e[0], 'x', 'x', 'x'))
 
+    with open("data/target_list_{}.json".format(honor_str), "w") as ouf:
+        json.dump(target_list, fp=ouf)
 
-    final_list = []
-    for r in range(2):
-        final_list = final_list + target_list
-    a = 1
-    with open("data/target_list.json", "w") as ouf:
-        json.dump(final_list, fp=ouf)
-
-    target_list_direct = target_list_direct + target_list_direct
-    with open("data/target_list_direct.json", "w") as ouf:
+    with open("data/target_list_direct_{}.json".format(honor_str), "w") as ouf:
         json.dump(target_list_direct, fp=ouf)
+
+
+if __name__ == '__main__':
+    find_one_min_dishonoring_resolvers()
+
+    analyze_proxy_rack_info()
+
+    f = open("data/dishonring_ips_with_asns.json")
+    data = json.load(f)
+    get_target_list_duo(data, "dishonor")
+
+    f = open("data/honring_ips_with_asns.json")
+    data = json.load(f)
+    get_target_list_duo(data, "honor")
+
+
