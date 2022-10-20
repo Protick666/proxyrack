@@ -25,7 +25,7 @@ ALLOWED_TTL = 60
 phase_1_dump = list()
 phase_1_info = dict()
 
-bucket = 1
+bucket = 5
 
 resolver_to_server_version = {}
 
