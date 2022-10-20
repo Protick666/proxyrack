@@ -212,7 +212,8 @@ def init():
 
 
 def find_one_min_dishonoring_resolvers():
-    resolver_set = set()
+    dishonoring_resolver_set = set()
+    honoring_resolver_set = set()
     for ttl in ["1"]:
         final_dict = get_verdict_list(ttl)
 
@@ -238,20 +239,26 @@ def find_one_min_dishonoring_resolvers():
             ratio = len(incorrect_set) / total
 
             if ratio >= 1:
-                resolver_set.add(key)
+                dishonoring_resolver_set.add(key)
+            elif ratio <= 0:
+                honoring_resolver_set.add(key)
 
     pool = ThreadPool(30)
-    results = pool.map(preprocess_resolver, list(resolver_set))
+    results = pool.map(preprocess_resolver, list(dishonoring_resolver_set) + list(honoring_resolver_set))
     pool.close()
     pool.join()
 
     to_dump = []
-    for r in resolver_set:
+    to_dump_honor = []
+    for r in dishonoring_resolver_set:
         to_dump.append((r, ip_to_asn[r]))
-    with open(parent_path + "ips_with_asns.json", "w") as ouf:
+    for r in honoring_resolver_set:
+        to_dump_honor.append((r, ip_to_asn[r]))
+    with open(parent_path + "dishonring_ips_with_asns.json", "w") as ouf:
         json.dump(to_dump, fp=ouf)
+    with open(parent_path + "honring_ips_with_asns.json", "w") as ouf:
+        json.dump(to_dump_honor, fp=ouf)
 
+find_one_min_dishonoring_resolvers()
 
-# find_one_min_dishonoring_resolvers()
-
-init()
+# init()
