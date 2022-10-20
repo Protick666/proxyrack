@@ -15,6 +15,8 @@ username = 'tijay'
 password = 'c2d49c-5bfff2-498fe7-b1f5cd-3f3212'
 PROXY_RACK_DNS = "premium.residential.proxyrack.net:9000"
 
+global_str = "honor"
+
 
 # TODO local file, instance, bind transfer
 ALLOWED_CHUNK = 100
@@ -214,7 +216,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check_v21/"
+    dump_directory = "cross_check_v21/{}/".format(global_str)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     dump_index = str(uuid.uuid4())
@@ -227,7 +229,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
 
 def zeus(ttl):
-    f = open("data/target_list.json")
+    f = open("data/target_list_{}.json".format(global_str))
     import json
     solo_hop_list = json.load(f)
     import random

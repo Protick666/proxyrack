@@ -6,6 +6,7 @@ import uuid
 import requests
 from dns import message, asyncquery, rdatatype
 
+global_str = "honor"
 
 from local import LOCAL
 
@@ -164,7 +165,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check_direct_v21/"
+    dump_directory = "cross_check_direct_v21/{}/".format(global_str)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     dump_index = str(uuid.uuid4())
@@ -177,7 +178,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
 
 def zeus(ttl):
-    f = open("data/target_list_direct.json")
+    f = open("data/target_list_direct_{}.json".format(global_str))
     import json
     solo_hop_list = json.load(f)
     import random
