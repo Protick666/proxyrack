@@ -76,8 +76,8 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list):
                 if ttl_1 > 60 or ip_2 == '52.44.221.99':
                     resolver_to_is_dishonor_vote[resolver] = False
                 else:
-                    if resolver not in resolver_to_is_dishonor_vote:
-                        resolver_to_is_dishonor_vote[resolver] = True
+                    #if resolver not in resolver_to_is_dishonor_vote:
+                    resolver_to_is_dishonor_vote[resolver] = True
             except:
                 pass
 
