@@ -95,11 +95,11 @@ def get_resolver_to_dishonor_dict():
     return resolver_to_is_dishonor_vote
 
 
-def get_resolver_to_dishonor_dict_v2():
+def get_resolver_to_dishonor_dict_v2(str):
     ttl_list = []
 
-    proxy_rack_dump_files = get_files_from_dir("cross_check_direct_v21/")
-    direct_dump_files = get_files_from_dir("cross_check_v21/")
+    proxy_rack_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
+    direct_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
@@ -134,11 +134,16 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
             print(key, resolver_to_dishonor_dict[key], "-->", ratio_dict[key])
 
 
-def entry_v2():
-    resolver_to_dishonor_dict, ttl_list = get_resolver_to_dishonor_dict_v2()
-    f = open("data/ips_with_asns.json")
-    d = json.load(f)
-    inc, cor = 0, 0
+def entry_v2(str):
+    resolver_to_dishonor_dict, ttl_list = get_resolver_to_dishonor_dict_v2(str)
+    if str == "honor":
+        f = open("data/honring_ips_with_asns.json")
+        d = json.load(f)
+    else:
+        f = open("data/dishonring_ips_with_asns.json")
+        d = json.load(f)
+
+    dis, hon = 0, 0
 
     # p = get_chaos_files()
     from collections import defaultdict
@@ -147,10 +152,10 @@ def entry_v2():
         ip = e[0]
         if ip in resolver_to_dishonor_dict:
             if resolver_to_dishonor_dict[ip] is True:
-                inc += 1
+                hon += 1
             else:
-                cor += 1
-    print(cor, inc)
+                dis += 1
+    print("Total {}, Dishonor {}, Honor {}".format(dis + hon, dis, hon))
     with open("data/min_ttl_list.json", "w") as ouf:
         json.dump(ttl_list, fp=ouf)
 
@@ -262,7 +267,7 @@ def entry():
     # local -> both ips belong to 27665,
     # public -> 3 4134, 29286
 
-entry_v2()
+# entry_v2("honor")
 
 def get_min_ttl():
     global_dishonoring_resolver_list = get_dishonoring_ori_set()
