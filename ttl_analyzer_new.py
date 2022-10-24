@@ -94,6 +94,9 @@ def preprocess_all_resolvers():
     with open(parent_path + "resolver_asn_list.json", "w") as ouf:
         json.dump(asn_list, fp=ouf)
 
+    with open(parent_path + "ip_to_asn_dict.json", "w") as ouf:
+        json.dump(ip_to_asn, fp=ouf)
+
 
 def table_maker():
     for ttl in ["1"]:
