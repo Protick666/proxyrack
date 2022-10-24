@@ -58,7 +58,7 @@ def preprocess_resolver(ip):
             org, cn = get_org_cn(asn)
             ip_to_org_cn[ip] = org, cn
         except:
-            print(ip)
+            # print(ip)
             pass
 
 
@@ -75,6 +75,24 @@ def preprocess_resolvers():
     results = pool.map(preprocess_resolver, list(resolver_set))
     pool.close()
     pool.join()
+
+
+def preprocess_all_resolvers():
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/all_resolvers.json")
+    d = json.load(f)
+    resolver_list = list(d)
+
+    pool = ThreadPool(30)
+    results = pool.map(preprocess_resolver, resolver_list)
+    pool.close()
+    pool.join()
+
+    asn_list = list()
+    for resolver in resolver_list:
+        asn_list.append(ip_to_asn[resolver])
+
+    with open(parent_path + "resolver_asn_list.json", "w") as ouf:
+        json.dump(asn_list, fp=ouf)
 
 
 def table_maker():
