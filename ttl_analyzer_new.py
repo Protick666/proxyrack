@@ -98,6 +98,34 @@ def preprocess_all_resolvers():
         json.dump(ip_to_asn, fp=ouf)
 
 
+def preprocess_all_resolver_v2():
+    f = open("/home/ashiq/PulseMaster/Outer_updates/temp/new_ttl_dnssec_expt_result.json")
+    d = json.load(f)
+    ans = set()
+    for r in d:
+        element_list = d[r]
+        for n in element_list:
+            ans.update(n['phase1_resolver_ips'])
+            ans.update(n['phase2_resolver_ips'])
+
+    resolver_list = list(ans)
+
+    pool = ThreadPool(30)
+    results = pool.map(preprocess_resolver, resolver_list)
+    pool.close()
+    pool.join()
+    #
+    # asn_list = list()
+    # for resolver in resolver_list:
+    #     asn_list.append(ip_to_asn[resolver])
+    #
+    # with open(parent_path + "resolver_asn_list.json", "w") as ouf:
+    #     json.dump(asn_list, fp=ouf)
+
+    with open(parent_path + "ip_to_asn_dict_ishtiaq.json", "w") as ouf:
+        json.dump(ip_to_asn, fp=ouf)
+
+
 def table_maker():
     for ttl in ["1"]:
         final_dict = get_verdict_list(ttl)
