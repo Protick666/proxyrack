@@ -1,11 +1,9 @@
 '''
-
 How many dishonoring ips we could reach with Proxyrack ??
 
 How many of them are proved to be dishonoring ??
 
 Why are they dishonoring?? min ttl? ttl settings ??
-
 '''
 
 import json
@@ -13,7 +11,6 @@ import json
 '''
     Local dishonoring: 1,0,0,0,0,0,0,0,1,3,58
     Public dishonring: 0,0,0,0,0,0,0,6,2,9,64
-
 '''
 
 def get_dishonoring_ori_set():
@@ -54,7 +51,7 @@ def get_ratio_dict():
     return data
 
 
-def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list):
+def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_by_direct_probing):
     for file in files:
         f = open(file)
         d = json.load(f)
@@ -74,8 +71,11 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list):
                     ttl_list.append(ttl_1)
 
                 if ttl_1 > 60 or ip_2 == '52.44.221.99':
+                    if flag == 2:
+                        reached_by_direct_probing[resolver] = True
                     resolver_to_is_dishonor_vote[resolver] = False
                 else:
+                    # 1610/1621
                     #if resolver not in resolver_to_is_dishonor_vote:
                     resolver_to_is_dishonor_vote[resolver] = True
             except:
@@ -98,16 +98,18 @@ def get_resolver_to_dishonor_dict():
 def get_resolver_to_dishonor_dict_v2(str):
     ttl_list = []
 
-    proxy_rack_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
-    direct_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
+    direct_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
+    proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
 
-    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1, ttl_list)
-    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2, ttl_list)
+    reached_by_direct_probing = defaultdict(lambda: False)
 
-    return resolver_to_is_dishonor_vote, ttl_list
+    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1, ttl_list, reached_by_direct_probing)
+    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2, ttl_list, reached_by_direct_probing)
+
+    return resolver_to_is_dishonor_vote, ttl_list, reached_by_direct_probing
 
 
 def get_chaos_files():
@@ -135,15 +137,17 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
 
 
 def entry_v2(str):
-    resolver_to_dishonor_dict, ttl_list = get_resolver_to_dishonor_dict_v2(str)
+    resolver_to_dishonor_dict, ttl_list, reached_by_direct_probing_dict = get_resolver_to_dishonor_dict_v2(str)
     if str == "honor":
         f = open("data/honring_ips_with_asns.json")
         d = json.load(f)
-    else:
+    elif str == "dishonor":
         f = open("data/dishonring_ips_with_asns.json")
         d = json.load(f)
 
     dis, hon = 0, 0
+    hon_public, dis_public = 0, 0
+    hon_local, dis_local = 0, 0
 
     # p = get_chaos_files()
     from collections import defaultdict
@@ -153,13 +157,19 @@ def entry_v2(str):
         if ip in resolver_to_dishonor_dict:
             if resolver_to_dishonor_dict[ip] is True:
                 hon += 1
+                if reached_by_direct_probing_dict[ip]:
+                    hon_public += 1
+                else:
+                    hon_local += 1
             else:
                 dis += 1
-    print("Total {}, Dishonor {}, Honor {}".format(dis + hon, dis, hon))
-    with open("data/min_ttl_list.json", "w") as ouf:
-        json.dump(ttl_list, fp=ouf)
+                if reached_by_direct_probing_dict[ip]:
+                    dis_public += 1
+                else:
+                    dis_local += 1
 
-
+    print("{} : Total target {}, Reached {}, Dishonor {}, Honor {}".format(str, len(d), dis + hon, dis, hon))
+    print("Dishonor  public {}, Honor public {}, Dishonor local {}, Honor local {}".format(dis_public, hon_public, dis_local, hon_local))
 
 
 def entry_v3():
