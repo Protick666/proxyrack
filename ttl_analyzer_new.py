@@ -242,21 +242,72 @@ def geographic_correct_incorrect_distribution_all_over():
     with open(parent_path + "geographic_corr_incorr_distro_global.json", "w") as ouf:
         json.dump(geo_distro, fp=ouf)
 
+
+def geographic_exitnode_fraction():
+
+    resolver_to_bad_exit_nodes = defaultdict(lambda: set())
+    resolver_to_good_exit_nodes = defaultdict(lambda: set())
+
+    country_to_good_exit_nodes = defaultdict(lambda: set())
+    country_to_bad_exit_nodes = defaultdict(lambda: set())
+
+    for ttl in allowed_ttl:
+        final_dict = get_verdict_list(ttl)
+
+        for key in final_dict:
+            correct_set = set()
+            incorrect_set = set()
+            for e in final_dict[key]["b"]:
+                incorrect_set.add(e)
+            for e in final_dict[key]["g"]:
+                correct_set.add(e)
+
+            resolver_to_bad_exit_nodes[key].update(incorrect_set)
+            resolver_to_good_exit_nodes[key].update(correct_set)
+
+    country_set = set()
+
+    for resolver in resolver_to_bad_exit_nodes:
+        cn = get_org_cn_from_ip(resolver)[1]
+        country_set.add(cn)
+        country_to_bad_exit_nodes[cn].update(resolver_to_bad_exit_nodes[resolver])
+
+    for resolver in resolver_to_good_exit_nodes:
+        cn = get_org_cn_from_ip(resolver)[1]
+        country_set.add(cn)
+        country_to_good_exit_nodes[cn].update(resolver_to_good_exit_nodes[resolver])
+
+    country_to_meta = {}
+    for cn in country_set:
+        total_set = country_to_bad_exit_nodes[cn].union(country_to_good_exit_nodes[cn])
+        bad_set = country_to_bad_exit_nodes[cn]
+        if len(total_set) == 0:
+            continue
+        percentage_of_bad_exitnodes = (len(bad_set)/len(total_set)) * 100
+        country_to_meta[cn] = (percentage_of_bad_exitnodes, len(bad_set), len(total_set))
+
+
+    with open(parent_path + "geographic_exitnode_perc.json", "w") as ouf:
+        json.dump(country_to_meta, fp=ouf)
+
+
 def init():
     start_time = time.time()
     preprocess_resolvers()
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-    table_maker()
+    geographic_exitnode_fraction()
 
-    analyzed_table = time.time()
-    print("Analyze table {}".format((analyzed_table - start_time) / 60))
-
-    geographic_correct_incorrect_distribution_all_over()
-
-    analyzed_geographic = time.time()
-    print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
+    # table_maker()
+    #
+    # analyzed_table = time.time()
+    # print("Analyze table {}".format((analyzed_table - start_time) / 60))
+    #
+    # geographic_correct_incorrect_distribution_all_over()
+    #
+    # analyzed_geographic = time.time()
+    # print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
 
 
 
