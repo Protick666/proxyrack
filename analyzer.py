@@ -70,6 +70,9 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_b
                 if ttl_1 > 60:
                     ttl_list.append(ttl_1)
 
+                if ip_1 != '52.44.221.99':
+                    continue
+
                 if ttl_1 > 60 or ip_2 == '52.44.221.99':
                     if flag == 2:
                         reached_by_direct_probing[resolver] = True
