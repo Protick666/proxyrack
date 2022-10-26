@@ -59,7 +59,10 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_b
         for req_id in d:
             try:
                 ttl_1 = d[req_id]["ttl_1"]
-                resolver = d[req_id]['resolver']
+                # resolver = d[req_id]['resolver']
+                tp = d[req_id]['tuple']
+                resolver = tp[0]
+
                 ttl_2 = d[req_id]["ttl_2"]
                 ip_1 = d[req_id]["ip_1"]
                 ip_2 = d[req_id]["ip_2"]
