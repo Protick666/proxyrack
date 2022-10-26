@@ -87,6 +87,7 @@ def make_dict(chosen_new_ips):
         nested_dict["ttl_1"], nested_dict["ttl_2"] = ttl, ttl - 62 - random.random()
         nested_dict["ip_2"] = '52.44.221.99'
         nested_dict['resolver'] = ip
+        nested_dict['sign'] = 'new'
         mother_dict[req_uid] = nested_dict
     return mother_dict
 
@@ -202,6 +203,7 @@ def get_new_proxy_dict(d, chosen_change_proxy_ips):
         d[req_id]["ttl_2"] = d[req_id]["ttl_1"] - 63 - random.random()
         d[req_id]["ip_2"] = '52.44.221.99'
         d[req_id]["ip_1"] = '52.44.221.99'
+        d[req_id]["sign"] = "cng"
 
 
 def makhon(str):
