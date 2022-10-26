@@ -235,7 +235,7 @@ def makhon(str):
             not_found_ips.append(ip)
             continue
 
-        if resolver_to_dishonor_dict[ip] is True:
+        if resolver_to_dishonor_dict[ip] is True and  reached_by_direct_probing[ip] is False:
             change_candidates.append(ip)
 
     import random
