@@ -101,11 +101,11 @@ def get_resolver_to_dishonor_dict():
 def get_resolver_to_dishonor_dict_v2(str):
     ttl_list = []
 
-    # direct_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
-    # proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
+    direct_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
+    proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
 
-    direct_dump_files = ["/home/protick/proxyrack/data/dishonor_direct.json"]
-    proxy_rack_dump_files = ["/home/protick/proxyrack/data/dishonor_proxy.json"]
+    # direct_dump_files = ["/home/protick/proxyrack/data/dishonor_direct.json"]
+    # proxy_rack_dump_files = ["/home/protick/proxyrack/data/dishonor_proxy.json"]
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
