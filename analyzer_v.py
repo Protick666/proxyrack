@@ -195,7 +195,7 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
 def get_new_proxy_dict(d, chosen_change_proxy_ips):
     import random
     for req_id in d:
-        resolver = d[req_id]['tuple'][0]
+        resolver = d[req_id]['resolver']
         if resolver not in chosen_change_proxy_ips:
             continue
         d[req_id]["ttl_1"] = get_ttl()
