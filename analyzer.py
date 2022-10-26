@@ -59,9 +59,9 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_b
         for req_id in d:
             try:
                 ttl_1 = d[req_id]["ttl_1"]
-                # resolver = d[req_id]['resolver']
-                tp = d[req_id]['tuple']
-                resolver = tp[0]
+                resolver = d[req_id]['resolver']
+                # tp = d[req_id]['tuple']
+                # resolver = tp[0]
 
                 ttl_2 = d[req_id]["ttl_2"]
                 ip_1 = d[req_id]["ip_1"]
@@ -104,11 +104,11 @@ def get_resolver_to_dishonor_dict():
 def get_resolver_to_dishonor_dict_v2(str):
     ttl_list = []
 
-    direct_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
-    proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
+    # direct_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
+    # proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
 
-    # direct_dump_files = ["/home/protick/proxyrack/data/dishonor_direct.json"]
-    # proxy_rack_dump_files = ["/home/protick/proxyrack/data/dishonor_proxy.json"]
+    direct_dump_files = ["/home/protick/proxyrack/data/dishonor_direct.json"]
+    proxy_rack_dump_files = ["/home/protick/proxyrack/data/dishonor_proxy.json"]
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
