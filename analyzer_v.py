@@ -195,6 +195,7 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
 
 def get_new_proxy_dict(d, chosen_change_proxy_ips):
     import random
+    cng = set()
     for req_id in d:
         resolver = d[req_id]['resolver']
         if resolver not in chosen_change_proxy_ips:
@@ -204,6 +205,8 @@ def get_new_proxy_dict(d, chosen_change_proxy_ips):
         d[req_id]["ip_2"] = '52.44.221.99'
         d[req_id]["ip_1"] = '52.44.221.99'
         d[req_id]["sign"] = "cng"
+        cng.add(resolver)
+    print(len(cng))
 
 
 def makhon(str):
@@ -248,6 +251,7 @@ def makhon(str):
     proxy_dict.update(chosen_new_proxy_dict)
 
     chosen_change_proxy_ips = random.sample(list(set(change_candidates)), change_proxy)
+    print(len(chosen_change_proxy_ips))
     get_new_proxy_dict(proxy_dict, chosen_change_proxy_ips)
 
     with open("data/dishonor_direct.json", "w") as ouf:
