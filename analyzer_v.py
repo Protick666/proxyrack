@@ -209,7 +209,7 @@ def get_new_proxy_dict(d, chosen_change_proxy_ips):
     print(len(cng))
 
 
-def makhon(str):
+def makhon(str, addition_public, addition_proxy, change_proxy):
     resolver_to_dishonor_dict, ttl_list, reached_by_direct_probing_dict, direct_dict, proxy_dict = get_resolver_to_dishonor_dict_v2(
         str)
 
@@ -222,9 +222,9 @@ def makhon(str):
     elif str == "dishonor":
         f = open("data/dishonring_ips_with_asns.json")
         d = json.load(f)
-        addition_public = 20
-        addition_proxy = 17
-        change_proxy = 39
+        # addition_public = 20
+        # addition_proxy = 15
+        # change_proxy = 50
 
     not_found_ips = []
     change_candidates = []
@@ -238,10 +238,14 @@ def makhon(str):
         if (resolver_to_dishonor_dict[ip] is True) and (reached_by_direct_probing_dict[ip] is False):
             change_candidates.append(ip)
 
+    not_found_ips = list(set(not_found_ips))
+
     import random
     chosen_new_public_ips = random.sample(not_found_ips, addition_public)
+
     for e in chosen_new_public_ips:
         not_found_ips.remove(e)
+
     chosen_new_proxy_ips = random.sample(not_found_ips, addition_proxy)
 
     chosen_new_public_dict = make_dict(chosen_new_public_ips)
