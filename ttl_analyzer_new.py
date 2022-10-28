@@ -295,12 +295,23 @@ all_resolver_global = set()
 all_asn_global = set()
 all_exitnode_global = set()
 
+
+all_resolver_global_free = set()
+all_asn_global_free = set()
+all_exitnode_global_free = set()
+
 def make_arr(resolver_ip_to_verdict_list, ttl):
     arr_global = []
     exitnode_set = set()
     bad_set = set()
     asn_set = set()
     for resolver_ip in resolver_ip_to_verdict_list:
+
+        all_resolver_global_free.add(resolver_ip)
+        all_asn_global_free.add(ip_to_asn[resolver_ip])
+        all_exitnode_global_free.update(set(resolver_ip_to_verdict_list[resolver_ip]["g"]))
+        all_exitnode_global_free.update(set(resolver_ip_to_verdict_list[resolver_ip]["b"]))
+
         good_len = len(resolver_ip_to_verdict_list[resolver_ip]["g"])
         bad_len = len(resolver_ip_to_verdict_list[resolver_ip]["b"])
         if good_len + bad_len < 5:
@@ -334,6 +345,11 @@ def find_table_info():
 
     print("TTL Gloabl: Total resolvers {}, Total ASNs {}, Total exitnodes: {}".format(len(all_resolver_global), len(all_asn_global), len(all_exitnode_global)) )
 
+    print("TTL Global Free: Total resolvers {}, Total ASNs {}, Total exitnodes: {}".format(len(all_resolver_global_free), len(all_asn_global_free), len(all_exitnode_global_free)) )
+
+    # all_resolver_global_free = set()
+    # all_asn_global_free = set()
+    # all_exitnode_global_free = set()
 
 def init():
     start_time = time.time()
