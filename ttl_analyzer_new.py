@@ -304,6 +304,7 @@ def make_arr(resolver_ip_to_verdict_list, ttl):
     arr_global = []
     exitnode_set = set()
     bad_set = set()
+    good_Set = set()
     asn_set = set()
     for resolver_ip in resolver_ip_to_verdict_list:
 
@@ -335,9 +336,11 @@ def make_arr(resolver_ip_to_verdict_list, ttl):
         arr_global.append((bad_len / (good_len + bad_len)))
         if arr_global[-1] >= 1:
             bad_set.add(resolver_ip)
+        if arr_global[-1] <=0:
+            good_Set.add(resolver_ip)
 
 
-    print("TTL {}: Dishonoring: {} ({} %), Total resolvers {}, Total ASNs {}, Total exitnodes: {}".format(ttl, len(bad_set), (len(bad_set)/ len(arr_global)) * 100, len(arr_global), len(asn_set), len(exitnode_set)) )
+    print("TTL {}: Dishonoring: {} ({} %), Honoring: {} ({} %), Total resolvers {}, Total ASNs {}, Total exitnodes: {}".format(ttl, len(bad_set), (len(bad_set)/ len(arr_global)) * 100, len(good_Set), (len(good_Set)/ len(arr_global)) * 100, len(arr_global), len(asn_set), len(exitnode_set)) )
 
     return arr_global
 
