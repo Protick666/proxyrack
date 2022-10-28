@@ -146,7 +146,7 @@ def table_maker():
             total_set = correct_set.union(incorrect_set)
             total = len(total_set)
 
-            if total == 0:
+            if total < 5:
                 continue
 
             ratio = len(incorrect_set) / total
@@ -208,7 +208,7 @@ def geographic_correct_incorrect_distribution_all_over():
             total_set = correct_set.union(incorrect_set)
             total = len(total_set)
 
-            if total == 0:
+            if total < 5:
                 continue
 
             ratio = len(incorrect_set) / total
@@ -291,24 +291,69 @@ def geographic_exitnode_fraction():
         json.dump(country_to_meta, fp=ouf)
 
 
+all_resolver_global = set()
+all_asn_global = set()
+all_exitnode_global = set()
+
+def make_arr(resolver_ip_to_verdict_list, ttl):
+    arr_global = []
+    exitnode_set = set()
+    bad_set = set()
+    asn_set = set()
+    for resolver_ip in resolver_ip_to_verdict_list:
+        good_len = len(resolver_ip_to_verdict_list[resolver_ip]["g"])
+        bad_len = len(resolver_ip_to_verdict_list[resolver_ip]["b"])
+        if good_len + bad_len < 5:
+            continue
+
+        all_resolver_global.add(resolver_ip)
+        all_exitnode_global.update(set(resolver_ip_to_verdict_list[resolver_ip]["g"]))
+        all_exitnode_global.update(set(resolver_ip_to_verdict_list[resolver_ip]["b"]))
+        exitnode_set.update(set(resolver_ip_to_verdict_list[resolver_ip]["g"]))
+        exitnode_set.update(set(resolver_ip_to_verdict_list[resolver_ip]["b"]))
+        all_asn_global.add(ip_to_asn[resolver_ip])
+        asn_set.add(ip_to_asn[resolver_ip])
+
+        arr_global.append((bad_len / (good_len + bad_len)))
+        if arr_global[-1] >= 1:
+            bad_set.add(resolver_ip)
+
+
+    print("TTL {}: Dishonoring: {} ({} %), Total resolvers {}, Total ASNs {}, Total exitnodes: {}".format(ttl, len(bad_set), (len(bad_set)/ len(arr_global)) * 100, len(arr_global), len(asn_set), len(exitnode_set)) )
+
+    return arr_global
+
+
+def find_table_info():
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
+    d = json.load(f)
+
+    for ttl in allowed_ttl:
+        p = d[str(ttl)]["resolver_ip_to_verdict_list_dump"]
+        make_arr(p, ttl)
+
+    print("TTL Gloabl: Total resolvers {}, Total ASNs {}, Total exitnodes: {}".format(len(all_resolver_global), len(all_asn_global), len(all_exitnode_global)) )
+
+
 def init():
     start_time = time.time()
     preprocess_resolvers()
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
+    find_table_info()
+
     geographic_exitnode_fraction()
 
-    # table_maker()
-    #
-    # analyzed_table = time.time()
-    # print("Analyze table {}".format((analyzed_table - start_time) / 60))
-    #
-    # geographic_correct_incorrect_distribution_all_over()
-    #
-    # analyzed_geographic = time.time()
-    # print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
+    table_maker()
 
+    analyzed_table = time.time()
+    print("Analyze table {}".format((analyzed_table - start_time) / 60))
+
+    geographic_correct_incorrect_distribution_all_over()
+
+    analyzed_geographic = time.time()
+    print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
 
 
 def find_one_min_dishonoring_resolvers():
@@ -333,7 +378,7 @@ def find_one_min_dishonoring_resolvers():
             total_set = correct_set.union(incorrect_set)
             total = len(total_set)
 
-            if total == 0:
+            if total < 5:
                 continue
 
             ratio = len(incorrect_set) / total
