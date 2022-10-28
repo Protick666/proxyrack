@@ -307,13 +307,20 @@ def make_arr(resolver_ip_to_verdict_list, ttl):
     asn_set = set()
     for resolver_ip in resolver_ip_to_verdict_list:
 
+
+
+        good_len = len(resolver_ip_to_verdict_list[resolver_ip]["g"])
+        bad_len = len(resolver_ip_to_verdict_list[resolver_ip]["b"])
+
+        if good_len + bad_len == 0:
+            continue
+
         all_resolver_global_free.add(resolver_ip)
         all_asn_global_free.add(ip_to_asn[resolver_ip])
         all_exitnode_global_free.update(set(resolver_ip_to_verdict_list[resolver_ip]["g"]))
         all_exitnode_global_free.update(set(resolver_ip_to_verdict_list[resolver_ip]["b"]))
 
-        good_len = len(resolver_ip_to_verdict_list[resolver_ip]["g"])
-        bad_len = len(resolver_ip_to_verdict_list[resolver_ip]["b"])
+
         if good_len + bad_len < 5:
             continue
 
