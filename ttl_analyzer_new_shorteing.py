@@ -97,6 +97,7 @@ def do_all(window):
     all_asn_local = set()
     all_exitnode_local = set()
     all_cn_local = set()
+    bad_set = set()
 
     arr = []
 
@@ -116,16 +117,16 @@ def do_all(window):
         all_exitnode_global.update(tot_exitnode_set)
         all_cn_global.add(cn)
 
-
         if tot < 5:
             continue
         arr.append(len(short_set)/tot)
+        if arr[-1] >= 1:
+            bad_set.add(resolver)
 
         all_resolver_local.add(resolver)
         all_asn_local.add(asn)
         all_exitnode_local.update(tot_exitnode_set)
         all_cn_local.add(cn)
-
 
     print("Total before: Resolvers {}, Exitnodes {}, ASNs {}, Contries {}".format(len(all_resolver_global),
                                                                                   len(all_exitnode_global),
@@ -138,10 +139,12 @@ def do_all(window):
                                                                                   len(all_cn_local)))
 
     bad = 0
+
     for e in arr:
         if e >= 1:
             bad += 1
     print("{} / {} ({} %) ".format(bad, len(arr), (bad/len(arr) * 100)))
+    return bad_set
 
 
 
@@ -151,9 +154,15 @@ def init():
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-    do_all(55)
-    do_all(49)
-    do_all(43)
+    bad_set_55 = do_all(55)
+    bad_set_49 = do_all(49)
+    bad_set_43 = do_all(43)
+
+    print("******************************************************")
+
+    print(len(bad_set_55.intersection(bad_set_49)))
+    print(len(bad_set_55.intersection(bad_set_43)))
+    print(len(bad_set_43.intersection(bad_set_49)))
 
 
 
