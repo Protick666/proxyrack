@@ -319,6 +319,7 @@ def print_meta(arr, ttl, str):
 
 
 def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
+    ttl_to_arr[ttl] = {}
     arr_global_local = []
     arr_global_public = []
 
@@ -353,8 +354,8 @@ def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
             all_local_resolvers.add(resolver_ip)
             arr_global_local.append((bad_len / (good_len + bad_len)))
 
-    ttl_to_arr[ttl]['local'] = arr_global_local
-    ttl_to_arr[ttl]['public'] = arr_global_public
+    # ttl_to_arr[ttl]['local'] = arr_global_local
+    # ttl_to_arr[ttl]['public'] = arr_global_public
 
     print_meta(arr_global_local, ttl, "local")
     print_meta(arr_global_public, ttl, "public")
