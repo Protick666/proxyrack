@@ -174,15 +174,10 @@ def init():
 
     print("******************************************************")
 
-    print(len(bad_set_55.intersection(bad_set_49)))
-    print(len(bad_set_55.intersection(bad_set_43)))
-    print(len(bad_set_43.intersection(bad_set_49)))
-
+    print(len(bad_set_55.intersection(bad_set_49).intersection(bad_set_43)))
     print("******************************************************")
+    print(len(good_set_55.intersection(bad_set_49).intersection(good_set_55)))
 
-    print(len(good_set_55.intersection(bad_set_49)))
-    print(len(good_set_55.intersection(bad_set_43)))
-    print(len(good_set_49.intersection(bad_set_43)))
 
 
 def find_one_min_dishonoring_resolvers():
