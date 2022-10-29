@@ -300,50 +300,62 @@ all_resolver_global_free = set()
 all_asn_global_free = set()
 all_exitnode_global_free = set()
 
-def make_arr(resolver_ip_to_verdict_list, ttl):
-    arr_global = []
-    exitnode_set = set()
-    bad_set = set()
-    good_Set = set()
-    asn_set = set()
+
+all_considered_resolvers = set()
+all_public_resolvers = set()
+all_local_resolvers = set()
+
+ttl_to_arr = {}
+
+def print_meta(arr, ttl, str):
+    good = 0
+    bad = 0
+    for e in arr:
+        if e <=0:
+            good += 1
+        elif e >= 1:
+            bad += 1
+    print("TTL {}: {} : Bad {}, Good: {}, Tot: {}".format(ttl, str, bad, good, len(arr)))
+
+
+def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
+    arr_global_local = []
+    arr_global_public = []
+
     for resolver_ip in resolver_ip_to_verdict_list:
-
-
+        cn_set = set()
+        asn_set = set()
 
         good_len = len(resolver_ip_to_verdict_list[resolver_ip]["g"])
         bad_len = len(resolver_ip_to_verdict_list[resolver_ip]["b"])
 
-        if good_len + bad_len == 0:
-            continue
-
-        all_resolver_global_free.add(resolver_ip)
-        all_asn_global_free.add(ip_to_asn[resolver_ip])
-        all_exitnode_global_free.update(set(resolver_ip_to_verdict_list[resolver_ip]["g"]))
-        all_exitnode_global_free.update(set(resolver_ip_to_verdict_list[resolver_ip]["b"]))
-
-
         if good_len + bad_len < 5:
             continue
 
-        all_resolver_global.add(resolver_ip)
-        all_exitnode_global.update(set(resolver_ip_to_verdict_list[resolver_ip]["g"]))
-        all_exitnode_global.update(set(resolver_ip_to_verdict_list[resolver_ip]["b"]))
-        exitnode_set.update(set(resolver_ip_to_verdict_list[resolver_ip]["g"]))
-        exitnode_set.update(set(resolver_ip_to_verdict_list[resolver_ip]["b"]))
-        all_asn_global.add(ip_to_asn[resolver_ip])
-        asn_set.add(ip_to_asn[resolver_ip])
+        all_considered_resolvers.add(resolver_ip)
 
-        arr_global.append((bad_len / (good_len + bad_len)))
-        if arr_global[-1] >= 1:
-            bad_set.add(resolver_ip)
-        if arr_global[-1] <=0:
-            good_Set.add(resolver_ip)
+        for e in resolver_ip_to_verdict_list[resolver_ip]["g"]:
+            asn = ip_hash_to_asn[e]
+            cn_set.add(asn_to_org_cn[asn][1])
+            asn_set.add(asn)
 
+        for e in resolver_ip_to_verdict_list[resolver_ip]["b"]:
+            asn = ip_hash_to_asn[e]
+            cn_set.add(asn_to_org_cn[asn][1])
+            asn_set.add(asn)
 
-    print("TTL {}: Dishonoring: {} ({} %), Honoring: {} ({} %), Total resolvers {}, Total ASNs {}, Total exitnodes: {}".format(ttl, len(bad_set), (len(bad_set)/ len(arr_global)) * 100, len(good_Set), (len(good_Set)/ len(arr_global)) * 100, len(arr_global), len(asn_set), len(exitnode_set)) )
+        if len(cn_set) > 1:
+            all_public_resolvers.add(resolver_ip)
+            arr_global_public.append((bad_len / (good_len + bad_len)))
+        elif len(asn_set) == 1:
+            all_local_resolvers.add(resolver_ip)
+            arr_global_local.append((bad_len / (good_len + bad_len)))
 
-    return arr_global
+    ttl_to_arr[ttl]['local'] = arr_global_local
+    ttl_to_arr[ttl]['public'] = arr_global_public
 
+    print_meta(arr_global_local, ttl, "local")
+    print_meta(arr_global_public, ttl, "public")
 
 def find_table_info():
     f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
@@ -361,25 +373,46 @@ def find_table_info():
     # all_asn_global_free = set()
     # all_exitnode_global_free = set()
 
+
+def find_public_local():
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
+    d = json.load(f)
+
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/ip_hash_to_asn_global.json")
+    ip_hash_to_asn = json.load(f)
+
+    for ttl in allowed_ttl:
+        p = d[str(ttl)]["resolver_ip_to_verdict_list_dump"]
+        make_arr(p, ttl, ip_hash_to_asn)
+
+    # all_considered_resolvers = set()
+    # all_public_resolvers = set()
+    # all_local_resolvers = set()
+
+    print("Tot {}, Public {}, Local {}".format(len(all_considered_resolvers), len(all_public_resolvers), len(all_local_resolvers)))
+
+
 def init():
     start_time = time.time()
     preprocess_resolvers()
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-    find_table_info()
+    find_public_local()
 
-    geographic_exitnode_fraction()
-
-    table_maker()
-
-    analyzed_table = time.time()
-    print("Analyze table {}".format((analyzed_table - start_time) / 60))
-
-    geographic_correct_incorrect_distribution_all_over()
-
-    analyzed_geographic = time.time()
-    print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
+    # find_table_info()
+    #
+    # geographic_exitnode_fraction()
+    #
+    # table_maker()
+    #
+    # analyzed_table = time.time()
+    # print("Analyze table {}".format((analyzed_table - start_time) / 60))
+    #
+    # geographic_correct_incorrect_distribution_all_over()
+    #
+    # analyzed_geographic = time.time()
+    # print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
 
 
 def find_one_min_dishonoring_resolvers():
