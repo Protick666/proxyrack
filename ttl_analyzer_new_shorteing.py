@@ -163,6 +163,15 @@ def init():
     good_set_49, bad_set_49 = do_all(49)
     good_set_43, bad_set_43 = do_all(43)
 
+    bad_set_all = bad_set_55.union(bad_set_49).union(bad_set_43)
+
+    to_dump = []
+    for r in bad_set_all:
+        to_dump.append((r, ip_to_asn[r]))
+
+    with open(parent_path + "shortening_ips_with_asns.json", "w") as ouf:
+        json.dump(to_dump, fp=ouf)
+
     print("******************************************************")
 
     print(len(bad_set_55.intersection(bad_set_49)))
@@ -174,7 +183,6 @@ def init():
     print(len(good_set_55.intersection(bad_set_49)))
     print(len(good_set_55.intersection(bad_set_43)))
     print(len(good_set_49.intersection(bad_set_43)))
-
 
 
 def find_one_min_dishonoring_resolvers():
