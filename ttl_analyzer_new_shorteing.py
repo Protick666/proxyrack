@@ -176,7 +176,7 @@ def init():
 
     print(len(bad_set_55.intersection(bad_set_49).intersection(bad_set_43)))
     print("******************************************************")
-    print(len(good_set_55.intersection(bad_set_49).intersection(good_set_55)))
+    print(len(good_set_55.intersection(good_set_49).intersection(good_set_43)))
 
 
 
