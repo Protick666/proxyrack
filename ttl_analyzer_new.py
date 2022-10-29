@@ -336,12 +336,14 @@ def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
 
         for e in resolver_ip_to_verdict_list[resolver_ip]["g"]:
             asn = ip_hash_to_asn[e]
-            cn_set.add(asn_to_org_cn[asn][1])
+            cn = get_org_cn(asn)[1]
+            cn_set.add(cn)
             asn_set.add(asn)
 
         for e in resolver_ip_to_verdict_list[resolver_ip]["b"]:
             asn = ip_hash_to_asn[e]
-            cn_set.add(asn_to_org_cn[asn][1])
+            cn = get_org_cn(asn)[1]
+            cn_set.add(cn)
             asn_set.add(asn)
 
         if len(cn_set) > 1:
