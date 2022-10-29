@@ -127,6 +127,9 @@ def preprocess_all_resolver_v2():
 
 
 def table_maker():
+
+    org_to_local_count = defaultdict(lambda : 0)
+
     for ttl in ["1"]:
         final_dict = get_verdict_list(ttl)
 
@@ -157,6 +160,10 @@ def table_maker():
                 ans[org][0] += 1
                 ans[org][1].update(total_set)
                 cn[org] = cntry
+
+                if is_local[key]:
+                    org_to_local_count[org] += 1
+
                 org_set.add(org)
 
             elif ratio <= 0:
@@ -165,6 +172,10 @@ def table_maker():
                 c_ans[org][0] += 1
                 c_ans[org][1].update(total_set)
                 cn[org] = cntry
+
+                if is_local[key]:
+                    org_to_local_count[org] += 1
+
                 org_set.add(org)
 
         ans_lst = []
@@ -180,11 +191,13 @@ def table_maker():
                 in_correct_count = ans[org][0]
                 exitnode_set = exitnode_set.union(ans[org][1])
 
-            ans_lst.append((correct_count, in_correct_count, len(exitnode_set), org, cn[org]))
+            local_count = org_to_local_count[org]
+            local_perc = (local_count/(correct_count + in_correct_count)) * 100
+
+            ans_lst.append((correct_count, in_correct_count, len(exitnode_set), org, cn[org], local_perc))
 
         with open(parent_path + "table_data.json", "w") as ouf:
             json.dump(ans_lst, fp=ouf)
-
 
 
 def geographic_correct_incorrect_distribution_all_over():
@@ -317,6 +330,7 @@ def print_meta(arr, ttl, str):
             bad += 1
     print("TTL {}: {} : Bad {}, Good: {}, Tot: {}".format(ttl, str, bad, good, len(arr)))
 
+is_local = defaultdict(lambda : False)
 
 def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
     ttl_to_arr[ttl] = {}
@@ -351,6 +365,7 @@ def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
             all_public_resolvers.add(resolver_ip)
             arr_global_public.append((bad_len / (good_len + bad_len)))
         elif len(asn_set) == 1:
+            is_local[resolver_ip] = True
             all_local_resolvers.add(resolver_ip)
             arr_global_local.append((bad_len / (good_len + bad_len)))
 
@@ -407,7 +422,7 @@ def init():
     #
     # geographic_exitnode_fraction()
     #
-    # table_maker()
+    table_maker()
     #
     # analyzed_table = time.time()
     # print("Analyze table {}".format((analyzed_table - start_time) / 60))
