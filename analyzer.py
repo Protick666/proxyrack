@@ -51,7 +51,7 @@ def get_ratio_dict():
     return data
 
 
-def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_by_direct_probing):
+def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_by_direct_probing, is_true=True):
     for file in files:
         f = open(file)
         d = json.load(f)
@@ -59,9 +59,12 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_b
         for req_id in d:
             try:
                 ttl_1 = d[req_id]["ttl_1"]
-                resolver = d[req_id]['resolver']
-                # tp = d[req_id]['tuple']
-                # resolver = tp[0]
+
+                if is_true:
+                    tp = d[req_id]['tuple']
+                    resolver = tp[0]
+                else:
+                    resolver = d[req_id]['resolver']
 
                 ttl_2 = d[req_id]["ttl_2"]
                 ip_1 = d[req_id]["ip_1"]
@@ -82,9 +85,11 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_b
                     resolver_to_is_dishonor_vote[resolver] = False
                 else:
                     # 1610/1621
-                    #if resolver not in resolver_to_is_dishonor_vote:
-                    resolver_to_is_dishonor_vote[resolver] = True
-            except:
+                    if flag == 2:
+                        reached_by_direct_probing[resolver] = True
+                    if resolver not in resolver_to_is_dishonor_vote:
+                        resolver_to_is_dishonor_vote[resolver] = True
+            except Exception as e:
                 pass
 
 
@@ -104,19 +109,21 @@ def get_resolver_to_dishonor_dict():
 def get_resolver_to_dishonor_dict_v2(str):
     ttl_list = []
 
+    # is_True = True
     # direct_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
     # proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
 
-    direct_dump_files = ["/home/protick/proxyrack/data/dishonor_direct.json"]
-    proxy_rack_dump_files = ["/home/protick/proxyrack/data/dishonor_proxy.json"]
+    is_True = False
+    direct_dump_files = ["data/honor_direct.json"]
+    proxy_rack_dump_files = ["data/honor_proxy.json"]
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
 
     reached_by_direct_probing = defaultdict(lambda: False)
 
-    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1, ttl_list, reached_by_direct_probing)
-    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2, ttl_list, reached_by_direct_probing)
+    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1, ttl_list, reached_by_direct_probing, is_true=is_True)
+    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2, ttl_list, reached_by_direct_probing, is_true=is_True)
 
     return resolver_to_is_dishonor_vote, ttl_list, reached_by_direct_probing
 
@@ -147,22 +154,24 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
 
 def entry_v2(str):
     resolver_to_dishonor_dict, ttl_list, reached_by_direct_probing_dict = get_resolver_to_dishonor_dict_v2(str)
-    if str == "honor":
-        f = open("data/honring_ips_with_asns.json")
-        d = json.load(f)
-    elif str == "dishonor":
-        f = open("data/dishonring_ips_with_asns.json")
-        d = json.load(f)
 
     dis, hon = 0, 0
     hon_public, dis_public = 0, 0
     hon_local, dis_local = 0, 0
 
+    f = open("data/1_duo.json")
+    bd = json.load(f)
+    d_honor_mini = bd['corr_set']
+    d_dishonor_mini = bd['inc_set']
+
     # p = get_chaos_files()
     from collections import defaultdict
 
-    for e in d:
-        ip = e[0]
+    t_ip_set = set()
+    d = d_honor_mini
+    a = 1
+    for e in d_honor_mini:
+        ip = e
         if ip in resolver_to_dishonor_dict:
             if resolver_to_dishonor_dict[ip] is True:
                 hon += 1
@@ -170,6 +179,7 @@ def entry_v2(str):
                     hon_public += 1
                 else:
                     hon_local += 1
+                    t_ip_set.add(ip)
             else:
                 dis += 1
                 if reached_by_direct_probing_dict[ip]:
@@ -177,8 +187,13 @@ def entry_v2(str):
                 else:
                     dis_local += 1
 
+    # with open("data/t_ip_set.json", "w") as ouf:
+    #     json.dump(list(t_ip_set), fp=ouf)
     print("{} : Total target {}, Reached {}, Dishonor {}, Honor {}".format(str, len(d), dis + hon, dis, hon))
     print("Dishonor  public {}, Honor public {}, Dishonor local {}, Honor local {}".format(dis_public, hon_public, dis_local, hon_local))
+
+
+entry_v2("honor")
 
 
 def entry_v3():

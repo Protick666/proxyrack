@@ -98,6 +98,7 @@ def do_all(window):
     all_exitnode_local = set()
     all_cn_local = set()
     bad_set = set()
+    good_set = set()
 
     arr = []
 
@@ -120,8 +121,11 @@ def do_all(window):
         if tot < 5:
             continue
         arr.append(len(short_set)/tot)
+
         if arr[-1] >= 1:
             bad_set.add(resolver)
+        if arr[-1] <= 0:
+            good_set.add(resolver)
 
         all_resolver_local.add(resolver)
         all_asn_local.add(asn)
@@ -143,8 +147,9 @@ def do_all(window):
     for e in arr:
         if e >= 1:
             bad += 1
-    print("{} / {} ({} %) ".format(bad, len(arr), (bad/len(arr) * 100)))
-    return bad_set
+    print("{} / {} ({} %)".format(bad, len(arr), (bad/len(arr) * 100)))
+
+    return good_set, bad_set
 
 
 
@@ -154,15 +159,21 @@ def init():
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-    bad_set_55 = do_all(55)
-    bad_set_49 = do_all(49)
-    bad_set_43 = do_all(43)
+    good_set_55, bad_set_55 = do_all(55)
+    good_set_49, bad_set_49 = do_all(49)
+    good_set_43, bad_set_43 = do_all(43)
 
     print("******************************************************")
 
     print(len(bad_set_55.intersection(bad_set_49)))
     print(len(bad_set_55.intersection(bad_set_43)))
     print(len(bad_set_43.intersection(bad_set_49)))
+
+    print("******************************************************")
+
+    print(len(good_set_55.intersection(bad_set_49)))
+    print(len(good_set_55.intersection(bad_set_43)))
+    print(len(good_set_49.intersection(bad_set_43)))
 
 
 

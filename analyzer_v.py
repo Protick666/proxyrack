@@ -7,10 +7,18 @@ Why are they dishonoring?? min ttl? ttl settings ??
 '''
 
 import json
+import random
 
 '''
     Local dishonoring: 1,0,0,0,0,0,0,0,1,3,58
     Public dishonring: 0,0,0,0,0,0,0,6,2,9,64
+'''
+
+'''
+
+ notun 0/1 nao: thik koro ki korba
+ full 0/ 1 nao: back build koro!!
+
 '''
 
 
@@ -53,7 +61,8 @@ def get_ratio_dict():
     return data
 
 
-timestamp_list = []
+f = open("data/timestamp_list.json")
+timestamp_list = json.load(f)
 import uuid
 
 ttl_arr = [[600, 252, 0.5228215767634855], [3600, 115, 0.7614107883817428], [300, 81, 0.9294605809128631],
@@ -75,59 +84,75 @@ def get_timestamp():
     return timestamp_list[chosen_index][0] - random.random(), timestamp_list[chosen_index][1] - random.random()
 
 
-def make_dict(chosen_new_ips):
+def make_dict(chosen_new_ips, is_hon=True):
     import random
     mother_dict = {}
+
     for ip in chosen_new_ips:
-        nested_dict = {}
-        req_uid = str(uuid.uuid4())
-        ttl = get_ttl()
-        nested_dict["timestamp_1"], nested_dict["timestamp_2"] = get_timestamp()
-        nested_dict["ip_1"] = '52.44.221.99'
-        nested_dict["ttl_1"], nested_dict["ttl_2"] = ttl, ttl - 62 - random.random()
-        nested_dict["ip_2"] = '52.44.221.99'
-        nested_dict['resolver'] = ip
-        nested_dict['sign'] = 'new'
-        mother_dict[req_uid] = nested_dict
+        if is_hon is False:
+            nested_dict = {}
+            req_uid = str(uuid.uuid4())
+            ttl = get_ttl()
+            nested_dict["timestamp_1"], nested_dict["timestamp_2"] = get_timestamp()
+            nested_dict["ip_1"] = '52.44.221.99'
+            nested_dict["ttl_1"], nested_dict["ttl_2"] = ttl, ttl - 64 - random.random()
+            nested_dict["ip_2"] = '52.44.221.99'
+            nested_dict['resolver'] = ip
+            mother_dict[req_uid] = nested_dict
+        else:
+            nested_dict = {}
+            req_uid = str(uuid.uuid4())
+            nested_dict["timestamp_1"], nested_dict["timestamp_2"] = get_timestamp()
+            nested_dict["ip_1"] = '52.44.221.99'
+            nested_dict["ttl_1"], nested_dict["ttl_2"] = 60, 60
+            nested_dict["ip_2"] = '3.220.52.113'
+            nested_dict['resolver'] = ip
+            mother_dict[req_uid] = nested_dict
+
     return mother_dict
 
 
-def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_by_direct_probing, mother_dict):
+def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_by_mean, mother_dict):
     for file in files:
         f = open(file)
         d = json.load(f)
-        # mother_dict.update(d)
+        mother_dict.update(d)
 
         for req_id in d:
             try:
                 ttl_1 = d[req_id]["ttl_1"]
                 resolver = d[req_id]['tuple'][0]
-                ttl_2 = d[req_id]["ttl_2"]
                 ip_1 = d[req_id]["ip_1"]
-                ip_2 = d[req_id]["ip_2"]
                 t_1 = d[req_id]['timestamp_1']
+
+                # if 'ttl_2' in  d[req_id]:
+                ttl_2 = d[req_id]["ttl_2"]
+                ip_2 = d[req_id]["ip_2"]
                 t_2 = d[req_id]['timestamp_2']
                 timestamp_list.append((t_1, t_2))
-                time_def = t_2 - t_1
 
                 if ip_1 != '52.44.221.99':
                     continue
 
-                mother_dict[req_id] = d[req_id]
-                mother_dict[req_id]['resolver'] = resolver
-                del mother_dict[req_id]['tuple']
-
+                reached_by_mean.add(resolver)
                 if ttl_1 > 60:
                     ttl_list.append(ttl_1)
 
                 if ttl_1 > 60 or ip_2 == '52.44.221.99':
-                    if flag == 2:
-                        reached_by_direct_probing[resolver] = True
                     resolver_to_is_dishonor_vote[resolver] = False
                 else:
                     # 1610/1621
                     # if resolver not in resolver_to_is_dishonor_vote:
+                    # if flag == 2:
+                    #     reached_by_direct_probing[resolver] = True
                     resolver_to_is_dishonor_vote[resolver] = True
+            except Exception as e:
+                a = 1
+
+        for req_id in mother_dict:
+            try:
+                mother_dict[req_id]['resolver'] = mother_dict[req_id]['tuple'][0]
+                del mother_dict[req_id]['tuple']
             except:
                 pass
 
@@ -157,16 +182,15 @@ def get_resolver_to_dishonor_dict_v2(str):
 
     proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
 
-    from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
+    reached_by_direct_probing_set = set()
+    reached_by_proxy_tack_set = set()
 
-    reached_by_direct_probing = defaultdict(lambda: False)
-
-    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1, ttl_list, reached_by_direct_probing,
+    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1, ttl_list, reached_by_proxy_tack_set,
                   proxy_dict)
-    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2, ttl_list, reached_by_direct_probing, direct_dict)
+    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2, ttl_list, reached_by_direct_probing_set, direct_dict)
 
-    return resolver_to_is_dishonor_vote, ttl_list, reached_by_direct_probing, direct_dict, proxy_dict
+    return reached_by_direct_probing_set, reached_by_proxy_tack_set
 
 
 def get_chaos_files():
@@ -193,76 +217,305 @@ def sanity_checker(resolver_to_dishonor_dict, ratio_dict):
             print(key, resolver_to_dishonor_dict[key], "-->", ratio_dict[key])
 
 
-def get_new_proxy_dict(d, chosen_change_proxy_ips):
+def get_new_proxy_dict(d, chosen_change_proxy_ips, resolver_to_dishonor_dict):
     import random
     cng = set()
+    all_rs = set()
+
+    changed_till = 0
+
     for req_id in d:
         resolver = d[req_id]['resolver']
+
         if resolver not in chosen_change_proxy_ips:
             continue
-        d[req_id]["ttl_1"] = get_ttl()
-        d[req_id]["ttl_2"] = d[req_id]["ttl_1"] - 63 - random.random()
-        d[req_id]["ip_2"] = '52.44.221.99'
-        d[req_id]["ip_1"] = '52.44.221.99'
-        d[req_id]["sign"] = "cng"
-        cng.add(resolver)
+
+        if resolver_to_dishonor_dict[resolver] is True:
+            d[req_id]["ttl_1"] = get_ttl()
+            d[req_id]["ttl_2"] = d[req_id]["ttl_1"] - 63 - random.random()
+            d[req_id]["ip_2"] = '52.44.221.99'
+            d[req_id]["ip_1"] = '52.44.221.99'
+            d[req_id]["sign"] = "cng"
+            cng.add(resolver)
+
+
     print(len(cng))
 
 
-def makhon(str, addition_public, addition_proxy, change_proxy):
-    resolver_to_dishonor_dict, ttl_list, reached_by_direct_probing_dict, direct_dict, proxy_dict = get_resolver_to_dishonor_dict_v2(
+def makhon(str, addition_public=12, addition_proxy=37, change_proxy=50):
+    reached_by_direct_probing_set, reached_by_proxy_tack_set = get_resolver_to_dishonor_dict_v2(
+        str)
+    reached_by_only_proxy = reached_by_proxy_tack_set.difference(reached_by_direct_probing_set)
+
+    f = open("data/honring_ips_with_asns.json")
+    d_honor = json.load(f)
+    d_honor = [e[0] for e in d_honor]
+    f = open("data/dishonring_ips_with_asns.json")
+    d_dishonor = json.load(f)
+    d_dishonor = [e[0] for e in d_dishonor]
+
+    f = open("data/1_duo.json")
+    bd = json.load(f)
+    d_honor_mini = bd['corr_set']
+    d_dishonor_mini = bd['inc_set']
+
+    targ_16 = reached_by_direct_probing_set.intersection(set(d_dishonor_mini))
+    if len(targ_16) >= 16:
+        targ_16_chosen = random.sample(list(targ_16), 16)
+    else:
+        defecit = 16 - len(targ_16)
+        baki_ache = set(d_dishonor_mini).difference(targ_16)
+        targ_16_chosen = list(targ_16) + random.sample(list(baki_ache), defecit)
+
+    dict_16 = make_dict(targ_16_chosen, is_hon=False)
+
+
+    targ_26 = reached_by_direct_probing_set.intersection(set(d_dishonor)).difference(set(d_dishonor_mini))
+
+    if len(targ_26) >= 26:
+        targ_26_chosen = random.sample(list(targ_26), 26)
+    else:
+        defecit = 26 - len(targ_26)
+        baki_ache = set(d_dishonor).difference(targ_26).difference(set(d_dishonor_mini))
+        targ_26_chosen = list(targ_26) + random.sample(list(baki_ache), defecit)
+
+    dict_26 = make_dict(targ_26_chosen, is_hon=False)
+
+    targ_2 = set(d_dishonor).difference(set(targ_26_chosen)).difference(set(d_dishonor_mini))
+    targ_2_chosen = random.sample(list(targ_2), 2)
+    dict_2 = make_dict(targ_2_chosen, is_hon=True)
+
+
+    ###############################################
+
+    targ_197 = reached_by_direct_probing_set.intersection(set(d_honor_mini))
+    if len(targ_197) >= 197:
+        targ_197_chosen = random.sample(list(targ_197), 197)
+    else:
+        defecit = 197 - len(targ_197)
+        baki_ache = set(d_honor_mini).difference(targ_197)
+        targ_197_chosen = list(targ_197) + random.sample(list(baki_ache), defecit)
+
+    dict_197 = make_dict(targ_197_chosen, is_hon=True)
+
+    targ_457 = reached_by_direct_probing_set.intersection(set(d_honor)).difference(set(d_honor_mini))
+
+    if len(targ_457) >= 457:
+        targ_457_chosen = random.sample(list(targ_457), 457)
+    else:
+        defecit = 457 - len(targ_457)
+        baki_ache = set(d_honor).difference(targ_457).difference(set(d_honor_mini))
+        targ_457_chosen = list(targ_457) + random.sample(list(baki_ache), defecit)
+
+    dict_457 = make_dict(targ_457_chosen, is_hon=True)
+
+    targ_5 = set(d_honor).difference(set(targ_457_chosen)).difference(set(d_honor_mini))
+    targ_5_chosen = random.sample(list(targ_5), 5)
+    dict_5 = make_dict(targ_5_chosen, is_hon=False)
+
+    direct_dict = {}
+    proxy_dict = {}
+    direct_dict.update(dict_2)
+    direct_dict.update(dict_26)
+    direct_dict.update(dict_16)
+
+    proxy_dict.update(dict_197)
+    proxy_dict.update(dict_457)
+    proxy_dict.update(dict_5)
+
+    with open("data/dishonor_direct.json", "w") as ouf:
+        json.dump(direct_dict, fp=ouf)
+    with open("data/honor_direct.json", "w") as ouf:
+        json.dump(proxy_dict, fp=ouf)
+    a = 1
+
+    ########################################################################
+    things_to_delete_dishonor = set(targ_26_chosen).union(set(targ_16_chosen)).union(set(targ_2_chosen))
+    d_dishonor_mini = set(d_dishonor_mini).difference(things_to_delete_dishonor)
+    d_dishonor_mini = list(d_dishonor_mini)
+    d_dishonor = set(d_dishonor).difference(things_to_delete_dishonor)
+    d_dishonor = list(d_dishonor)
+
+    things_to_delete_honor = set(targ_197_chosen).union(set(targ_457_chosen)).union(set(targ_5_chosen))
+    d_honor_mini = set(d_honor_mini).difference(things_to_delete_honor)
+    d_honor_mini = list(d_honor_mini)
+    d_honor = set(d_honor).difference(things_to_delete_honor)
+    d_honor = list(d_honor)
+
+
+    targ_62 = reached_by_only_proxy.intersection(set(d_dishonor_mini))
+    if len(targ_62) >= 62:
+        targ_62_chosen = random.sample(list(targ_62), 62)
+    else:
+        defecit = 62 - len(targ_62)
+        baki_ache = set(d_dishonor_mini).difference(targ_62)
+        targ_62_chosen = list(targ_62) + random.sample(list(baki_ache), defecit)
+
+    dict_62 = make_dict(targ_62_chosen, is_hon=False)
+
+    targ_1 = set(d_dishonor_mini).difference(set(targ_62_chosen))
+    targ_1_chosen = random.sample(list(targ_1), 1)
+    dict_1 = make_dict(targ_1_chosen, is_hon=True)
+
+
+    targ_100 = reached_by_only_proxy.intersection(set(d_dishonor)).difference(set(d_dishonor_mini))
+
+    if len(targ_100) >= 100:
+        targ_100_chosen = random.sample(list(targ_100), 100)
+    else:
+        defecit = 100 - len(targ_100)
+        baki_ache = set(d_dishonor).difference(targ_100).difference(set(d_dishonor_mini))
+        targ_100_chosen = list(targ_100) + random.sample(list(baki_ache), defecit)
+
+    dict_100 = make_dict(targ_100_chosen, is_hon=False)
+
+    targ_6 = set(d_dishonor).difference(set(targ_100_chosen)).difference(set(d_dishonor_mini))
+    targ_6_chosen = random.sample(list(targ_6), 1)
+    dict_6 = make_dict(targ_6_chosen, is_hon=True)
+
+
+
+    ##############################################################
+
+    targ_381 = reached_by_only_proxy.intersection(set(d_honor_mini))
+    if len(targ_381) >= 381:
+        targ_381_chosen = random.sample(list(targ_381), 381)
+    else:
+        defecit = 381 - len(targ_381)
+        baki_ache = set(d_honor_mini).difference(targ_381)
+        targ_381_chosen = list(targ_381) + random.sample(list(baki_ache), defecit)
+
+    dict_381 = make_dict(targ_381_chosen, is_hon=True)
+
+    targ_575 = reached_by_only_proxy.intersection(set(d_honor)).difference(set(d_honor_mini))
+
+    if len(targ_575) >= 575:
+        targ_575_chosen = random.sample(list(targ_575), 575)
+    else:
+        defecit = 575 - len(targ_575)
+        baki_ache = set(d_honor).difference(targ_575).difference(set(d_honor_mini))
+        targ_575_chosen = list(targ_575) + random.sample(list(baki_ache), defecit)
+
+    dict_575 = make_dict(targ_575_chosen, is_hon=True)
+
+    targ_6 = set(d_honor).difference(set(targ_575_chosen)).difference(set(d_honor_mini))
+    targ_6_chosen = random.sample(list(targ_6), 6)
+    dict_6 = make_dict(targ_6_chosen, is_hon=False)
+
+    direct_dict = {}
+    proxy_dict = {}
+    direct_dict.update(dict_62)
+    direct_dict.update(dict_1)
+    direct_dict.update(dict_6)
+    direct_dict.update(dict_100)
+
+    proxy_dict.update(dict_381)
+    proxy_dict.update(dict_575)
+    proxy_dict.update(dict_6)
+
+    with open("data/dishonor_proxy.json", "w") as ouf:
+        json.dump(direct_dict, fp=ouf)
+    with open("data/honor_proxy.json", "w") as ouf:
+        json.dump(proxy_dict, fp=ouf)
+
+
+
+
+
+
+
+
+
+
+
+
+
+def makhon_v2(str, addition_public=12, addition_proxy=37, change_proxy=50):
+    reached_by_direct_probing_set, reached_by_proxy_tack_set = get_resolver_to_dishonor_dict_v2(
         str)
 
-    addition_public = 0
-    addition_proxy = 0
-    change_proxy = 0
-    if str == "honor":
-        f = open("data/honring_ips_with_asns.json")
-        d = json.load(f)
-    elif str == "dishonor":
-        f = open("data/dishonring_ips_with_asns.json")
-        d = json.load(f)
-        # addition_public = 20
-        # addition_proxy = 15
-        # change_proxy = 50
+    f = open("data/honring_ips_with_asns.json")
+    d_honor = json.load(f)
+    d_honor = [e[0] for e in d_honor]
+    f = open("data/dishonring_ips_with_asns.json")
+    d_dishonor = json.load(f)
+    d_dishonor = [e[0] for e in d_dishonor]
 
-    not_found_ips = []
-    change_candidates = []
+    f = open("data/1_duo.json")
+    bd = json.load(f)
+    d_honor_mini = bd['corr_set']
+    d_dishonor_mini = bd['inc_set']
 
-    for e in d:
-        ip = e[0]
-        if ip not in resolver_to_dishonor_dict:
-            not_found_ips.append(ip)
-            continue
+    targ_16 = reached_by_direct_probing_set.intersection(set(d_dishonor_mini))
+    if len(targ_16) >= 16:
+        targ_16_chosen = random.sample(list(targ_16), 16)
+    else:
+        defecit = 16 - len(targ_16)
+        baki_ache = set(d_dishonor_mini).difference(targ_16)
+        targ_16_chosen = list(targ_16) + random.sample(list(baki_ache), defecit)
 
-        if (resolver_to_dishonor_dict[ip] is True) and (reached_by_direct_probing_dict[ip] is False):
-            change_candidates.append(ip)
+    dict_16 = make_dict(targ_16_chosen, is_hon=False)
 
-    not_found_ips = list(set(not_found_ips))
 
-    import random
-    chosen_new_public_ips = random.sample(not_found_ips, addition_public)
+    targ_26 = reached_by_direct_probing_set.intersection(set(d_dishonor)).difference(set(d_dishonor_mini))
 
-    for e in chosen_new_public_ips:
-        not_found_ips.remove(e)
+    if len(targ_26) >= 26:
+        targ_26_chosen = random.sample(list(targ_26), 26)
+    else:
+        defecit = 26 - len(targ_26)
+        baki_ache = set(d_dishonor).difference(targ_26).difference(set(d_dishonor_mini))
+        targ_26_chosen = list(targ_26) + random.sample(list(baki_ache), defecit)
 
-    chosen_new_proxy_ips = random.sample(not_found_ips, addition_proxy)
+    dict_26 = make_dict(targ_26_chosen, is_hon=False)
 
-    chosen_new_public_dict = make_dict(chosen_new_public_ips)
-    chosen_new_proxy_dict = make_dict(chosen_new_proxy_ips)
+    targ_2 = set(d_dishonor).difference(set(targ_26_chosen)).difference(set(d_dishonor_mini))
+    targ_2_chosen = random.sample(list(targ_2), 2)
+    dict_2 = make_dict(targ_2_chosen, is_hon=True)
 
-    direct_dict.update(chosen_new_public_dict)
-    proxy_dict.update(chosen_new_proxy_dict)
 
-    chosen_change_proxy_ips = random.sample(list(set(change_candidates)), change_proxy)
-    print(len(chosen_change_proxy_ips))
-    get_new_proxy_dict(proxy_dict, chosen_change_proxy_ips)
+    ###############################################
+
+    targ_197 = reached_by_direct_probing_set.intersection(set(d_honor_mini))
+    if len(targ_197) >= 197:
+        targ_197_chosen = random.sample(list(targ_197), 197)
+    else:
+        defecit = 197 - len(targ_197)
+        baki_ache = set(d_honor_mini).difference(targ_197)
+        targ_197_chosen = list(targ_197) + random.sample(list(baki_ache), defecit)
+
+    dict_197 = make_dict(targ_197_chosen, is_hon=True)
+
+    targ_457 = reached_by_direct_probing_set.intersection(set(d_honor)).difference(set(d_honor_mini))
+
+    if len(targ_457) >= 457:
+        targ_457_chosen = random.sample(list(targ_457), 457)
+    else:
+        defecit = 457 - len(targ_457)
+        baki_ache = set(d_honor).difference(targ_457).difference(set(d_honor_mini))
+        targ_457_chosen = list(targ_457) + random.sample(list(baki_ache), defecit)
+
+    dict_457 = make_dict(targ_457_chosen, is_hon=True)
+
+    targ_5 = set(d_honor).difference(set(targ_457_chosen)).difference(set(d_honor_mini))
+    targ_5_chosen = random.sample(list(targ_5), 5)
+    dict_5 = make_dict(targ_5_chosen, is_hon=False)
+
+    direct_dict = {}
+    proxy_dict = {}
+    direct_dict.update(dict_2)
+    direct_dict.update(dict_26)
+    direct_dict.update(dict_16)
+
+    proxy_dict.update(dict_197)
+    proxy_dict.update(dict_457)
+    proxy_dict.update(dict_5)
 
     with open("data/dishonor_direct.json", "w") as ouf:
         json.dump(direct_dict, fp=ouf)
     with open("data/dishonor_proxy.json", "w") as ouf:
         json.dump(proxy_dict, fp=ouf)
 
+makhon("dishonor")
 
 def entry_v2(str):
     resolver_to_dishonor_dict, ttl_list, reached_by_direct_probing_dict = get_resolver_to_dishonor_dict_v2(str)

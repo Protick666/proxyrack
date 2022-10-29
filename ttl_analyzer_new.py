@@ -407,7 +407,9 @@ def find_public_local():
     # all_public_resolvers = set()
     # all_local_resolvers = set()
 
-    print("Tot {}, Public {}, Local {}".format(len(all_considered_resolvers), len(all_public_resolvers), len(all_local_resolvers)))
+    print("Tot {}, Public {}, Local {}".format(len(all_considered_resolvers),
+                                               len(all_public_resolvers),
+                                               len(all_local_resolvers)))
 
 
 def init():
