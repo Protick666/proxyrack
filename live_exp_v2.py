@@ -10,7 +10,7 @@ import requests
 from aiohttp_socks import open_connection
 from local import LOCAL
 
-QUERY_URL = 'ttlexp.exp.net-measurement.net'
+QUERY_URL = 'ttlexp.me'
 username = 'tijay'
 password = 'c2d49c-5bfff2-498fe7-b1f5cd-3f3212'
 PROXY_RACK_DNS = "premium.residential.proxyrack.net:9000"
@@ -68,7 +68,7 @@ async def ip_test(tp):
         else:
             url, asn, cn, isp, req_uid, phase = tuple(tp)
 
-        domain = "{}.{}.ttlexp.exp.net-measurement.net".format(req_uid, bucket)
+        domain = "{}.{}.ttlexp.me".format(req_uid, bucket)
         d = dnslib.DNSRecord.question(domain)
         query_data = d.pack()
         dnsPacket = query_data

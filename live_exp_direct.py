@@ -10,7 +10,7 @@ global_str = "honor"
 
 from local import LOCAL
 
-QUERY_URL = 'ttlexp.exp.net-measurement.net'
+QUERY_URL = 'ttlexp.me'
 
 # TODO local file, instance, bind transfer
 ALLOWED_CHUNK = 80
@@ -21,7 +21,7 @@ phase_1_info = dict()
 
 resolver_to_server_version = {}
 
-bucket = 1
+bucket = 2
 
 
 def shift(seq, n=0):
@@ -63,7 +63,7 @@ async def ip_test(tp):
         else:
             url, asn, cn, isp, req_uid, phase = tuple(tp)
 
-        domain = "{}.{}.ttlexp.exp.net-measurement.net".format(req_uid, bucket)
+        domain = "{}.{}.ttlexp.me".format(req_uid, bucket)
 
         q = message.make_query(domain, rdatatype.A)
         a = await asyncquery.udp(q, url, timeout=2)
@@ -165,7 +165,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check_direct_short/{}/".format(global_str)
+    dump_directory = "cross_check_direct_mixed/{}/".format(global_str)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     dump_index = str(uuid.uuid4())
@@ -178,7 +178,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
 
 def zeus(ttl):
-    f = open("data/short_target_list_direct.json")
+    f = open("data/target_list_direct_mixed.json")
     import json
     solo_hop_list = json.load(f)
     import random
