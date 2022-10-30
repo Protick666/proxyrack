@@ -554,18 +554,23 @@ def analyze_mixed():
             if (good_len + bad_len > 5) and (0 < bad_len / (good_len + bad_len) < 1) :
                 bad_asn_set = set()
                 bad_ex_set = set()
+                tot_bad = len(d[resolver_ip]["b"])
+                solved_bad = set()
                 for e in d[resolver_ip]["b"]:
                     asn = ip_hash_to_asn[e]
                     bad_asn_set.add(asn)
                     bad_ex_set.add(e)
+                    if asn in solved_asns:
+                        solved_bad.add(e)
+                    if e in second_phase_solved_exitnodes:
+                        solved_bad.add(e)
 
-                if len(bad_asn_set.intersection(solved_asns)) == len(bad_asn_set):
+                if len(solved_bad) == tot_bad:
                     solved_resolvers_by_asns.add(resolver_ip)
-                if len(bad_ex_set.intersection(second_phase_solved_exitnodes)) == len(bad_ex_set):
-                    solved_resolvers_by_exitnode.add(resolver_ip)
+
 
     print("Solved resolvers {}".format(len(solved_resolvers_by_asns)))
-    print("Solved resolvers {}".format(len(solved_resolvers_by_exitnode)))
+    # print("Solved resolvers {}".format(len(solved_resolvers_by_exitnode)))
 
 
 
