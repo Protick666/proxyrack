@@ -517,7 +517,7 @@ def analyze_mixed():
         bad_ex = asn_to_bad_exitnode_set[asn]
         good_ex = asn_to_good_exitnode_set[asn].difference(bad_ex)
 
-        if len(bad_ex)/(len(bad_ex) + len(good_ex)) > .9 and (len(bad_ex) + len(good_ex)) > 1:
+        if len(bad_ex)/(len(bad_ex) + len(good_ex)) > .9:
             # koyta resolver add korlo ??
             solved_asns.add(asn)
             solved_exitnodes.update(bad_ex)
@@ -551,7 +551,7 @@ def analyze_mixed():
 
             good_len = len(d[resolver_ip]["g"])
             bad_len = len(d[resolver_ip]["b"])
-            if  (good_len + bad_len > 5) and (0 < bad_len / (good_len + bad_len) < 1) :
+            if (good_len + bad_len > 5) and (0 < bad_len / (good_len + bad_len) < 1) :
                 bad_asn_set = set()
                 bad_ex_set = set()
                 for e in d[resolver_ip]["b"]:
