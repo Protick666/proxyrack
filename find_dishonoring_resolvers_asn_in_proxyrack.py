@@ -119,7 +119,7 @@ def get_target_list_duo(data, honor_str):
 
 
 if __name__ == '__main__':
-    find_one_min_dishonoring_resolvers()
+    # find_one_min_dishonoring_resolvers()
 
     analyze_proxy_rack_info()
 
