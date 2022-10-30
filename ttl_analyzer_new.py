@@ -553,6 +553,7 @@ def init():
 
     find_public_local_v2()
     print("{} {}".format(len(all_asn.difference(bad_asn)), len(all_cn.difference(bad_cn))))
+    print("{} {}".format(len(all_asn), len(all_cn)))
 
     # find_public_local()
 
