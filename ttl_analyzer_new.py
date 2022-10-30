@@ -412,19 +412,100 @@ def find_public_local():
                                                len(all_local_resolvers)))
 
 
+def analyze_mixed():
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
+    p = json.load(f)
+
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/ip_hash_to_asn_global.json")
+    ip_hash_to_asn = json.load(f)
+
+    potential_culprit_exitnodes = set()
+    potential_culprit_asns = set()
+
+    potential_benign_exitnodes = set()
+    potential_benign_asns = set()
+
+    exitnode_to_good_resolver_set = defaultdict(lambda : set())
+    exitnode_to_bad_resolver_set = defaultdict(lambda : set())
+
+    asn_to_bad_exitnode_set = defaultdict(lambda : set())
+    asn_to_good_exitnode_set = defaultdict(lambda : set())
+
+    for ttl in ["1"]:
+        d = p[str(ttl)]["resolver_ip_to_verdict_list_dump"]
+        for resolver_ip in d:
+
+            good_len = len(d[resolver_ip]["g"])
+            bad_len = len(d[resolver_ip]["b"])
+
+            if good_len + bad_len < 5:
+                continue
+
+            if not (0 < bad_len / (good_len + bad_len) < 1):
+                continue
+
+            for e in d[resolver_ip]["g"]:
+                asn = ip_hash_to_asn[e]
+                potential_benign_exitnodes.add(e)
+                potential_benign_asns.add(asn)
+                exitnode_to_good_resolver_set[e].add(resolver_ip)
+                asn_to_good_exitnode_set[asn].add(e)
+
+            for e in d[resolver_ip]["b"]:
+                asn = ip_hash_to_asn[e]
+                potential_culprit_exitnodes.add(e)
+                potential_culprit_asns.add(asn)
+                exitnode_to_bad_resolver_set[e].add(resolver_ip)
+                asn_to_bad_exitnode_set[asn].add(e)
+
+    solved_asns = set()
+    solved_exitnodes = set()
+
+    for asn in potential_culprit_asns:
+        bad_ex = asn_to_bad_exitnode_set[asn]
+        good_ex = asn_to_good_exitnode_set[asn].difference(bad_ex)
+        solved_exitnodes.add(bad_ex)
+        solved_exitnodes.add(good_ex)
+
+        if len(bad_ex)/(len(bad_ex) + len(good_ex)) > .9:
+            # koyta resolver add korlo ??
+            solved_asns.add(asn)
+
+    second_phase_solved_exitnodes = set()
+
+    for e in potential_culprit_exitnodes:
+        asn = ip_hash_to_asn[e]
+        if asn in solved_asns:
+            continue
+        bad_re = exitnode_to_bad_resolver_set[e]
+        good_re = exitnode_to_good_resolver_set[e].difference(bad_re)
+
+        if len(bad_re)/(len(bad_re) + len(good_re)) > .9:
+            # koyta resolver add korlo ??
+            second_phase_solved_exitnodes.add(e)
+
+
+    print("Solved asns {} along with exitnodes {}. Bad exitnodes {}".format(len(solved_asns), len(solved_exitnodes), len(second_phase_solved_exitnodes)))
+
+
+
+
+
 def init():
     start_time = time.time()
     preprocess_resolvers()
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-    find_public_local()
+    analyze_mixed()
+
+    # find_public_local()
 
     # find_table_info()
     #
     # geographic_exitnode_fraction()
     #
-    table_maker()
+    # table_maker()
     #
     # analyzed_table = time.time()
     # print("Analyze table {}".format((analyzed_table - start_time) / 60))
