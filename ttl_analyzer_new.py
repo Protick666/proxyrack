@@ -332,6 +332,46 @@ def print_meta(arr, ttl, str):
 
 is_local = defaultdict(lambda : False)
 
+all_cn = set()
+bad_cn = set()
+
+all_asn = set()
+bad_asn = set()
+
+def make_arr_v2(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
+    ttl_to_arr[ttl] = {}
+    arr_global_local = []
+    arr_global_public = []
+
+    for resolver_ip in resolver_ip_to_verdict_list:
+        cn_set = set()
+        asn_set = set()
+
+        good_len = len(resolver_ip_to_verdict_list[resolver_ip]["g"])
+        bad_len = len(resolver_ip_to_verdict_list[resolver_ip]["b"])
+
+
+        for e in resolver_ip_to_verdict_list[resolver_ip]["g"]:
+            asn = ip_hash_to_asn[e]
+            cn = get_org_cn(asn)[1]
+            all_cn.add(cn)
+            all_asn.add(asn)
+
+
+        for e in resolver_ip_to_verdict_list[resolver_ip]["b"]:
+            asn = ip_hash_to_asn[e]
+            cn = get_org_cn(asn)[1]
+            all_cn.add(cn)
+            all_asn.add(asn)
+            bad_asn.add(asn)
+            bad_cn.add(cn)
+
+
+
+
+    print_meta(arr_global_local, ttl, "local")
+    print_meta(arr_global_public, ttl, "public")
+
 def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
     ttl_to_arr[ttl] = {}
     arr_global_local = []
@@ -410,6 +450,18 @@ def find_public_local():
     print("Tot {}, Public {}, Local {}".format(len(all_considered_resolvers),
                                                len(all_public_resolvers),
                                                len(all_local_resolvers)))
+
+def find_public_local_v2():
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
+    d = json.load(f)
+
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/ip_hash_to_asn_global.json")
+    ip_hash_to_asn = json.load(f)
+
+    for ttl in allowed_ttl:
+        p = d[str(ttl)]["resolver_ip_to_verdict_list_dump"]
+        make_arr_v2(p, ttl, ip_hash_to_asn)
+
 
 
 def analyze_mixed():
@@ -497,7 +549,10 @@ def init():
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-    analyze_mixed()
+    # analyze_mixed()
+
+    find_public_local_v2()
+    print("{} {}".format(len(all_asn.difference(bad_asn)), len(all_cn.difference(bad_cn))))
 
     # find_public_local()
 
