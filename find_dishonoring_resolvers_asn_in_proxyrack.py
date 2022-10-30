@@ -131,4 +131,8 @@ if __name__ == '__main__':
     data = json.load(f)
     get_target_list_duo(data, "honor")
 
+    f = open("data/mixed_ips_with_asns.json")
+    data = json.load(f)
+    get_target_list_duo(data, "mixed")
+
 
