@@ -66,7 +66,7 @@ async def ip_test(tp):
         domain = "{}.{}.ttlexp.me".format(req_uid, bucket)
 
         q = message.make_query(domain, rdatatype.A)
-        a = await asyncquery.udp(q, url, timeout=2)
+        a = await asyncquery.udp(q, url, timeout=4)
         ip = str(list(a.answer[0].items.keys())[0])
         ttl = a.answer[0].ttl
 
@@ -142,11 +142,11 @@ def carry_out_exp(hops, ttl, cool_down, chunk_size):
     change_bind_config(file_version='second', bucket_id=bucket)
     from time import sleep
     print("wait start")
-    sleep(cool_down + 5)
-    print("wait end")
-
-    global phase_1_dump
-    process_chunks(phase_1_dump, chunk_size, ttl,  phase=2)
+    # sleep(cool_down + 5)
+    # print("wait end")
+    #
+    # global phase_1_dump
+    # process_chunks(phase_1_dump, chunk_size, ttl,  phase=2)
     return done_chunks
 
 
@@ -165,7 +165,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check_direct_short_v2/{}/".format(global_str)
+    dump_directory = "cross_check_direct_short_v3/{}/".format(global_str)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     dump_index = str(uuid.uuid4())
@@ -178,7 +178,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
 
 def zeus(ttl):
-    f = open("data/short_target_list_direct.json")
+    f = open("data/target_list_mixed.json")
     import json
     solo_hop_list = json.load(f)
     import random
