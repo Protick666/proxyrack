@@ -413,6 +413,7 @@ def find_public_local():
 
 
 def analyze_mixed():
+    print("In it")
     f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
     p = json.load(f)
 
