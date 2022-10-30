@@ -469,7 +469,7 @@ def analyze_mixed():
         good_ex = asn_to_good_exitnode_set[asn].difference(bad_ex)
 
 
-        if len(bad_ex)/(len(bad_ex) + len(good_ex)) > .9:
+        if len(bad_ex)/(len(bad_ex) + len(good_ex)) > .8:
             # koyta resolver add korlo ??
             solved_asns.add(asn)
             solved_exitnodes.update(bad_ex)
@@ -484,7 +484,7 @@ def analyze_mixed():
         bad_re = exitnode_to_bad_resolver_set[e]
         good_re = exitnode_to_good_resolver_set[e].difference(bad_re)
 
-        if len(bad_re)/(len(bad_re) + len(good_re)) > .9:
+        if len(bad_re)/(len(bad_re) + len(good_re)) > .8:
             # koyta resolver add korlo ??
             second_phase_solved_exitnodes.add(e)
 
