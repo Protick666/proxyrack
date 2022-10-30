@@ -517,7 +517,7 @@ def analyze_mixed():
         bad_ex = asn_to_bad_exitnode_set[asn]
         good_ex = asn_to_good_exitnode_set[asn].difference(bad_ex)
 
-        if len(bad_ex)/(len(bad_ex) + len(good_ex)) > .9:
+        if len(bad_ex)/(len(bad_ex) + len(good_ex)) > .9 and (len(bad_ex) + len(good_ex)) > 1:
             # koyta resolver add korlo ??
             solved_asns.add(asn)
             solved_exitnodes.update(bad_ex)
@@ -527,17 +527,45 @@ def analyze_mixed():
 
     for e in potential_culprit_exitnodes:
         asn = ip_hash_to_asn[e]
+
         if asn in solved_asns:
             continue
-
         bad_re = exitnode_to_bad_resolver_set[e]
         good_re = exitnode_to_good_resolver_set[e].difference(bad_re)
 
-        if len(bad_re)/(len(bad_re) + len(good_re)) >= 1:
+        if len(bad_re)/(len(bad_re) + len(good_re)) >= .9 and (len(bad_re) + len(good_re) > 1):
             # koyta resolver add korlo ??
             second_phase_solved_exitnodes.add(e)
 
     print("Solved asns {} along with exitnodes {}. Bad exitnodes {}".format(len(solved_asns), len(solved_exitnodes), len(second_phase_solved_exitnodes)))
+
+
+    solved_resolvers_by_asns = set()
+    solved_resolvers_by_exitnode = set()
+
+
+
+    for ttl in ["1"]:
+        d = p[str(ttl)]["resolver_ip_to_verdict_list_dump"]
+        for resolver_ip in d:
+
+            good_len = len(d[resolver_ip]["g"])
+            bad_len = len(d[resolver_ip]["b"])
+
+            bad_asn_set = set()
+            bad_ex_set = set()
+            for e in d[resolver_ip]["b"]:
+                asn = ip_hash_to_asn[e]
+                bad_asn_set.add(asn)
+                bad_ex_set.add(e)
+
+            if len(bad_asn_set.intersection(solved_asns)) == len(bad_asn_set):
+                solved_resolvers_by_asns.add(resolver_ip)
+            if len(bad_ex_set.intersection(second_phase_solved_exitnodes)) == len(bad_ex_set):
+                solved_resolvers_by_exitnode.add(resolver_ip)
+
+    print("Solved resolvers {}".format(len(solved_resolvers_by_exitnode)))
+
 
 
 
@@ -549,11 +577,11 @@ def init():
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-    # analyze_mixed()
+    analyze_mixed()
 
-    find_public_local_v2()
-    print("{} {}".format(len(all_asn.difference(bad_asn)), len(all_cn.difference(bad_cn))))
-    print("{} {}".format(len(all_asn), len(all_cn)))
+    # find_public_local_v2()
+    # print("{} {}".format(len(all_asn.difference(bad_asn)), len(all_cn.difference(bad_cn))))
+    # print("{} {}".format(len(all_asn), len(all_cn)))
 
     # find_public_local()
 
