@@ -562,7 +562,7 @@ def analyze_mixed():
                     if e in second_phase_solved_exitnodes:
                         solved_bad.add(e)
 
-                if  tot_bad/len(solved_bad) > .9:
+                if  len(solved_bad)/tot_bad > .9:
                     solved_resolvers_by_asns.add(resolver_ip)
 
 
