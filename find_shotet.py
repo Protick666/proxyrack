@@ -6,7 +6,7 @@ import requests
 import dnslib
 import binascii
 from multiprocessing import Pool, Manager
-from ttl_analyzer_new import find_one_min_dishonoring_resolvers
+# from ttl_analyzer_new import find_one_min_dishonoring_resolvers
 
 available_asn_in_proxy_rack = dict()
 asn_to_info_proxy_rack = dict()
