@@ -465,12 +465,13 @@ def analyze_mixed():
     for asn in potential_culprit_asns:
         bad_ex = asn_to_bad_exitnode_set[asn]
         good_ex = asn_to_good_exitnode_set[asn].difference(bad_ex)
-        solved_exitnodes.add(bad_ex)
-        solved_exitnodes.add(good_ex)
+
 
         if len(bad_ex)/(len(bad_ex) + len(good_ex)) > .9:
             # koyta resolver add korlo ??
             solved_asns.add(asn)
+            solved_exitnodes.update(bad_ex)
+            solved_exitnodes.update(good_ex)
 
     second_phase_solved_exitnodes = set()
 
