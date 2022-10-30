@@ -442,22 +442,24 @@ def analyze_mixed():
             if good_len + bad_len < 5:
                 continue
 
-            if not (0 < bad_len / (good_len + bad_len) < 1):
-                continue
+
 
             for e in d[resolver_ip]["g"]:
                 asn = ip_hash_to_asn[e]
-                potential_benign_exitnodes.add(e)
-                potential_benign_asns.add(asn)
+                # potential_benign_exitnodes.add(e)
+                # potential_benign_asns.add(asn)
                 exitnode_to_good_resolver_set[e].add(resolver_ip)
                 asn_to_good_exitnode_set[asn].add(e)
 
             for e in d[resolver_ip]["b"]:
                 asn = ip_hash_to_asn[e]
-                potential_culprit_exitnodes.add(e)
-                potential_culprit_asns.add(asn)
+
                 exitnode_to_bad_resolver_set[e].add(resolver_ip)
                 asn_to_bad_exitnode_set[asn].add(e)
+                if (0 < bad_len / (good_len + bad_len) < 1):
+                    potential_culprit_exitnodes.add(e)
+                    potential_culprit_asns.add(asn)
+
 
     solved_asns = set()
     solved_exitnodes = set()
@@ -485,7 +487,6 @@ def analyze_mixed():
         if len(bad_re)/(len(bad_re) + len(good_re)) > .9:
             # koyta resolver add korlo ??
             second_phase_solved_exitnodes.add(e)
-
 
     print("Solved asns {} along with exitnodes {}. Bad exitnodes {}".format(len(solved_asns), len(solved_exitnodes), len(second_phase_solved_exitnodes)))
 
