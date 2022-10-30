@@ -438,6 +438,8 @@ def init():
 def find_one_min_dishonoring_resolvers():
     dishonoring_resolver_set = set()
     honoring_resolver_set = set()
+    mixed_resolver_set = set()
+    mixed_resolver_meta = []
     for ttl in ["1"]:
         final_dict = get_verdict_list(ttl)
 
@@ -466,6 +468,10 @@ def find_one_min_dishonoring_resolvers():
                 dishonoring_resolver_set.add(key)
             elif ratio <= 0:
                 honoring_resolver_set.add(key)
+            else:
+                mixed_resolver_meta.append((key, ratio))
+                mixed_resolver_set.add(key)
+
 
     pool = ThreadPool(30)
     results = pool.map(preprocess_resolver, list(dishonoring_resolver_set) + list(honoring_resolver_set))
@@ -474,15 +480,22 @@ def find_one_min_dishonoring_resolvers():
 
     to_dump = []
     to_dump_honor = []
+    to_dump_mixed = []
     for r in dishonoring_resolver_set:
         to_dump.append((r, ip_to_asn[r]))
     for r in honoring_resolver_set:
         to_dump_honor.append((r, ip_to_asn[r]))
+    for r in mixed_resolver_set:
+        to_dump_mixed.append((r, ip_to_asn[r]))
 
     with open(parent_path + "dishonring_ips_with_asns.json", "w") as ouf:
         json.dump(to_dump, fp=ouf)
     with open(parent_path + "honring_ips_with_asns.json", "w") as ouf:
         json.dump(to_dump_honor, fp=ouf)
+    with open(parent_path + "mixed_ips_with_asns.json", "w") as ouf:
+        json.dump(to_dump_mixed, fp=ouf)
+    with open(parent_path + "mixed_ips_meta.json", "w") as ouf:
+        json.dump(mixed_resolver_meta, fp=ouf)
 
 # find_one_min_dishonoring_resolvers()
 
