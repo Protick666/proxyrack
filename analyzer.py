@@ -106,6 +106,29 @@ def get_resolver_to_dishonor_dict():
     return resolver_to_is_dishonor_vote
 
 
+
+def get_resolver_to_dishonor_dict_v3(str):
+    ttl_list = []
+
+    # is_True = True
+    # direct_dump_files = get_files_from_dir("cross_check_direct_v21/{}/".format(str))
+    # proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
+
+    is_True = False
+    direct_dump_files = ["data/honor_direct.json"]
+    proxy_rack_dump_files = ["data/honor_proxy.json"]
+
+    from collections import defaultdict
+    resolver_to_is_dishonor_vote = {}
+
+    reached_by_direct_probing = defaultdict(lambda: False)
+
+    analyze_files(proxy_rack_dump_files, resolver_to_is_dishonor_vote, 1, ttl_list, reached_by_direct_probing, is_true=is_True)
+    analyze_files(direct_dump_files, resolver_to_is_dishonor_vote, 2, ttl_list, reached_by_direct_probing, is_true=is_True)
+
+    return resolver_to_is_dishonor_vote, ttl_list, reached_by_direct_probing
+
+
 def get_resolver_to_dishonor_dict_v2(str):
     ttl_list = []
 
@@ -193,7 +216,7 @@ def entry_v2(str):
     print("Dishonor  public {}, Honor public {}, Dishonor local {}, Honor local {}".format(dis_public, hon_public, dis_local, hon_local))
 
 
-entry_v2("honor")
+# entry_v2("honor")
 
 
 def entry_v3():
