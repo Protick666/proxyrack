@@ -165,7 +165,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
     from pathlib import Path
     dict_to_store = dict(phase_1_info)
-    dump_directory = "cross_check_direct_mixed/{}/".format(global_str)
+    dump_directory = "cross_check_direct_mixed_v2/{}/".format(global_str)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
 
     dump_index = str(uuid.uuid4())
@@ -178,7 +178,7 @@ def luminati_asn_ttl_crawler_req(exp_id, TTL_IN_SEC, chunk_size, index, chosen_h
 
 
 def zeus(ttl):
-    f = open("data/target_list_direct_mixed.json")
+    f = open("data/short_target_list_direct.json")
     import json
     solo_hop_list = json.load(f)
     import random
