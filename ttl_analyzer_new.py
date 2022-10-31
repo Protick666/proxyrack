@@ -299,6 +299,56 @@ def table_maker_v2():
         with open(parent_path + "table_data_local.json", "w") as ouf:
             json.dump(country_to_meta, fp=ouf, indent=2)
 
+
+def table_maker_v3():
+    org_to_local_count = defaultdict(lambda : 0)
+    resolver_to_ratio = {}
+    resolver_to_tot = {}
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/ip_hash_to_asn_global.json")
+    ip_hash_to_asn = json.load(f)
+
+    tg_used_resolver_set = set()
+
+    for ttl in ["1"]:
+
+        final_dict = get_verdict_list(ttl)
+        ans = defaultdict(lambda: [0, set()])
+        c_ans = defaultdict(lambda: [0, set()])
+        cn = {}
+        org_set = set()
+
+        for key in final_dict:
+            # if not is_local[key]:
+            #     continue
+
+            correct_set = set()
+            incorrect_set = set()
+
+            for e in final_dict[key]["b"]:
+                client_asn = ip_hash_to_asn[e]
+                org, cntry = get_org_cn(client_asn)
+                if cntry == 'TG':
+                    tg_used_resolver_set.add(key)
+                incorrect_set.add(e)
+            for e in final_dict[key]["g"]:
+                correct_set.add(e)
+
+            total_set = correct_set.union(incorrect_set)
+            total = len(total_set)
+
+            # if total < 5:
+            #     continue
+
+            ratio = len(incorrect_set) / total
+            resolver_to_ratio[key] = ratio
+            resolver_to_tot[key] = total
+
+        ans_lst = []
+
+        for r in tg_used_resolver_set:
+            print("Resolver: {}, Country: {}, ratio: {}, tot: {}".format(r, ip_to_org_cn[r], resolver_to_ratio[r], resolver_to_tot[r]))
+
+
 def geographic_correct_incorrect_distribution_all_over():
 
     inc_set = set()
