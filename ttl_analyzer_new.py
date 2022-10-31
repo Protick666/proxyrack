@@ -224,7 +224,8 @@ def table_maker_v2():
 
             if not is_local[key]:
                 continue
-            if key == "41.207.169.35":
+            # # 41.207.169.3
+            if key == "41.207.169.3":
                 print("got here")
 
             correct_set = set()
@@ -243,7 +244,7 @@ def table_maker_v2():
             ratio = len(incorrect_set) / total
             # 41.207.169.3
             if key == "41.207.169.35":
-                print("ratio {}".format(ratio))
+                print("ratio {}/ {}".format(ratio, total))
 
             if ratio >= 1:
                 asn = get_asn(key)
@@ -591,8 +592,8 @@ def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
     # ttl_to_arr[ttl]['local'] = arr_global_local
     # ttl_to_arr[ttl]['public'] = arr_global_public
 
-    print_meta(arr_global_local, ttl, "local")
-    print_meta(arr_global_public, ttl, "public")
+    # print_meta(arr_global_local, ttl, "local")
+    # print_meta(arr_global_public, ttl, "public")
 
 def find_table_info():
     f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
