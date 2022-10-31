@@ -22,6 +22,15 @@ asn_to_org_cn = {}
 ip_to_asn = {}
 
 
+f2 = open("alpha2.json")
+d2 = json.load(f2)
+alpha2_to_country = {}
+
+for e in d2:
+    c_code = e['country-code']
+    a_2_code = e['alpha-2']
+    alpha2_to_country[a_2_code] = e['name']
+
 def get_verdict_list(ttl):
     f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
     d = json.load(f)
@@ -200,6 +209,91 @@ def table_maker():
             json.dump(ans_lst, fp=ouf)
 
 
+def table_maker_v2():
+    org_to_local_count = defaultdict(lambda : 0)
+
+    for ttl in ["1"]:
+
+        final_dict = get_verdict_list(ttl)
+        ans = defaultdict(lambda: [0, set()])
+        c_ans = defaultdict(lambda: [0, set()])
+        cn = {}
+        org_set = set()
+
+        for key in final_dict:
+            if not is_local[key]:
+                continue
+
+            correct_set = set()
+            incorrect_set = set()
+            for e in final_dict[key]["b"]:
+                incorrect_set.add(e)
+            for e in final_dict[key]["g"]:
+                correct_set.add(e)
+
+            total_set = correct_set.union(incorrect_set)
+            total = len(total_set)
+
+            if total < 5:
+                continue
+
+            ratio = len(incorrect_set) / total
+
+            if ratio >= 1:
+                asn = get_asn(key)
+                org, cntry = get_org_cn(asn)
+                ans[org][0] += 1
+                ans[org][1].update(total_set)
+                cn[org] = cntry
+
+                org_set.add(org)
+
+            elif ratio <= 0:
+                asn = get_asn(key)
+                org, cntry = get_org_cn(asn)
+                c_ans[org][0] += 1
+                c_ans[org][1].update(total_set)
+                cn[org] = cntry
+
+                org_set.add(org)
+
+        ans_lst = []
+
+        country_to_meta = defaultdict(lambda : list())
+
+        for org in org_set:
+            correct_count = 0
+            in_correct_count = 0
+            exitnode_set = set()
+            incorrect_exitnode = set()
+            correct_exitnode = set()
+
+            if org in c_ans:
+                correct_count = c_ans[org][0]
+                exitnode_set = exitnode_set.union(c_ans[org][1])
+                incorrect_exitnode.update(c_ans[org][1])
+            if org in ans:
+                in_correct_count = ans[org][0]
+                exitnode_set = exitnode_set.union(ans[org][1])
+                correct_exitnode.update(ans[org][1])
+
+
+
+            meta = {
+                "organization": org,
+                "honoring_resolvers": correct_count,
+                "extending_resolvers": in_correct_count,
+                "percentage_of_extending_resolvers": (in_correct_count/(correct_count + in_correct_count)) * 100,
+                "total_exitnodes": len(exitnode_set),
+                "exitnodes_with_stale_response": len(incorrect_exitnode),
+                "percentage_of_exitnodes_with_stale_response": (len(incorrect_exitnode)/len(exitnode_set)) * 100
+            }
+            country_to_meta[alpha2_to_country[cn]].append(meta)
+            #ans_lst.append((correct_count, in_correct_count, len(exitnode_set), org, cn[org]))
+
+        with open(parent_path + "table_data_local.json", "w") as ouf:
+            json.dump(country_to_meta, fp=ouf)
+
 def geographic_correct_incorrect_distribution_all_over():
 
     inc_set = set()
@@ -366,9 +460,6 @@ def make_arr_v2(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
             bad_asn.add(asn)
             bad_cn.add(cn)
 
-
-
-
     print_meta(arr_global_local, ttl, "local")
     print_meta(arr_global_public, ttl, "public")
 
@@ -387,6 +478,8 @@ def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
         if good_len + bad_len < 5:
             continue
 
+        asn_counter = defaultdict(lambda : 0)
+
         all_considered_resolvers.add(resolver_ip)
 
         for e in resolver_ip_to_verdict_list[resolver_ip]["g"]:
@@ -394,20 +487,31 @@ def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
             cn = get_org_cn(asn)[1]
             cn_set.add(cn)
             asn_set.add(asn)
+            asn_counter[asn] += 1
 
         for e in resolver_ip_to_verdict_list[resolver_ip]["b"]:
             asn = ip_hash_to_asn[e]
             cn = get_org_cn(asn)[1]
             cn_set.add(cn)
             asn_set.add(asn)
+            asn_counter[asn] += 1
 
         if len(cn_set) > 1:
             all_public_resolvers.add(resolver_ip)
             arr_global_public.append((bad_len / (good_len + bad_len)))
-        elif len(asn_set) == 1:
-            is_local[resolver_ip] = True
-            all_local_resolvers.add(resolver_ip)
-            arr_global_local.append((bad_len / (good_len + bad_len)))
+        else:
+            asn_perc = []
+            tot_cnt = 0
+            for asn in asn_counter:
+                tot_cnt += asn_counter[asn]
+            for asn in asn_counter:
+                asn_perc.append(asn_counter[asn] / tot_cnt)
+
+            for e in asn_perc:
+                if e >= .9:
+                    is_local[resolver_ip] = True
+                    all_local_resolvers.add(resolver_ip)
+                    arr_global_local.append((bad_len / (good_len + bad_len)))
 
     # ttl_to_arr[ttl]['local'] = arr_global_local
     # ttl_to_arr[ttl]['public'] = arr_global_public
@@ -580,19 +684,19 @@ def init():
     analyzed_resolvers = time.time()
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
-    analyze_mixed()
+    # analyze_mixed()
 
     # find_public_local_v2()
     # print("{} {}".format(len(all_asn.difference(bad_asn)), len(all_cn.difference(bad_cn))))
     # print("{} {}".format(len(all_asn), len(all_cn)))
 
-    # find_public_local()
+    find_public_local()
 
     # find_table_info()
     #
     # geographic_exitnode_fraction()
     #
-    # table_maker()
+    table_maker_v2()
     #
     # analyzed_table = time.time()
     # print("Analyze table {}".format((analyzed_table - start_time) / 60))
