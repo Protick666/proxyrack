@@ -290,7 +290,10 @@ def table_maker_v2():
                 "percentage_of_exitnodes_with_stale_response": (len(incorrect_exitnode)/len(exitnode_set)) * 100
             }
             # print(alpha2_to_country[cn])
-            country_to_meta[alpha2_to_country[cnn]].append(meta)
+            cd = cnn
+            if cnn in alpha2_to_country:
+                cd = alpha2_to_country[cnn]
+            country_to_meta[cd].append(meta)
             #ans_lst.append((correct_count, in_correct_count, len(exitnode_set), org, cn[org]))
 
         with open(parent_path + "table_data_local.json", "w") as ouf:
