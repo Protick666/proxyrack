@@ -297,7 +297,7 @@ def table_maker_v2():
             #ans_lst.append((correct_count, in_correct_count, len(exitnode_set), org, cn[org]))
 
         with open(parent_path + "table_data_local.json", "w") as ouf:
-            json.dump(country_to_meta, fp=ouf)
+            json.dump(country_to_meta, fp=ouf, indent=2)
 
 def geographic_correct_incorrect_distribution_all_over():
 
