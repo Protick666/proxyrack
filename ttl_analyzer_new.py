@@ -338,8 +338,10 @@ def table_maker_v3():
 
             # if total < 5:
             #     continue
-
-            ratio = len(incorrect_set) / total
+            if total>0:
+                ratio = len(incorrect_set) / total
+            else:
+                ratio = "n/a"
             resolver_to_ratio[key] = ratio
             resolver_to_tot[key] = total
 
