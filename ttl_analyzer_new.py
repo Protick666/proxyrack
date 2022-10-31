@@ -272,11 +272,11 @@ def table_maker_v2():
             if org in c_ans:
                 correct_count = c_ans[org][0]
                 exitnode_set = exitnode_set.union(c_ans[org][1])
-                correct_exitnode.update(ans[org][1])
+                correct_exitnode.update(c_ans[org][1])
             if org in ans:
                 in_correct_count = ans[org][0]
                 exitnode_set = exitnode_set.union(ans[org][1])
-                incorrect_exitnode.update(c_ans[org][1])
+                incorrect_exitnode.update(ans[org][1])
 
 
 
