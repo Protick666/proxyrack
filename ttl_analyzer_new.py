@@ -349,10 +349,11 @@ def table_maker_v3():
 
         p = ""
         for r in tg_used_resolver_set:
-            s = "Resolver: {}, Country: {}, ratio: {}, tot: {}\n".format(r, ip_to_org_cn[r], resolver_to_ratio[r], resolver_to_tot[r])
+            s = "Resolver: {}, Country: {}, ratio: {}, tot: {}, is_local: {}\n".format(r, ip_to_org_cn[r], resolver_to_ratio[r], resolver_to_tot[r], is_local[r])
             p  = p + s
         with open(parent_path + "togo.json", "w") as ouf:
             json.dump({"p": p}, fp=ouf)
+
 
 def geographic_correct_incorrect_distribution_all_over():
 
@@ -756,7 +757,9 @@ def init():
     #
     # geographic_exitnode_fraction()
     #
+
     table_maker_v3()
+
     #
     # analyzed_table = time.time()
     # print("Analyze table {}".format((analyzed_table - start_time) / 60))
