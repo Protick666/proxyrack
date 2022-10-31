@@ -137,8 +137,14 @@ def get_resolver_to_dishonor_dict_v2(str):
     # proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
 
     is_True = False
-    direct_dump_files = ["data/honor_direct.json"]
-    proxy_rack_dump_files = ["data/honor_proxy.json"]
+    direct_dump_files = ["data/dishonor_direct.json"]
+    proxy_rack_dump_files = ["data/dishonor_proxy.json"]
+
+    f = open("data/dishonor_direct.json")
+    dishonor_dd = json.load(f)
+
+    f = open("data/dishonor_proxy.json")
+    dishonor_pxy = json.load(f)
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}
@@ -193,7 +199,7 @@ def entry_v2(str):
     t_ip_set = set()
     d = d_honor_mini
     a = 1
-    for e in d_honor_mini:
+    for e in d_dishonor_mini:
         ip = e
         if ip in resolver_to_dishonor_dict:
             if resolver_to_dishonor_dict[ip] is True:
@@ -202,6 +208,7 @@ def entry_v2(str):
                     hon_public += 1
                 else:
                     hon_local += 1
+                    print(ip)
                     t_ip_set.add(ip)
             else:
                 dis += 1
@@ -216,7 +223,7 @@ def entry_v2(str):
     print("Dishonor  public {}, Honor public {}, Dishonor local {}, Honor local {}".format(dis_public, hon_public, dis_local, hon_local))
 
 
-# entry_v2("honor")
+entry_v2("dishonor")
 
 
 def entry_v3():
