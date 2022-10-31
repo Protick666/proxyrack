@@ -309,6 +309,8 @@ def table_maker_v3():
 
     tg_used_resolver_set = set()
 
+    resolver_to_asn_counter = defaultdict(lambda : 0)
+
     for ttl in ["1"]:
 
         final_dict = get_verdict_list(ttl)
@@ -326,11 +328,14 @@ def table_maker_v3():
 
             for e in final_dict[key]["b"]:
                 client_asn = ip_hash_to_asn[e]
+                resolver_to_asn_counter[client_asn] += 1
                 org, cntry = get_org_cn(client_asn)
                 if cntry == 'TG':
                     tg_used_resolver_set.add(key)
                 incorrect_set.add(e)
             for e in final_dict[key]["g"]:
+                client_asn = ip_hash_to_asn[e]
+                resolver_to_asn_counter[client_asn] += 1
                 correct_set.add(e)
 
             total_set = correct_set.union(incorrect_set)
@@ -351,6 +356,9 @@ def table_maker_v3():
         for r in tg_used_resolver_set:
             s = "Resolver: {}, Country: {}, ratio: {}, tot: {}, is_local: {}\n".format(r, ip_to_org_cn[r], resolver_to_ratio[r], resolver_to_tot[r], is_local[r])
             p  = p + s
+
+        print("41.207.169.35", resolver_to_asn_counter['41.207.169.35'])
+        print("41.207.169.3", resolver_to_asn_counter['41.207.169.35'])
         with open(parent_path + "togo.json", "w") as ouf:
             json.dump({"p": p}, fp=ouf)
 
