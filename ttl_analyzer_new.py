@@ -357,8 +357,8 @@ def table_maker_v3():
             s = "Resolver: {}, Country: {}, ratio: {}, tot: {}, is_local: {}\n".format(r, ip_to_org_cn[r], resolver_to_ratio[r], resolver_to_tot[r], is_local[r])
             p  = p + s
 
-        print("41.207.169.35", resolver_to_asn_counter['41.207.169.35'])
-        print("41.207.169.3", resolver_to_asn_counter['41.207.169.35'])
+        print("41.207.169.35", ip_to_asn["41.207.169.35"], resolver_to_asn_counter['41.207.169.35'])
+        print("41.207.169.3", ip_to_asn["41.207.169.3"], resolver_to_asn_counter['41.207.169.35'])
         with open(parent_path + "togo.json", "w") as ouf:
             json.dump({"p": p}, fp=ouf)
 
