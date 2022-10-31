@@ -309,7 +309,7 @@ def table_maker_v3():
 
     tg_used_resolver_set = set()
 
-    resolver_to_asn_counter = defaultdict(lambda : 0)
+    resolver_to_asn_counter = defaultdict(lambda : defaultdict(lambda : 0))
 
     for ttl in ["1"]:
 
@@ -328,14 +328,14 @@ def table_maker_v3():
 
             for e in final_dict[key]["b"]:
                 client_asn = ip_hash_to_asn[e]
-                resolver_to_asn_counter[client_asn] += 1
+                resolver_to_asn_counter[key][client_asn] += 1
                 org, cntry = get_org_cn(client_asn)
                 if cntry == 'TG':
                     tg_used_resolver_set.add(key)
                 incorrect_set.add(e)
             for e in final_dict[key]["g"]:
                 client_asn = ip_hash_to_asn[e]
-                resolver_to_asn_counter[client_asn] += 1
+                resolver_to_asn_counter[key][client_asn] += 1
                 correct_set.add(e)
 
             total_set = correct_set.union(incorrect_set)
