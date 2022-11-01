@@ -225,8 +225,8 @@ def table_maker_v2():
             if not is_local[key]:
                 continue
             # # 41.207.169.3
-            if key == "41.207.169.3":
-                print("got here")
+            # if key == "41.207.169.3":
+            #     print("got here")
 
             correct_set = set()
             incorrect_set = set()
@@ -257,8 +257,8 @@ def table_maker_v2():
                 # print(org)
                 org_set.add(org)
 
-                if cn == 'BR':
-                    print(key, total)
+                # if cn == 'BR':
+                print(key, cn, total)
 
 
             elif ratio <= 0:
