@@ -13,6 +13,7 @@ def get_files_from_dir(path):
         files = [path + f for f in listdir(path) if isfile(join(path, f))]
         return files
 
+
 CDNS = ['Akamai',
         'Akadns',
         'Bitgravity',
@@ -128,6 +129,7 @@ def get_sld(domain):
         parts = domain.split(".")
         return parts[-2] + "." + parts[-1]
 
+
 from collections import defaultdict
 culprit_set = defaultdict(lambda : 0)
 culprit_set_1 = defaultdict(lambda : 0)
@@ -146,6 +148,7 @@ def analyze_just_A(e):
                         if type == 'A':
                                 return dest
         return None
+
 
 def analyze(e):
         domain, records = e
@@ -171,8 +174,6 @@ def analyze(e):
 
         event_arr = []
         cdn_ttl = -1
-
-
 
         for r in records:
                 if 'CNAME' in r:
@@ -236,7 +237,6 @@ def make_master_list():
         import json
         with open("master_list.json", "w") as ouf:
                 json.dump(master_list, fp=ouf, indent=2)
-
 
 
 def get_a():
@@ -388,6 +388,8 @@ def prep_graph_v2():
         cdn_a = []
         cdn_mid = []
 
+        aaa = []
+
         for domain in d:
                 key = domain
                 if key.startswith("www."):
@@ -401,6 +403,8 @@ def prep_graph_v2():
                                 ns_org, a_org = domain_to_ns_org_a_org[key]
                                 if is_cdn(ns_org) and is_cdn(a_org):
                                         cdn_a.append(ttl)
+                                        if ttl == 21600:
+                                                aaa.append((domain, ns_org, a_org))
                                         continue
                         no_cdn_a.append(ttl)
                 else:
@@ -419,6 +423,8 @@ def prep_graph_v2():
 
         with open("mother_ttl_dict.json", "w") as ouf:
                 json.dump(ttl_dict, fp=ouf)
+        with open("lst_to_seee.json", "w") as ouf:
+                json.dump(a, fp=ouf)
 
 
 asn_to_org = {}
@@ -466,6 +472,7 @@ def proc_e(e, domain_to_a):
                         return (key, org, ip_org)
 
         return None
+
 
 def get_ns_records():
         domain_to_a = get_a()
@@ -526,7 +533,6 @@ a = 1
 
 
 def asn_tester():
-
         a = 1
 
 
