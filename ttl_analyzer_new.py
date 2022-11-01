@@ -48,7 +48,7 @@ def get_asn(ip):
 def get_org_cn(asn):
     if asn in asn_to_org_cn:
         return asn_to_org_cn[asn]
-    org, cn = org = str(as2isp.getISP("20221212", asn)[0]), str(as2isp.getISP("20221212", asn)[1])
+    org, cn = str(as2isp.getISP("20221212", asn)[0]), str(as2isp.getISP("20221212", asn)[1])
     asn_to_org_cn[asn] = org, cn
     return org, cn
 
@@ -253,7 +253,7 @@ def table_maker_v2():
                 ans[org][0] += 1
                 ans[org][1].update(total_set)
                 cn[org] = cntry
-                print(org)
+                # print(org)
                 org_set.add(org)
 
             elif ratio <= 0:
