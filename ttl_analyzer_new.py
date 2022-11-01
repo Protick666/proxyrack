@@ -243,6 +243,7 @@ def table_maker_v2():
 
             ratio = len(incorrect_set) / total
             # 41.207.169.3
+
             if key == "41.207.169.35":
                 print("ratio {}/ {}".format(ratio, total))
 
@@ -285,8 +286,6 @@ def table_maker_v2():
                 exitnode_set = exitnode_set.union(ans[org][1])
                 incorrect_exitnode.update(ans[org][1])
 
-
-
             meta = {
                 "organization": org,
                 "honoring_resolvers": correct_count,
@@ -302,6 +301,23 @@ def table_maker_v2():
                 cd = alpha2_to_country[cnn]
             country_to_meta[cd].append(meta)
             #ans_lst.append((correct_count, in_correct_count, len(exitnode_set), org, cn[org]))
+
+        header = ['country', 'organization', 'extending_resolvers', 'total_resolvers',
+                  'percentage_of_extending_resolvers',
+                  'exitnodes_with_stale_response', 'total_exitnodes',
+                  'percentage_of_exitnodes_with_stale_response']
+
+        import csv
+        with open(parent_path + 'ttl_extension_organization_table.csv', 'w', encoding='UTF8') as f:
+            writer = csv.writer(f)
+            import csv
+            writer.writerow(header)
+            for cn in country_to_meta:
+                for e in country_to_meta[cn]:
+                    row = [cn, e['organization'], e['extending_resolvers'], e['honoring_resolvers'] + e['extending_resolvers'], e['percentage_of_extending_resolvers'],
+                           e['exitnodes_with_stale_response'], e['total_exitnodes'],
+                           e['percentage_of_exitnodes_with_stale_response']]
+                    writer.writerow(row)
 
         with open(parent_path + "table_data_local.json", "w") as ouf:
             json.dump(country_to_meta, fp=ouf, indent=2)
@@ -468,7 +484,6 @@ def geographic_exitnode_fraction():
             continue
         percentage_of_bad_exitnodes = (len(bad_set)/len(total_set)) * 100
         country_to_meta[cn] = (percentage_of_bad_exitnodes, len(bad_set), len(total_set))
-
 
     with open(parent_path + "geographic_exitnode_perc.json", "w") as ouf:
         json.dump(country_to_meta, fp=ouf)
