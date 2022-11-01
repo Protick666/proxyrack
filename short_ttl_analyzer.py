@@ -362,6 +362,7 @@ def prep_graph():
         with open("mother_ttl_dict.json", "w") as ouf:
                 json.dump(ttl_dict, fp=ouf, indent=2)
 
+
 def prep_graph_v2():
         f = open("ns_org_list.json")
         mo_tuple = json.load(f)
@@ -516,6 +517,7 @@ def get_ns_records():
 # make_master_list()
 # analyze_init()
 # a = 1
+analyze_init()
 prep_graph_v2()
 # get_ns_records()
 
