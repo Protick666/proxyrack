@@ -258,7 +258,7 @@ def table_maker_v2():
                 org_set.add(org)
 
                 if cntry == 'BR':
-                    print(key, cn, total)
+                    print(key, cntry, total)
 
             elif ratio <= 0:
                 asn = get_asn(key)
