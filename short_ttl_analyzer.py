@@ -425,7 +425,7 @@ def prep_graph_v2():
         with open("mother_ttl_dict.json", "w") as ouf:
                 json.dump(ttl_dict, fp=ouf)
         with open("lst_to_seee.json", "w") as ouf:
-                json.dump(a, fp=ouf)
+                json.dump(aaa, fp=ouf)
 
 
 asn_to_org = {}
