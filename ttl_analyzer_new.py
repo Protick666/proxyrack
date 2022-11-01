@@ -253,7 +253,7 @@ def table_maker_v2():
                 ans[org][0] += 1
                 ans[org][1].update(total_set)
                 cn[org] = cntry
-
+                print(org)
                 org_set.add(org)
 
             elif ratio <= 0:
