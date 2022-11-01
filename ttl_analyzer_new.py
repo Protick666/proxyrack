@@ -242,6 +242,7 @@ def table_maker_v2():
                 continue
 
             ratio = len(incorrect_set) / total
+
             # 41.207.169.3
 
             if key == "41.207.169.35":
@@ -255,6 +256,10 @@ def table_maker_v2():
                 cn[org] = cntry
                 # print(org)
                 org_set.add(org)
+
+                if cn == 'BR':
+                    print(key, total)
+
 
             elif ratio <= 0:
                 asn = get_asn(key)
