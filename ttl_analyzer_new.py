@@ -646,9 +646,9 @@ def find_public_local():
     # all_public_resolvers = set()
     # all_local_resolvers = set()
 
-    # print("Tot {}, Public {}, Local {}".format(len(all_considered_resolvers),
-    #                                            len(all_public_resolvers),
-    #                                            len(all_local_resolvers)))
+    print("Tot {}, Public {}, Local {}".format(len(all_considered_resolvers),
+                                               len(all_public_resolvers),
+                                               len(all_local_resolvers)))
 
 def find_public_local_v2():
     f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
@@ -769,10 +769,6 @@ def analyze_mixed():
     # print("Solved resolvers {}".format(len(solved_resolvers_by_exitnode)))
 
 
-
-
-
-
 def init():
     start_time = time.time()
     preprocess_resolvers()
@@ -792,7 +788,7 @@ def init():
     # geographic_exitnode_fraction()
     #
 
-    table_maker_v2()
+    # table_maker_v2()
 
     #
     # analyzed_table = time.time()
