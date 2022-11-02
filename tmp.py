@@ -6,6 +6,7 @@ target_domains = set()
 res = {}
 
 CDNs = ['Akamai',
+        "Akam",
         'Akadns',
         'Bitgravity',
         'Cachefly',
@@ -27,8 +28,8 @@ CDNs = ['Akamai',
         'Telefónica',
         'XCDN',
         'CloudFlare',
+        "Cloudfront",
         'Jetpack',
-        'Rackspace',
         'CloudLayer',
         'CloudCache',
         'TinyCDN',
@@ -47,20 +48,31 @@ CDNs = ['Akamai',
         'WebMobi',
         'CDNvideo',
         'zerocdn',
-        "cdn",
         "alibaba",
         "netlify",
-        "wixdns"
-        ]
-
-CDN_HINTS = ["Akam", "tiny", 'CDN', 'Cloudfront']
-
-multicdns = [
-    "cedexis",
+        "wixdns",
+        "tiny",
+        'Rackspace',
+        "cedexis",
     "Mlytics",
     "metacdn",
     "atanar",
-]
+        "CDN",
+        "cdn",
+        ]
+
+
+# multicdns = [
+#     "cedexis",
+#     "Mlytics",
+#     "metacdn",
+#     "atanar",
+# ]
+
+from collections import defaultdict
+
+cdn_to_domains = defaultdict(lambda : set())
+cdn_to_ttls = defaultdict(lambda : list())
 
 
 
@@ -81,9 +93,11 @@ def proc_f(f):
                     domain['query_type'] == "A" and \
                     domain['response_type'] == "CNAME":
 
-                for cdn in CDNs + CDN_HINTS + multicdns:
+                for cdn in CDNs:
                     if cdn.lower() in domain['cname_name']:
+                        cdn_to_domains[cdn].add(domain['query_name'])
                         target_domains.add(domain['query_name'])
+                        break
 
             if domain['query_type'] == "A" and \
                     domain['response_type'] == "A":
@@ -93,6 +107,23 @@ def proc_f(f):
 
 
 from multiprocessing.dummy import Pool as ThreadPool
+
+
+def get_tuple(ttl_list):
+
+    counter = defaultdict(lambda : 0)
+    total = len(ttl_list)
+    arr = []
+
+    for ttl in ttl_list:
+        counter[ttl] += 1
+
+    for ttl in counter:
+        arr.append((ttl, counter[ttl], (counter[ttl] * 100)/total))
+
+    arr.sort(key=lambda x: -x[1])
+    return arr
+
 
 if __name__ == "__main__":
     files = os.listdir('/tmp/')
@@ -109,6 +140,54 @@ if __name__ == "__main__":
     pool.close()
     pool.join()
 
+    for cdn in cdn_to_domains:
+        for domain in cdn_to_domains[cdn]:
+            try:
+                cdn_to_ttls[cdn].append(res[domain])
+            except:
+                pass
 
-    json_dump(target_domains, 'target_v2.json')
-    json_dump(res, 'result_v2.json')
+    cdn_to_sorted_tuples = defaultdict(lambda: list())
+    cdn_to_max_tuple = {}
+
+    for cdn in cdn_to_ttls:
+        tuple_list = get_tuple(cdn_to_ttls[cdn])
+        cdn_to_sorted_tuples[cdn] = tuple_list
+        cdn_to_max_tuple[cdn] = tuple_list[0]
+
+
+    # json_dump(target_domains, 'target_v2.json')
+    # json_dump(res, 'result_v2.json')
+
+    json_dump(cdn_to_ttls, 'cdn_to_ttls.json')
+    json_dump(cdn_to_sorted_tuples, 'cdn_to_sorted_tuples.json')
+    json_dump(cdn_to_max_tuple, 'cdn_to_max_tuple.json')
+
+
+if __name__ == "zx__main__":
+
+    f = open("target_v2.json")
+    target_domains = json.load(f)
+    lst = target_domains.split(",")
+    t_domains = set()
+    for e in lst:
+        domain = e[2:-1]
+        t_domains.add(domain)
+
+
+    f = open("result_v2.json")
+    result = json.load(f)
+
+    other_domains = list()
+    cdn_domains = list()
+
+    for key in result:
+        if key in t_domains:
+            cdn_domains.append(result[key])
+        else:
+            other_domains.append(result[key])
+
+    with open("cdn_meta.json", "w") as ouf:
+        json.dump({"cdn": cdn_domains, "non_cdn": other_domains}, fp=ouf)
+
+
