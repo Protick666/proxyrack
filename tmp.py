@@ -113,6 +113,8 @@ def get_tuple(ttl_list):
 
     counter = defaultdict(lambda : 0)
     total = len(ttl_list)
+    if total == 0:
+        return [(0, 0, 0)]
     arr = []
 
     for ttl in ttl_list:
@@ -126,6 +128,7 @@ def get_tuple(ttl_list):
 
 
 if __name__ == "__main__":
+    global res
     files = os.listdir('/tmp/')
 
     files_list = []
@@ -151,9 +154,12 @@ if __name__ == "__main__":
     cdn_to_max_tuple = {}
 
     for cdn in cdn_to_ttls:
-        tuple_list = get_tuple(cdn_to_ttls[cdn])
-        cdn_to_sorted_tuples[cdn] = tuple_list
-        cdn_to_max_tuple[cdn] = tuple_list[0]
+        try:
+            tuple_list = get_tuple(cdn_to_ttls[cdn])
+            cdn_to_sorted_tuples[cdn] = tuple_list
+            cdn_to_max_tuple[cdn] = tuple_list[0]
+        except:
+            pass
 
 
     # json_dump(target_domains, 'target_v2.json')
