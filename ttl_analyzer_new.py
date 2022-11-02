@@ -110,12 +110,8 @@ def preprocess_all_resolvers():
 def preprocess_all_resolver_v2():
     f = open("/home/ashiq/PulseMaster/Outer_updates/dnssec_result/new_ttl_dnssec_summary_support_validate.json")
     d = json.load(f)
-    ans = set()
-    for r in d:
-        element_list = d[r]
-        for n in element_list:
-            ans.update(n['phase1_resolver_ips'])
-            ans.update(n['phase2_resolver_ips'])
+    ans = list()
+    ans = list(d.keys())
 
     resolver_list = list(ans)
 
