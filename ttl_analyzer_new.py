@@ -563,7 +563,13 @@ dnssec_invalidating_resolvers = ['177.185.212.235', '138.117.48.248', '212.19.3.
 
 overlapping_resolvers = set()
 
+one_count = 0
+zero_count = 0
+
 def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
+    global one_count
+    global zero_count
+
     ttl_to_arr[ttl] = {}
     arr_global_local = []
     arr_global_public = []
@@ -579,6 +585,12 @@ def make_arr(resolver_ip_to_verdict_list, ttl, ip_hash_to_asn):
             continue
 
         rat = (bad_len / (good_len + bad_len))
+        # "1"
+        if ttl == "1":
+            if rat >= 1:
+                one_count += 1
+            elif rat <= 0:
+                zero_count += 1
 
         if rat >= 1:
             if resolver_ip in dnssec_invalidating_resolvers:
@@ -663,6 +675,8 @@ def find_public_local():
                                                len(all_local_resolvers)))
 
     print("Overlapping {}".format(len(overlapping_resolvers)))
+
+    print("One: {}, Zero: {}".format(one_count, zero_count))
 
 def find_public_local_v2():
     f = open("/home/protick/ocsp_dns_tools/ttl_new_results/mother_info.json")
@@ -790,7 +804,6 @@ def init():
     print("Analyze analyzed_resolvers {}".format((analyzed_resolvers - start_time) / 60))
 
     # analyze_mixed()
-
     # find_public_local_v2()
     # print("{} {}".format(len(all_asn.difference(bad_asn)), len(all_cn.difference(bad_cn))))
     # print("{} {}".format(len(all_asn), len(all_cn)))
@@ -798,18 +811,11 @@ def init():
     find_public_local()
 
     # find_table_info()
-    #
     # geographic_exitnode_fraction()
-    #
-
     # table_maker_v2()
-
-    #
     # analyzed_table = time.time()
     # print("Analyze table {}".format((analyzed_table - start_time) / 60))
-    #
     # geographic_correct_incorrect_distribution_all_over()
-    #
     # analyzed_geographic = time.time()
     # print("Analyze geo {}".format((analyzed_geographic - start_time) / 60))
 
