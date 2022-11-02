@@ -7,6 +7,7 @@ from asn_org_tools.org_finder import AS2ISP
 asndb = pyasn.pyasn('asn_org_tools/data/ipsan_db.dat')
 as2isp = AS2ISP()
 
+
 def get_files_from_dir(path):
         from os import listdir
         from os.path import isfile, join
@@ -37,7 +38,7 @@ CDNS = ['Akamai',
         'XCDN',
         'CloudFlare',
         'Jetpack',
-        'Rackspac',
+        'Rackspace',
         'CloudLayer',
         'CloudCache',
         'TinyCDN',
@@ -292,7 +293,7 @@ def analyze_init():
                 #                                         is_p = True
                 #                                 print(temp)
                 #                                 viss[temp] = 1
-        a = 1
+
         arr =[]
         for key in trans:
                 arr.append((trans[key], key))
@@ -363,7 +364,13 @@ def prep_graph():
                 json.dump(ttl_dict, fp=ouf, indent=2)
 
 
+c_name_domain_set = set()
+c_name_count = 0
+ns_count = 0
+
 def prep_graph_v2():
+        global c_name_count
+        global ns_count
         f = open("ns_org_list.json")
         mo_tuple = json.load(f)
 
@@ -404,11 +411,14 @@ def prep_graph_v2():
                                 ns_org, a_org = domain_to_ns_org_a_org[key]
                                 if is_cdn(ns_org) and is_cdn(a_org):
                                         cdn_a.append(ttl)
+                                        ns_count += 1
                                         if ttl == 21600:
                                                 aaa.append((domain, ns_org, a_org))
                                         continue
                         no_cdn_a.append(ttl)
                 else:
+                        c_name_count += 1
+                        c_name_domain_set.add(domain)
                         ttl = find_ttl(events, 'end')
                         cdn_a.append(ttl)
 
@@ -424,8 +434,15 @@ def prep_graph_v2():
 
         with open("mother_ttl_dict.json", "w") as ouf:
                 json.dump(ttl_dict, fp=ouf)
+
         with open("lst_to_seee.json", "w") as ouf:
                 json.dump(aaa, fp=ouf)
+
+        with open("cname_domain_list.json", "w") as ouf:
+                json.dump(list(c_name_domain_set), fp=ouf)
+
+        print("Cname: ", c_name_count, "NS: ", ns_count, "total: ", ns_count + c_name_count)
+
 
 
 asn_to_org = {}
