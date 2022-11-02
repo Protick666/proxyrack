@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     print("Total files {}".format(len(files_list)))
 
-    pool = ThreadPool(30)
+    pool = ThreadPool(10)
     results = pool.map(proc_f, files_list)
     pool.close()
     pool.join()
