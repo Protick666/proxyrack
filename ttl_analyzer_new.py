@@ -108,7 +108,7 @@ def preprocess_all_resolvers():
 
 
 def preprocess_all_resolver_v2():
-    f = open("/home/ashiq/PulseMaster/Outer_updates/temp/new_ttl_dnssec_expt_result.json")
+    f = open("/home/ashiq/PulseMaster/Outer_updates/dnssec_result/new_ttl_dnssec_summary_support_validate.json")
     d = json.load(f)
     ans = set()
     for r in d:
