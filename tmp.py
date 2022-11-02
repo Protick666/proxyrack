@@ -127,47 +127,47 @@ def get_tuple(ttl_list):
     return arr
 
 
-if __name__ == "__main__":
-    global res
-    files = os.listdir('/tmp/')
+# if __name__ == "__main__":
+# global res
+files = os.listdir('/tmp/')
 
-    files_list = []
-    for f in files:
-        if f.endswith('.avro'):
-            files_list.append(f)
+files_list = []
+for f in files:
+    if f.endswith('.avro'):
+        files_list.append(f)
 
-    print("Total files {}".format(len(files_list)))
+print("Total files {}".format(len(files_list)))
 
-    pool = ThreadPool(10)
-    results = pool.map(proc_f, files_list)
-    pool.close()
-    pool.join()
+pool = ThreadPool(10)
+results = pool.map(proc_f, files_list)
+pool.close()
+pool.join()
 
-    for cdn in cdn_to_domains:
-        for domain in cdn_to_domains[cdn]:
-            try:
-                cdn_to_ttls[cdn].append(res[domain])
-            except:
-                pass
-
-    cdn_to_sorted_tuples = defaultdict(lambda: list())
-    cdn_to_max_tuple = {}
-
-    for cdn in cdn_to_ttls:
+for cdn in cdn_to_domains:
+    for domain in cdn_to_domains[cdn]:
         try:
-            tuple_list = get_tuple(cdn_to_ttls[cdn])
-            cdn_to_sorted_tuples[cdn] = tuple_list
-            cdn_to_max_tuple[cdn] = tuple_list[0]
+            cdn_to_ttls[cdn].append(res[domain])
         except:
             pass
 
+cdn_to_sorted_tuples = defaultdict(lambda: list())
+cdn_to_max_tuple = {}
 
-    # json_dump(target_domains, 'target_v2.json')
-    # json_dump(res, 'result_v2.json')
+for cdn in cdn_to_ttls:
+    try:
+        tuple_list = get_tuple(cdn_to_ttls[cdn])
+        cdn_to_sorted_tuples[cdn] = tuple_list
+        cdn_to_max_tuple[cdn] = tuple_list[0]
+    except:
+        pass
 
-    json_dump(cdn_to_ttls, 'cdn_to_ttls.json')
-    json_dump(cdn_to_sorted_tuples, 'cdn_to_sorted_tuples.json')
-    json_dump(cdn_to_max_tuple, 'cdn_to_max_tuple.json')
+
+# json_dump(target_domains, 'target_v2.json')
+# json_dump(res, 'result_v2.json')
+
+json_dump(cdn_to_ttls, 'cdn_to_ttls.json')
+json_dump(cdn_to_sorted_tuples, 'cdn_to_sorted_tuples.json')
+json_dump(cdn_to_max_tuple, 'cdn_to_max_tuple.json')
 
 
 if __name__ == "zx__main__":
