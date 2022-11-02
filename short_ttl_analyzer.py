@@ -368,6 +368,10 @@ c_name_domain_set = set()
 c_name_count = 0
 ns_count = 0
 
+
+only_cname_ttl = []
+all_other_ttl = []
+
 def prep_graph_v2():
         global c_name_count
         global ns_count
@@ -405,7 +409,9 @@ def prep_graph_v2():
 
                 is_cdn_involved, events = d[domain]['cdn'],  d[domain]['events']
                 if not is_cdn_involved:
+
                         ttl = find_ttl(events, 'end')
+                        all_other_ttl.append(ttl)
 
                         if key in domain_to_ns_org_a_org:
                                 ns_org, a_org = domain_to_ns_org_a_org[key]
@@ -417,9 +423,11 @@ def prep_graph_v2():
                                         continue
                         no_cdn_a.append(ttl)
                 else:
+
                         c_name_count += 1
                         c_name_domain_set.add(domain)
                         ttl = find_ttl(events, 'end')
+                        only_cname_ttl.append(ttl)
                         cdn_a.append(ttl)
 
                         # ttl = find_ttl(events, 'mid')
@@ -432,8 +440,16 @@ def prep_graph_v2():
         # 21600, 3600
         a = 1
 
+        new_stuff = {
+                "cname_ttl": only_cname_ttl,
+                "other_ttl": all_other_ttl
+        }
+
         with open("mother_ttl_dict.json", "w") as ouf:
                 json.dump(ttl_dict, fp=ouf)
+
+        with open("mother_ttl_dict_reload.json", "w") as ouf:
+                json.dump(new_stuff, fp=ouf)
 
         with open("lst_to_seee.json", "w") as ouf:
                 json.dump(aaa, fp=ouf)
