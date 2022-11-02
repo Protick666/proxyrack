@@ -84,6 +84,7 @@ def is_cdn(domain):
                         return True
         return False
 
+# ["www.tsc4.com", ["www.tsc4.com. 21600 IN A 35.233.102.46"]]
 
 def get_master_list():
         import json
@@ -550,6 +551,7 @@ def get_ns_records():
 # make_master_list()
 # analyze_init()
 # a = 1
+make_master_list()
 analyze_init()
 prep_graph_v2()
 # get_ns_records()
