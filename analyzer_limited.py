@@ -316,7 +316,7 @@ for p in final_list:
         e = final_list[p].__dict__
         # if 'ocsp_1' not in e and 'ocsp_2' not in e:
         #     continue
-        print(list(e.keys()))
+        #print(list(e.keys()))
 
         if e['resumed']:
             continue
