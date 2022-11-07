@@ -338,6 +338,7 @@ for p in final_list:
         # if e['ocsp_dns_1'] is not None:
         #     a = 1
         #draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
+        print("mominxxx")
         a = 1
     except Exception as e:
         print(e)
