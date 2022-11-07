@@ -316,6 +316,8 @@ for p in final_list:
         e = final_list[p].__dict__
         # if 'ocsp_1' not in e and 'ocsp_2' not in e:
         #     continue
+        print(list(e.keys()))
+
         if e['resumed']:
             continue
         index += 1
@@ -329,7 +331,6 @@ for p in final_list:
         arr.append(e['established_time'])
         arr.append(e['encrypted_data_time_app'])
 
-
         # if e['version'] == 'TLSv13':
         #     continue
         # if e['ocsp_1'] > e['encrypted_data_time_app']:
@@ -339,7 +340,7 @@ for p in final_list:
         draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
         a = 1
     except Exception as e:
-        print(e)
+        #print(e)
         pass
 
 
