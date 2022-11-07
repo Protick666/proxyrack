@@ -175,7 +175,7 @@ def get_final_list():
     for line in open('{}ssl.log'.format(base_path), 'r'):
         ssl_log.append(json.loads(line))
 
-    print(len(ssl_log_custom), print(ssl_log))
+    print(len(ssl_log_custom), len(ssl_log))
 
     # These lines are dns stuff
     # dns_log = []
