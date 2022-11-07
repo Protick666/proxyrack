@@ -201,6 +201,7 @@ def get_final_list():
                         continue
                     uid_to_info[uid].__setattr__(key, e[key])
         except Exception as e:
+            print(e)
             pass
 
     # These lines are dns stuff
