@@ -311,6 +311,8 @@ index = 0
 
 print(len(final_list))
 
+done_correct = 0
+
 for p in final_list:
     try:
         e = final_list[p].__dict__
@@ -338,11 +340,13 @@ for p in final_list:
         # if e['ocsp_dns_1'] is not None:
         #     a = 1
         #draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
-        print("mominxxx")
+        done_correct += 1
         a = 1
     except Exception as e:
-        print(e)
+        #print(e)
         pass
+
+print("Correct {}".format(done_correct))
 
 
 
