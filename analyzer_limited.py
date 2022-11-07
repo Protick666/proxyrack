@@ -24,7 +24,6 @@ def analyze_custom_logs():
 
     logs.sort(key=lambda x: (x[0], x[1], x[2]))
 
-
     serial_num_to_tuples = defaultdict(lambda: list())
     uid_to_serial = {}
     uid_to_req_time = {}
@@ -305,7 +304,7 @@ version_set = set()
 
 index = 0
 
-print("len_final_list")
+print(len(final_list))
 
 for p in final_list:
     try:
