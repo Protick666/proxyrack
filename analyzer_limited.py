@@ -218,13 +218,14 @@ def get_final_list():
     #     if ans_tuple is not None:
     #         uid_to_info[uid].__setattr__('dns_start', ans_tuple[0])
     #         uid_to_info[uid].__setattr__('dns_end', ans_tuple[1])
+    # final_list = defaultdict(lambda: Meta())
+    # for uid in uid_to_info:
+    #     if hasattr(uid_to_info[uid], 'dns_start'):
+    #         final_list[uid] = uid_to_info[uid]
+    #
+    # return final_list
 
-    final_list = defaultdict(lambda: Meta())
-    for uid in uid_to_info:
-        if hasattr(uid_to_info[uid], 'dns_start'):
-            final_list[uid] = uid_to_info[uid]
-
-    return final_list
+    return uid_to_info
 
 
 def get_appropriate_tuple(serial, serial_num_to_tuples, server_hello, server_name):
