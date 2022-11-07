@@ -338,7 +338,8 @@ for p in final_list:
         #     a = 1
         draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
         a = 1
-    except:
+    except Exception as e:
+        print(e)
         pass
 
 
