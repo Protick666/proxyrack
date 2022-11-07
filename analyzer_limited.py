@@ -342,8 +342,9 @@ for p in final_list:
         #draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
         done_correct += 1
         a = 1
-    except Exception as e:
-        #print(e)
+    except Exception as er:
+        print(er)
+        print(e)
         pass
 
 print("Correct {}".format(done_correct))
