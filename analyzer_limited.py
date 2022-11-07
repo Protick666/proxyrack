@@ -191,6 +191,7 @@ def get_final_list():
                 meta.__setattr__(key, e[key])
             uid_to_info[meta.uid] = meta
         except Exception as e:
+            print(e)
             pass
 
     for e in ssl_log:
