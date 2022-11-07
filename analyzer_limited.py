@@ -337,10 +337,10 @@ for p in final_list:
         #     continue
         # if e['ocsp_dns_1'] is not None:
         #     a = 1
-        draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
+        #draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
         a = 1
     except Exception as e:
-        #print(e)
+        print(e)
         pass
 
 
