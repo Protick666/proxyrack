@@ -312,7 +312,7 @@ index = 0
 print(len(final_list))
 
 done_correct = 0
-
+done_incorrect = 0
 for p in final_list:
     try:
         e = final_list[p].__dict__
@@ -343,11 +343,12 @@ for p in final_list:
         done_correct += 1
         a = 1
     except Exception as er:
-        print(er)
-        print(e)
+        done_incorrect += 1
+        #print(er)
+        #print(e)
         pass
 
-print("Correct {}".format(done_correct))
+print("Correct {}, Incorrect {}".format(done_correct, done_incorrect))
 
 
 
