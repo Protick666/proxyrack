@@ -346,7 +346,7 @@ for p in final_list:
         done_correct += 1
         a = 1
     except Exception as er:
-        incorrect_counter[er] += 1
+        incorrect_counter[str(er)] += 1
         done_incorrect += 1
         #print(er)
         #print(e)
