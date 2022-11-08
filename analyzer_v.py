@@ -327,7 +327,7 @@ def makhon(str, addition_public=12, addition_proxy=37, change_proxy=50):
         json.dump(direct_dict, fp=ouf)
     with open("data/honor_direct.json", "w") as ouf:
         json.dump(proxy_dict, fp=ouf)
-    a = 1
+
 
     ########################################################################
     things_to_delete_dishonor = set(targ_26_chosen).union(set(targ_16_chosen)).union(set(targ_2_chosen))
@@ -420,16 +420,6 @@ def makhon(str, addition_public=12, addition_proxy=37, change_proxy=50):
 
 
 
-
-
-
-
-
-
-
-
-
-
 def makhon_v2(str, addition_public=12, addition_proxy=37, change_proxy=50):
     reached_by_direct_probing_set, reached_by_proxy_tack_set = get_resolver_to_dishonor_dict_v2(
         str)
@@ -515,7 +505,7 @@ def makhon_v2(str, addition_public=12, addition_proxy=37, change_proxy=50):
     with open("data/dishonor_proxy.json", "w") as ouf:
         json.dump(proxy_dict, fp=ouf)
 
-makhon("dishonor")
+# makhon("dishonor")
 
 def entry_v2(str):
     resolver_to_dishonor_dict, ttl_list, reached_by_direct_probing_dict = get_resolver_to_dishonor_dict_v2(str)
