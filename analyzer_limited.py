@@ -313,6 +313,9 @@ print(len(final_list))
 
 done_correct = 0
 done_incorrect = 0
+
+incorrect_counter = defaultdict(lambda : 0)
+
 for p in final_list:
     try:
         e = final_list[p].__dict__
@@ -343,12 +346,13 @@ for p in final_list:
         done_correct += 1
         a = 1
     except Exception as er:
+        incorrect_counter[er] += 1
         done_incorrect += 1
         #print(er)
         #print(e)
         pass
 
 print("Correct {}, Incorrect {}".format(done_correct, done_incorrect))
-
+print(incorrect_counter)
 
 
