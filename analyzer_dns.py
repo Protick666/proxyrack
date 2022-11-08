@@ -91,7 +91,7 @@ def matchdns():
     t1 = time.time()
     print("Init")
     dns = pd.read_csv('/home/weitong/ocsp/dns.csv')
-    ips = set(dns['id_orig_h'].tolist())
+    ips = list(dns['id_orig_h'].tolist())
     print("Done {}".format((time.time() - t1)/60))
 
     pool = ThreadPool(30)
