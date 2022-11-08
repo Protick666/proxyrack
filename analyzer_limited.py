@@ -87,34 +87,39 @@ def draw_line(arr, xlabel, ylabel, title, iter, ocsp1, ocsp2, ocsp_dns_1, ocsp_d
 
 
 def draw_line_only_ssl(arr, xlabel, ylabel, title, iter):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-    arr = [e * 1000 for e in arr]
-    base = arr[0]
-    arr = [e - base for e in arr]
+    try:
+        plt.rcParams["font.weight"] = "bold"
+        plt.rcParams["axes.labelweight"] = "bold"
+        arr = [e * 1000 for e in arr]
+        base = arr[0]
+        arr = [e - base for e in arr]
 
-    fig, ax = plt.subplots(figsize=(10, 10))
-    N = len(arr)
-    x = [i + 1 for i in range(N)]
-    y = arr
-    x_a = [e + 1 for e in range(N + 1)]
+        fig, ax = plt.subplots(figsize=(10, 10))
+        N = len(arr)
+        x = [i + 1 for i in range(N)]
+        y = arr
+        x_a = [e + 1 for e in range(N + 1)]
 
-    plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "application data"], rotation='vertical')
+        plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "application data"],
+                   rotation='vertical')
 
-    plt.xlabel("Steps")
-    plt.ylabel("Time in milliseconds")
-    plt.title(title)
-    plt.plot(x, y, marker='.', lw=.3)
+        plt.xlabel("Steps")
+        plt.ylabel("Time in milliseconds")
+        plt.title(title)
+        plt.plot(x, y, marker='.', lw=.3)
 
-    # if ocsp_dns_1 is not None and ocsp_dns_2 is not None:
-    #     ocsp_dns_1 = ocsp_dns_1 * 1000 - base
-    #     ocsp_dns_2 = ocsp_dns_2 * 1000 - base
-    #     plt.plot([x[-1] + 1, x[-1] + 1], [ocsp_dns_1, ocsp_dns_2], marker='.', lw=.3, c='r')
-    #
-    #     plt.plot([x[-1] + 1, x[-1] + 1], [ocsp1, ocsp2], marker='.', lw=.3, c='b')
+        # if ocsp_dns_1 is not None and ocsp_dns_2 is not None:
+        #     ocsp_dns_1 = ocsp_dns_1 * 1000 - base
+        #     ocsp_dns_2 = ocsp_dns_2 * 1000 - base
+        #     plt.plot([x[-1] + 1, x[-1] + 1], [ocsp_dns_1, ocsp_dns_2], marker='.', lw=.3, c='r')
+        #
+        #     plt.plot([x[-1] + 1, x[-1] + 1], [ocsp1, ocsp2], marker='.', lw=.3, c='b')
 
-    plt.savefig('images_ssl/{}.png'.format(iter), bbox_inches="tight")
-    plt.clf()
+        plt.savefig('images_ssl/{}.png'.format(iter), bbox_inches="tight")
+        plt.clf()
+        plt.close(fig)
+    except Exception as e:
+        print(e)
 
 
 def get_uid_to_host():
