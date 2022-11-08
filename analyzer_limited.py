@@ -328,9 +328,9 @@ for p in final_list:
         # arr.append(e["dns_end"])
         arr.append(e["client_hello_time"])
         arr.append(e["server_hello_time"])
-        arr.append(e['change_cipher_time_client'])
+        #arr.append(e['change_cipher_time_client'])
         arr.append(e['change_cipher_time_server'])
-        arr.append(e['established_time'])
+        #arr.append(e['established_time'])
         arr.append(e['encrypted_data_time_app'])
 
         # if e['version'] == 'TLSv13':
