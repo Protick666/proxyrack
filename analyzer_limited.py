@@ -100,7 +100,7 @@ def draw_line_only_ssl(arr, xlabel, ylabel, title, iter):
         y = arr
         x_a = [e + 1 for e in range(N)]
 
-        plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "established_time", "application data"],
+        plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "application data"],
                    rotation='vertical')
 
         plt.xlabel("Steps")
@@ -321,6 +321,8 @@ done_incorrect = 0
 
 incorrect_counter = defaultdict(lambda : 0)
 
+master_arr = []
+
 for p in final_list:
     try:
         e = final_list[p].__dict__
@@ -338,8 +340,12 @@ for p in final_list:
         arr.append(e["server_hello_time"])
         #arr.append(e['change_cipher_time_client'])
         arr.append(e['change_cipher_time_server'])
-        arr.append(e['established_time'])
+        #arr.append(e['established_time'])
         arr.append(e['encrypted_data_time_app'])
+        arr.append(e['server_name'])
+
+        arr.append(arr[-1] - arr[-2])
+        master_arr.append(arr)
 
         # if e['version'] == 'TLSv13':
         #     continue
@@ -347,7 +353,7 @@ for p in final_list:
         #     continue
         # if e['ocsp_dns_1'] is not None:
         #     a = 1
-        draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
+        #draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
         done_correct += 1
         a = 1
     except Exception as er:
@@ -359,5 +365,16 @@ for p in final_list:
 
 print("Correct {}, Incorrect {}".format(done_correct, done_incorrect))
 print(incorrect_counter)
+
+master_arr.sort(key = lambda x:  -x[-1])
+index = 0
+for e in master_arr:
+    sn = e[-2]
+    arr = e[: -2]
+    draw_line_only_ssl(arr, "x", "y", sn, index)
+    index += 1
+    if index == 100:
+        break
+
 
 
