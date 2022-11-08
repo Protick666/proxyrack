@@ -77,5 +77,8 @@ def load_data():
 
     print(len(orig_ips), inside_query, inside_query_rtt)
 
+
+
+load_data()
 # print(is_vtech('20.189.173.2'))
 
