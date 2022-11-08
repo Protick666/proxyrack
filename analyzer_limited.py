@@ -100,7 +100,7 @@ def draw_line_only_ssl(arr, xlabel, ylabel, title, iter):
         y = arr
         x_a = [e + 1 for e in range(N)]
 
-        plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "application data"],
+        plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "established_time", "application data"],
                    rotation='vertical')
 
         plt.xlabel("Steps")
@@ -338,7 +338,7 @@ for p in final_list:
         arr.append(e["server_hello_time"])
         #arr.append(e['change_cipher_time_client'])
         arr.append(e['change_cipher_time_server'])
-        #arr.append(e['established_time'])
+        arr.append(e['established_time'])
         arr.append(e['encrypted_data_time_app'])
 
         # if e['version'] == 'TLSv13':
