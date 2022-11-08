@@ -98,7 +98,7 @@ def draw_line_only_ssl(arr, xlabel, ylabel, title, iter):
         N = len(arr)
         x = [i + 1 for i in range(N)]
         y = arr
-        x_a = [e + 1 for e in range(N + 1)]
+        x_a = [e + 1 for e in range(N)]
 
         plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "application data"],
                    rotation='vertical')
