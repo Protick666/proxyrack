@@ -1,7 +1,9 @@
 import json
+import time
 
+import pandas as pd
 import pyasn
-
+from multiprocessing.dummy import Pool as ThreadPool
 from asn_org_tools.org_finder import AS2ISP
 
 asndb = pyasn.pyasn('asn_org_tools/data/ipsan_db.dat')
@@ -49,36 +51,64 @@ def is_vtech(ip):
 
 
 
-def load_data():
-    data = []
-    count = 0
-    print("Kiii")
-    with open(data_path + '/anon.dns.log') as f:
-        for line in f:
-            data.append(json.loads(line))
-    print("Ziii")
+# def load_data():
+#     data = []
+#     count = 0
+#     print("Kiii")
+#     with open(data_path + '/anon.dns.log') as f:
+#         for line in f:
+#             data.append(json.loads(line))
+#     print("Ziii")
+#
+#     for record in data:
+#         try:
+#             rtt = False
+#             if 'rtt' in record:
+#                 rtt = True
+#             orig_ips.append((record['id_orig_h'], rtt, is_vtech(record['id_orig_h'])))
+#         except:
+#             continue
+#
+#     inside_query = 0
+#     inside_query_rtt = 0
+#     for e in orig_ips:
+#         if e[2]:
+#             inside_query += 1
+#             if e[1]:
+#                 inside_query_rtt += 1
+#
+#     print(len(orig_ips), inside_query, inside_query_rtt)
 
-    for record in data:
-        try:
-            rtt = False
-            if 'rtt' in record:
-                rtt = True
-            orig_ips.append((record['id_orig_h'], rtt, is_vtech(record['id_orig_h'])))
-        except:
-            continue
+
+def preprocess_resolver(ip):
+    get_org_from_ip(ip)
+
+
+
+
+
+def matchdns():
+    t1 = time.time()
+    print("Init")
+    dns = pd.read_csv('/home/weitong/ocsp/dns.csv')
+    ips = set(dns['id_orig_h'].tolist())
+    print("Done {}".format((time.time() - t1)/60))
+
+    pool = ThreadPool(30)
+    results = pool.map(preprocess_resolver, list(set(ips)))
+    pool.close()
+    pool.join()
 
     inside_query = 0
-    inside_query_rtt = 0
-    for e in orig_ips:
-        if e[2]:
+    #inside_query_rtt = 0
+    for ip in ips:
+        if is_vtech(ip):
             inside_query += 1
-            if e[1]:
-                inside_query_rtt += 1
 
-    print(len(orig_ips), inside_query, inside_query_rtt)
+    print(len(ips), inside_query)
 
 
-
-load_data()
+matchdns()
+# load_data()
 # print(is_vtech('20.189.173.2'))
 
