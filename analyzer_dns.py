@@ -52,9 +52,11 @@ def is_vtech(ip):
 def load_data():
     data = []
     count = 0
+    print("Kiii")
     with open(data_path + '/anon.dns.log') as f:
         for line in f:
             data.append(json.loads(line))
+    print("Ziii")
 
     for record in data:
         try:
