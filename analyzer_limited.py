@@ -99,7 +99,7 @@ def draw_line_only_ssl(arr, xlabel, ylabel, title, iter):
     y = arr
     x_a = [e + 1 for e in range(N + 1)]
 
-    plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher client", "change_cipher server", "handshake complete", "application data"], rotation='vertical')
+    plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "application data"], rotation='vertical')
 
     plt.xlabel("Steps")
     plt.ylabel("Time in milliseconds")
@@ -342,7 +342,7 @@ for p in final_list:
         #     continue
         # if e['ocsp_dns_1'] is not None:
         #     a = 1
-        #draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
+        draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
         done_correct += 1
         a = 1
     except Exception as er:
