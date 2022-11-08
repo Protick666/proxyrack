@@ -342,9 +342,11 @@ for p in final_list:
         arr.append(e['change_cipher_time_server'])
         #arr.append(e['established_time'])
         arr.append(e['encrypted_data_time_app'])
-        arr.append(e['server_name'])
+
 
         arr.append(arr[-1] - arr[-2])
+        arr.append(e['server_name'])
+
         master_arr.append(arr)
 
         # if e['version'] == 'TLSv13':
@@ -366,10 +368,10 @@ for p in final_list:
 print("Correct {}, Incorrect {}".format(done_correct, done_incorrect))
 print(incorrect_counter)
 
-master_arr.sort(key = lambda x:  -x[-1])
+master_arr.sort(key = lambda x:  -x[-2])
 index = 0
 for e in master_arr:
-    sn = e[-2]
+    sn = e[-1]
     arr = e[: -2]
     draw_line_only_ssl(arr, "x", "y", sn, index)
     index += 1
