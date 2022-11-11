@@ -171,14 +171,17 @@ def get_final_list():
             pass
 
     for uid in uid_to_info:
-        server_name = uid_to_info[uid].server_name
-        client_hello_time = uid_to_info[uid].client_hello_time
-        client_ip = uid_to_info[uid].__getattribute__('id.orig_h')
-        ans_tuple = get_dns_time(server_name=server_name, client_hello_time=client_hello_time, client_ip=client_ip,
-                                 dns_log=dns_log)
-        if ans_tuple is not None:
-            uid_to_info[uid].__setattr__('dns_start', ans_tuple[0])
-            uid_to_info[uid].__setattr__('dns_end', ans_tuple[1])
+        try:
+            server_name = uid_to_info[uid].server_name
+            client_hello_time = uid_to_info[uid].client_hello_time
+            client_ip = uid_to_info[uid].__getattribute__('id.orig_h')
+            ans_tuple = get_dns_time(server_name=server_name, client_hello_time=client_hello_time, client_ip=client_ip,
+                                     dns_log=dns_log)
+            if ans_tuple is not None:
+                uid_to_info[uid].__setattr__('dns_start', ans_tuple[0])
+                uid_to_info[uid].__setattr__('dns_end', ans_tuple[1])
+        except:
+            pass
 
     final_list = defaultdict(lambda: Meta())
     for uid in uid_to_info:
