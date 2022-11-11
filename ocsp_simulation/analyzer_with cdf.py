@@ -277,7 +277,8 @@ for p in final_list:
 
 version_set = set()
 
-
+# 1460
+master_arr = []
 for p in final_list:
     try:
         e = final_list[p].__dict__
@@ -302,10 +303,18 @@ for p in final_list:
             continue
         if e['ocsp_dns_1'] is not None:
             a = 1
-        draw_line(arr, "x", "y", e['server_name'], index, e['ocsp_1'],  e['ocsp_2'], e['ocsp_dns_1'], e['ocsp_dns_2'])
+        #draw_line(arr, "x", "y", e['server_name'], index, e['ocsp_1'],  e['ocsp_2'], e['ocsp_dns_1'], e['ocsp_dns_2'])
+
+        tp = arr.copy()
+        tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'],  e['ocsp_2'], e['server_name']]
+        master_arr.append(tp)
+
         a = 1
     except:
         pass
 
 
 print("Time taken {}".format((time.time() - init_time)/60))
+
+with open("master_arr_firefox.json", "w") as ouf:
+    json.dump(master_arr, fp=ouf)
