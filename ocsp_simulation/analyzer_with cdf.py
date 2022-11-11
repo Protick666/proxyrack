@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 #base_path = '/Users/protick.bhowmick/zeek/'
-base_path = '/home/protick/zeek/'
+base_path = '/home/protick/zeek_dumps/'
 
 
 def analyze_custom_logs():
