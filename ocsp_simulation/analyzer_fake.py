@@ -225,7 +225,6 @@ def get_median_dict(d):
             continue
         median_element = statistics.median(lst)
         key_to_median[k] = median_element
-
     return key_to_median
 
 
@@ -238,11 +237,9 @@ def until_first_filter():
     # for line in open('{}dns.log'.format(base_path), 'r'):
     #     dns_log.append(json.loads(line))
     # build_dns(dns_log)
-
     # ocsp stuff
 
     ocsp_host_set = set()
-
     list_only_tls2 = []
     server_name_set = set()
     for p in final_list:
@@ -262,7 +259,7 @@ def until_first_filter():
     with open('only_2.json', "w") as ouf:
         json.dump(list_only_tls2, fp=ouf)
 
-    # cert was recorded in x509, necessary fields are there, corresponding entry in censys
+    # cert was recorded in x509, #necessary fields are there, corresponding entry in censys
     server_name_set = set()
     list_only_first_filter = []
     fingerprint_to_ocsp_host = get_fingerprint_to_ocsp_host()
@@ -271,18 +268,18 @@ def until_first_filter():
     fingerprint_case = 0
 
     for e in list_only_tls2:
-        fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
-
-        not_found = False
-        for field in fields:
-            if field not in e:
-                print(field)
-                print(e)
-                not_found = True
-                break
-        if not_found:
-            field_case += 1
-            continue
+        # fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
+        #
+        # not_found = False
+        # for field in fields:
+        #     if field not in e:
+        #         print(field)
+        #         print(e)
+        #         not_found = True
+        #         break
+        # if not_found:
+        #     field_case += 1
+        #     continue
 
         if e['fingerprint'] not in fingerprint_to_ocsp_host:
             fingerprint_case += 1
@@ -298,18 +295,23 @@ def until_first_filter():
     with open('first_filter.json', "w") as ouf:
         json.dump(list_only_first_filter, fp=ouf)
 
-
+    #list_only_first_filter =
 
     host_to_uid_list, uids_of_interest_in_http = get_host_to_uid_list(ocsp_host_set)
     uid_to_response_time = analyze_custom_logs(allowed_uids=uids_of_interest_in_http)
 
-    qname_to_rtt_list_vt, qname_to_rtt_list_nvt = build_dns()
+    #qname_to_rtt_list_vt, qname_to_rtt_list_nvt = build_dns()
 
-    with open('qname_to_rtt_list_vt.json', "w") as ouf:
-        json.dump(qname_to_rtt_list_vt, fp=ouf)
+    f = open('qname_to_rtt_list_vt.json')
+    qname_to_rtt_list_vt = json.load(f)
+    f = open('qname_to_rtt_list_nvt.json')
+    qname_to_rtt_list_nvt = json.load(f)
 
-    with open('qname_to_rtt_list_nvt.json', "w") as ouf:
-        json.dump(qname_to_rtt_list_nvt, fp=ouf)
+    # with open('qname_to_rtt_list_vt.json', "w") as ouf:
+    #     json.dump(qname_to_rtt_list_vt, fp=ouf)
+    #
+    # with open('qname_to_rtt_list_nvt.json', "w") as ouf:
+    #     json.dump(qname_to_rtt_list_nvt, fp=ouf)
 
     qname_to_median_rtt_vt = get_median_dict(qname_to_rtt_list_vt)
     qname_to_median_rtt_nvt = get_median_dict(qname_to_rtt_list_nvt)
@@ -341,6 +343,8 @@ def until_first_filter():
     not_found_host_dns = set()
     not_found_host_ocsp = set()
 
+    new_correct = []
+
     for e in list_only_first_filter:
         #         fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
         server_name = e['server_name']
@@ -353,7 +357,7 @@ def until_first_filter():
             dns_A_time = qname_to_median_rtt_nvt[server_name]
 
         if dns_A_time is None:
-            not_found_server_dns.add(dns_A_time)
+            not_found_server_dns.add(e['uid'])
 
         dns_OCSP_time = None
         if ocsp_host in qname_to_median_rtt_vt:
@@ -362,90 +366,124 @@ def until_first_filter():
             dns_OCSP_time = qname_to_median_rtt_nvt[ocsp_host]
 
         if dns_OCSP_time is None:
-            not_found_host_dns.add(dns_OCSP_time)
+            not_found_host_dns.add(e['uid'])
 
         ocsp_http_time = None
         if ocsp_host in host_to_median_http_time:
             ocsp_http_time = host_to_median_http_time[ocsp_host]
 
         if ocsp_http_time is None:
-            not_found_host_ocsp.add(ocsp_http_time)
+            not_found_host_ocsp.add(e['uid'])
 
         if dns_A_time and dns_OCSP_time and ocsp_http_time:
-            print(server_name, ocsp_host)
-            client_hello_time = e['client_hello_time']
-            server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
-            change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
-            encrypted_data_time_app = None
-            if 'encrypted_data_time_app' in e:
-                encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
+            new_correct.append(e)
+        #     print(server_name, ocsp_host)
+        #     client_hello_time = e['client_hello_time']
+        #     server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
+        #     change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
+        #     encrypted_data_time_app = None
+        #     if 'encrypted_data_time_app' in e:
+        #         encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
+        #
+        #
+        #     # think why **
+        #     old_finish_time = change_cipher_time_server
+        #
+        #     ocsp_http_finish_time = max(server_hello_time + ocsp_http_time, old_finish_time)
+        #
+        #     ocsp_dns_fetch = dns_OCSP_time
+        #
+        #     if ocsp_dns_fetch < old_finish_time:
+        #         ocsp_dns_finish_time = old_finish_time
+        #     else:
+        #         ocsp_dns_finish_time = ocsp_dns_fetch
+        #
+        #
+        #     tot_time = ocsp_http_finish_time - client_hello_time
+        #
+        #     perc_change.append((ocsp_dns_finish_time - ocsp_http_finish_time) / tot_time)
+    # not_found_server_dns = set()
+    # not_found_host_dns = set()
+    # not_found_host_ocsp = set()
+    tot = not_found_server_dns.union(not_found_host_dns).union(not_found_host_ocsp)
+    print("not_found_server_dns {}, not_found_host_dns {}, not_found_host_ocsp {}".format(len(not_found_server_dns), len(not_found_host_dns), len(not_found_host_dns)))
+    print("total malfunc {}".format(len(tot)))
+    print("new correct {}".format(new_correct))
+
+    ultimate = []
 
 
-            # think why **
-            old_finish_time = change_cipher_time_server
+    for e in new_correct:
+        fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
+        not_found = False
+        for field in fields:
+            if field not in e:
+                # print(field)
+                # print(e)
+                not_found = True
+                break
+        if not_found:
+            field_case += 1
+            continue
+        ultimate.append(e)
 
-            ocsp_http_finish_time = max(server_hello_time + ocsp_http_time, old_finish_time)
-
-            ocsp_dns_fetch = dns_OCSP_time
-
-            if ocsp_dns_fetch < old_finish_time:
-                ocsp_dns_finish_time = old_finish_time
-            else:
-                ocsp_dns_finish_time = ocsp_dns_fetch
-
-
-            tot_time = ocsp_http_finish_time - client_hello_time
-
-            perc_change.append((ocsp_dns_finish_time - ocsp_http_finish_time) / tot_time)
-
-    with open('perc_change.json', "w") as ouf:
-        json.dump(perc_change, fp=ouf)
-
-    with open('not_found_host_ocsp.json', "w") as ouf:
-        json.dump(list(not_found_host_ocsp), fp=ouf)
-    with open('not_found_host_dns.json', "w") as ouf:
-        json.dump(list(not_found_host_dns), fp=ouf)
-    with open('not_found_server_dns.json', "w") as ouf:
-        json.dump(list(not_found_server_dns), fp=ouf)
-
-    for e in list_only_first_filter:
-        #         fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
-        server_name = e['server_name']
-        ocsp_host = e['ocsp_host']
-
-        dns_A_time = .5/1000
-        dns_OCSP_time = .5/1000
-
-        ocsp_http_time = None
-        if ocsp_host in host_to_median_http_time:
-            ocsp_http_time = host_to_median_http_time[ocsp_host]
-
-        if dns_A_time and dns_OCSP_time and ocsp_http_time:
-            client_hello_time = e['client_hello_time']
-            server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
-            change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
-            encrypted_data_time_app = None
-            if 'encrypted_data_time_app' in e:
-                encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
-            # think why **
-            old_finish_time = change_cipher_time_server
-
-            ocsp_http_finish_time = max(server_hello_time + ocsp_http_time, old_finish_time)
-
-            ocsp_dns_fetch = dns_OCSP_time
-
-            if ocsp_dns_fetch < old_finish_time:
-                ocsp_dns_finish_time = old_finish_time
-            else:
-                ocsp_dns_finish_time = ocsp_dns_fetch
+    print("ultimate {}".format(len(ultimate)))
 
 
-            tot_time = ocsp_http_finish_time - client_hello_time
 
-            perc_change_cache.append((ocsp_dns_finish_time - ocsp_http_finish_time) / tot_time)
 
-    with open('perc_change_cache.json', "w") as ouf:
-        json.dump(perc_change_cache, fp=ouf)
+
+
+
+
+    # with open('perc_change.json', "w") as ouf:
+    #     json.dump(perc_change, fp=ouf)
+    #
+    # with open('not_found_host_ocsp.json', "w") as ouf:
+    #     json.dump(list(not_found_host_ocsp), fp=ouf)
+    # with open('not_found_host_dns.json', "w") as ouf:
+    #     json.dump(list(not_found_host_dns), fp=ouf)
+    # with open('not_found_server_dns.json', "w") as ouf:
+    #     json.dump(list(not_found_server_dns), fp=ouf)
+    #
+    # for e in list_only_first_filter:
+    #     #         fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
+    #     server_name = e['server_name']
+    #     ocsp_host = e['ocsp_host']
+
+    #     dns_A_time = .5/1000
+    #     dns_OCSP_time = .5/1000
+    #
+    #     ocsp_http_time = None
+    #     if ocsp_host in host_to_median_http_time:
+    #         ocsp_http_time = host_to_median_http_time[ocsp_host]
+    #
+    #     if dns_A_time and dns_OCSP_time and ocsp_http_time:
+    #         client_hello_time = e['client_hello_time']
+    #         server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
+    #         change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
+    #         encrypted_data_time_app = None
+    #         if 'encrypted_data_time_app' in e:
+    #             encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
+    #         # think why **
+    #         old_finish_time = change_cipher_time_server
+    #
+    #         ocsp_http_finish_time = max(server_hello_time + ocsp_http_time, old_finish_time)
+    #
+    #         ocsp_dns_fetch = dns_OCSP_time
+    #
+    #         if ocsp_dns_fetch < old_finish_time:
+    #             ocsp_dns_finish_time = old_finish_time
+    #         else:
+    #             ocsp_dns_finish_time = ocsp_dns_fetch
+    #
+    #
+    #         tot_time = ocsp_http_finish_time - client_hello_time
+    #
+    #         perc_change_cache.append((ocsp_dns_finish_time - ocsp_http_finish_time) / tot_time)
+    #
+    # with open('perc_change_cache.json', "w") as ouf:
+    #     json.dump(perc_change_cache, fp=ouf)
 
 
 until_first_filter()
