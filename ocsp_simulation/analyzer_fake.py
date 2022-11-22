@@ -357,6 +357,7 @@ def until_first_filter():
 
         if dns_A_time is None:
             not_found_server_dns.add(e['uid'])
+            print(server_name)
 
         dns_OCSP_time = None
         if ocsp_host in qname_to_rtt_list_vt:
