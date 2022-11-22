@@ -189,7 +189,7 @@ def do_so(mode, sesh):
         for e in dns_log:
             try:
                 server_dns_name_to_lst[e['query']].append(e)
-                if 'rtt' in e and mode == 'normal':
+                if 'rtt' in e and mode == 'normal_log':
                     global_normal_dns_rtt.append(e['rtt'])
 
             except:
