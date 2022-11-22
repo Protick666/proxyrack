@@ -6,7 +6,7 @@ import matplotlib
 
 #base_path = '/Users/protick.bhowmick/zeek/'
 
-
+global_normal_dns_rtt = []
 
 def do_so(mode, sesh):
     base_path = '/source/pcap/zeek_logs/{}/{}-{}/'.format(mode, sesh - 500 + 1, sesh)
@@ -189,6 +189,9 @@ def do_so(mode, sesh):
         for e in dns_log:
             try:
                 server_dns_name_to_lst[e['query']].append(e)
+                if 'rtt' in e and mode == 'normal':
+                    global_normal_dns_rtt.append(e['rtt'])
+
             except:
                 pass
 
@@ -290,3 +293,6 @@ for mode in modes:
         init += 500
         sesh += 500
         print("Done with {} {}".format(mode, sesh))
+
+with open("exp/normal_rtt.json", "w") as ouf:
+    json.dump(global_normal_dns_rtt, fp=ouf)
