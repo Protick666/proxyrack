@@ -269,9 +269,15 @@ def until_first_filter():
 
     for e in list_only_tls2:
         fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
+
+        not_found = False
         for field in fields:
             if field not in e:
-                continue
+                not_found = True
+                break
+        if not_found:
+            continue
+
         if e['fingerprint'] not in fingerprint_to_ocsp_host:
             continue
         e['ocsp_host'] = fingerprint_to_ocsp_host[e['fingerprint']]
