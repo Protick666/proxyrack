@@ -300,7 +300,7 @@ def until_first_filter():
     host_to_uid_list, uids_of_interest_in_http = get_host_to_uid_list(ocsp_host_set)
     uid_to_response_time = analyze_custom_logs(allowed_uids=uids_of_interest_in_http)
 
-    # qname_to_rtt_list_vt, qname_to_rtt_list_nvt = build_dns()
+    #qname_to_rtt_list_vt, qname_to_rtt_list_nvt = build_dns()
 
     f = open('qname_to_rtt_list_vt.json')
     qname_to_rtt_list_vt = json.load(f)
@@ -318,7 +318,6 @@ def until_first_filter():
 
     import statistics
     host_to_median_http_time = {}
-
 
     for host in host_to_uid_list:
         lst = []
@@ -351,19 +350,19 @@ def until_first_filter():
         ocsp_host = e['ocsp_host']
 
         dns_A_time = None
-        if server_name in qname_to_median_rtt_vt:
-            dns_A_time = qname_to_median_rtt_vt[server_name]
-        elif server_name in qname_to_median_rtt_nvt:
-            dns_A_time = qname_to_median_rtt_nvt[server_name]
+        if server_name in qname_to_rtt_list_vt:
+            dns_A_time = 1
+        elif server_name in qname_to_rtt_list_nvt:
+            dns_A_time = 1
 
         if dns_A_time is None:
             not_found_server_dns.add(e['uid'])
 
         dns_OCSP_time = None
-        if ocsp_host in qname_to_median_rtt_vt:
-            dns_OCSP_time = qname_to_median_rtt_vt[ocsp_host]
-        elif ocsp_host in qname_to_median_rtt_nvt:
-            dns_OCSP_time = qname_to_median_rtt_nvt[ocsp_host]
+        if ocsp_host in qname_to_rtt_list_vt:
+            dns_OCSP_time = 1
+        elif ocsp_host in qname_to_rtt_list_nvt:
+            dns_OCSP_time = 1
 
         if dns_OCSP_time is None:
             not_found_host_dns.add(e['uid'])
