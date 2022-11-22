@@ -336,7 +336,7 @@ def until_first_filter():
 
         ocsp_http_time = None
         if ocsp_host in host_to_median_http_time:
-            ocsp_http_time = host_to_median_http_time['ocsp_host']
+            ocsp_http_time = host_to_median_http_time[ocsp_host]
 
         if dns_A_time and dns_OCSP_time and ocsp_http_time:
             client_hello_time = e['client_hello_time']
@@ -377,7 +377,7 @@ def until_first_filter():
 
         ocsp_http_time = None
         if ocsp_host in host_to_median_http_time:
-            ocsp_http_time = host_to_median_http_time['ocsp_host']
+            ocsp_http_time = host_to_median_http_time[ocsp_host]
 
         if dns_A_time and dns_OCSP_time and ocsp_http_time:
             client_hello_time = e['client_hello_time']
