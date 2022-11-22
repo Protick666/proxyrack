@@ -267,19 +267,20 @@ def until_first_filter():
     field_case = 0
     fingerprint_case = 0
 
+    field_missing = 0
+
     for e in list_only_tls2:
-        # fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
-        #
-        # not_found = False
-        # for field in fields:
-        #     if field not in e:
-        #         print(field)
-        #         print(e)
-        #         not_found = True
-        #         break
-        # if not_found:
-        #     field_case += 1
-        #     continue
+        fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
+
+        not_found = False
+        for field in fields:
+            if field not in e:
+                print(field)
+                print(e)
+                not_found = True
+                break
+        if not_found:
+            field_missing += 1
 
         if e['fingerprint'] not in fingerprint_to_ocsp_host:
             fingerprint_case += 1
@@ -288,7 +289,8 @@ def until_first_filter():
         ocsp_host_set.add(fingerprint_to_ocsp_host[e['fingerprint']])
         server_name_set.add(e['server_name'])
         list_only_first_filter.append(e)
-    print("Field case {}, fingerprint case {}".format(field_case, fingerprint_case))
+
+    print("Field case {}, fingerprint case {}".format(field_missing, fingerprint_case))
 
     print("TLS connections after first filter {}, for {} servers".format(len(list_only_first_filter), len(server_name_set)))
 
@@ -406,7 +408,7 @@ def until_first_filter():
     # not_found_server_dns = set()
     # not_found_host_dns = set()
     # not_found_host_ocsp = set()
-    tot = not_found_server_dns.union(not_found_host_dns).union(not_found_host_ocsp)
+    tot = not_found_server_dns.union(not_found_host_dns)
     print("not_found_server_dns {}, not_found_host_dns {}, not_found_host_ocsp {}".format(len(not_found_server_dns), len(not_found_host_dns), len(not_found_host_dns)))
     print("total malfunc {}".format(len(tot)))
     print("new correct {}".format(len(new_correct)))
