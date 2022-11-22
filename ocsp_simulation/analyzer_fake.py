@@ -3,7 +3,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import matplotlib
 
-base_path = '/home/protick/zeek_final/anon.'
+base_path = '/home/protick/zeek_final/anon/anon.'
 
 
 def analyze_custom_logs():
