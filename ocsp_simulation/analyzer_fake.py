@@ -407,3 +407,4 @@ def until_first_filter():
         json.dump(perc_change_cache, fp=ouf)
 
 
+until_first_filter()
