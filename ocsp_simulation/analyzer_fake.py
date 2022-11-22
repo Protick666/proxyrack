@@ -277,6 +277,7 @@ def until_first_filter():
         for field in fields:
             if field not in e:
                 print(field)
+                print(e)
                 not_found = True
                 break
         if not_found:
