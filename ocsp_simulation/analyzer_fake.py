@@ -5,14 +5,13 @@ import matplotlib
 
 base_path = '/home/protick/zeek_final/anon/anon.'
 
+# TODO fix
+def is_vt(ip):
+    return True
 
-def analyze_custom_logs():
+def analyze_custom_logs(allowed_uids):
     # serial_number = (start, end)
     logs = []
-
-    for line in open('{}ocsp_ext_v1.log'.format(base_path), 'r'):
-        cls = json.loads(line)
-        logs.append((cls['ts'], 2, "ocsp_ext", cls))
 
     for line in open('{}http_ext_v1.log'.format(base_path), 'r'):
         cls = json.loads(line)
@@ -24,12 +23,10 @@ def analyze_custom_logs():
 
     logs.sort(key=lambda x: (x[0], x[1], x[2]))
 
-    serial_num_to_tuples = defaultdict(lambda: list())
-    uid_to_serial = {}
+    uid_to_response_time = {}
     uid_to_req_time = {}
 
     for e in logs:
-
         flag = e[2]
         cls = e[3]
 
@@ -37,89 +34,15 @@ def analyze_custom_logs():
             t = cls['ts']
             uid = cls['uid']
             uid_to_req_time[uid] = t
-        elif flag == 'ocsp_ext':
-            uid = cls['uid']
-            serial = cls['serialNumber']
-            uid_to_serial[uid] = serial
         elif flag == 'http_reply':
             t = cls['ts']
             uid = cls['uid']
-            if uid in uid_to_req_time and uid in uid_to_serial:
-                serial = uid_to_serial[uid]
-                serial_num_to_tuples[serial].append((uid_to_req_time[uid], t, uid))
-                del uid_to_serial[uid]
+            if uid in uid_to_req_time:
+                response_time =  t - uid_to_req_time[uid]
                 del uid_to_req_time[uid]
-    return serial_num_to_tuples
-
-
-def draw_line(arr, xlabel, ylabel, title, iter, ocsp1, ocsp2, ocsp_dns_1, ocsp_dns_2):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-    arr = [e * 1000 for e in arr]
-    base = arr[0]
-    arr = [e - base for e in arr]
-
-    ocsp1 = ocsp1 * 1000 - base
-    ocsp2 = ocsp2 * 1000 - base
-
-    fig, ax = plt.subplots(figsize=(10, 10))
-    N = len(arr)
-    x = [i + 1 for i in range(N)]
-    y = arr
-    x_a = [e + 1 for e in range(N + 1)]
-
-    plt.xticks(x_a, ["dns_start", "dns_end", "client_hello", "server_hello", "change_cipher client", "change_cipher server", "handshake complete", "application data", "ocsp"], rotation='vertical')
-
-    plt.xlabel("Steps")
-    plt.ylabel("Time in milliseconds")
-    plt.title(title)
-    plt.plot(x, y, marker='.', lw=.3)
-
-    if ocsp_dns_1 is not None and ocsp_dns_2 is not None:
-        ocsp_dns_1 = ocsp_dns_1 * 1000 - base
-        ocsp_dns_2 = ocsp_dns_2 * 1000 - base
-        plt.plot([x[-1] + 1, x[-1] + 1], [ocsp_dns_1, ocsp_dns_2], marker='.', lw=.3, c='r')
-
-        plt.plot([x[-1] + 1, x[-1] + 1], [ocsp1, ocsp2], marker='.', lw=.3, c='b')
-
-        plt.savefig('images/{}.png'.format(iter), bbox_inches="tight")
-        plt.clf()
-
-
-def draw_line_only_ssl(arr, xlabel, ylabel, title, iter):
-    try:
-        plt.rcParams["font.weight"] = "bold"
-        plt.rcParams["axes.labelweight"] = "bold"
-        arr = [e * 1000 for e in arr]
-        base = arr[0]
-        arr = [e - base for e in arr]
-
-        fig, ax = plt.subplots(figsize=(10, 10))
-        N = len(arr)
-        x = [i + 1 for i in range(N)]
-        y = arr
-        x_a = [e + 1 for e in range(N)]
-
-        plt.xticks(x_a, ["client_hello", "server_hello", "change_cipher server", "application data"],
-                   rotation='vertical')
-
-        plt.xlabel("Steps")
-        plt.ylabel("Time in milliseconds")
-        plt.title(title)
-        plt.plot(x, y, marker='.', lw=.3)
-
-        # if ocsp_dns_1 is not None and ocsp_dns_2 is not None:
-        #     ocsp_dns_1 = ocsp_dns_1 * 1000 - base
-        #     ocsp_dns_2 = ocsp_dns_2 * 1000 - base
-        #     plt.plot([x[-1] + 1, x[-1] + 1], [ocsp_dns_1, ocsp_dns_2], marker='.', lw=.3, c='r')
-        #
-        #     plt.plot([x[-1] + 1, x[-1] + 1], [ocsp1, ocsp2], marker='.', lw=.3, c='b')
-
-        plt.savefig('images_ssl/{}.png'.format(iter), bbox_inches="tight")
-        plt.clf()
-        plt.close(fig)
-    except Exception as e:
-        print(e)
+                if uid in allowed_uids:
+                    uid_to_response_time[uid] = response_time
+    return uid_to_response_time
 
 
 def get_uid_to_host():
@@ -133,6 +56,23 @@ def get_uid_to_host():
         except:
             pass
     return uid_to_host
+
+
+def get_host_to_uid_list(ocsp_host_set):
+    log_custom = []
+    uids_of_interest_in_http = set()
+    host_to_uid = defaultdict(lambda : list())
+    for line in open('{}http.log'.format(base_path), 'r'):
+        log_custom.append(json.loads(line))
+    for e in log_custom:
+        try:
+            if e['host'] not in ocsp_host_set:
+                continue
+            host_to_uid[e['host']].append(e['uid'])
+            uids_of_interest_in_http.add(e['uid'])
+        except:
+            pass
+    return host_to_uid, uids_of_interest_in_http
 
 
 def get_cert_log():
@@ -212,74 +152,40 @@ def get_final_list():
             print(e)
             pass
 
-    # These lines are dns stuff
-    #
-    # for uid in uid_to_info:
-    #     server_name = uid_to_info[uid].server_name
-    #     client_hello_time = uid_to_info[uid].client_hello_time
-    #     client_ip = uid_to_info[uid].__getattribute__('id.orig_h')
-    #     ans_tuple = get_dns_time(server_name=server_name, client_hello_time=client_hello_time, client_ip=client_ip,
-    #                              dns_log=dns_log)
-    #     if ans_tuple is not None:
-    #         uid_to_info[uid].__setattr__('dns_start', ans_tuple[0])
-    #         uid_to_info[uid].__setattr__('dns_end', ans_tuple[1])
-    # final_list = defaultdict(lambda: Meta())
-    # for uid in uid_to_info:
-    #     if hasattr(uid_to_info[uid], 'dns_start'):
-    #         final_list[uid] = uid_to_info[uid]
-    #
-    # return final_list
-
     return uid_to_info
 
 
-def get_appropriate_tuple(serial, serial_num_to_tuples, server_hello, server_name):
-    if serial not in serial_num_to_tuples:
-        return None
-    for t1, t2, uid in serial_num_to_tuples[serial]:
-        if t1 > server_hello:
-            host = None
-            if uid in uid_to_host:
-                host = uid_to_host[uid]
-            return t1, t2, host
-    return None
+def get_base_domain(ocsp_url):
+    ocsp_host = ocsp_url
+    if ocsp_host.startswith("http://"):
+        ocsp_host = ocsp_host[7:]
+    if "/" in ocsp_host:
+        ocsp_host = ocsp_host[0: ocsp_host.find("/")]
+    return ocsp_host
 
+def build_dns():
+    dns_log = []
+    for line in open('{}dns.log'.format(base_path), 'r'):
+        dns_log.append(json.loads(line))
 
-def build_dns(dns_log):
+    qname_to_rtt_list_vt = defaultdict(lambda : list())
+    qname_to_rtt_list_nvt = defaultdict(lambda : list())
+
     for e in dns_log:
         try:
-            server_dns_name_to_lst[e['query']].append(e)
+            source = e['id_orig_h']
+            if is_vt(source):
+                rtt = e['rtt']
+                qname = e['query']
+                qname_to_rtt_list_vt[qname].append(rtt)
+            else:
+                rtt = e['rtt']
+                qname = e['query']
+                qname_to_rtt_list_nvt[qname].append(rtt)
         except:
             pass
 
-
-def get_dns_tuple(lim1, lim2, q_name):
-    set_ans = None
-    for e in server_dns_name_to_lst[q_name]:
-        try:
-            a = 1
-            if e['query'] == q_name and lim1 <= e['ts'] < e['ts'] + e['rtt'] <= lim2:
-                if not set_ans:
-                    set_ans = e['ts'], e['ts'] + e['rtt']
-                elif set_ans[0] < e['ts']:
-                    set_ans = e['ts'], e['ts'] + e['rtt']
-            a = 1
-        except Exception as err:
-            a = 1
-    if set_ans is None:
-        return None, None
-    return set_ans
-
-
-# uid to http host
-# uid_to_host = get_uid_to_host()
-
-# fingerprint_to_serial = get_cert_log()
-
-# serial_num_to_tuples = analyze_custom_logs()
-
-# for key in serial_num_to_tuples:
-#     serial_num_to_tuples[key].sort()
+    return qname_to_rtt_list_vt, qname_to_rtt_list_nvt
 
 def get_fingerprint_to_ocsp_host():
     # fingerprints['1997274781c233029a159c5b4ff38c7e5e0f68183223d6b758947766e6530ee0']['parsed']['extensions']['authority_info_access']['ocsp_urls'][0]
@@ -289,7 +195,9 @@ def get_fingerprint_to_ocsp_host():
     fingerprints = json.load(f)
     for fingerprint in fingerprints:
         try:
-            d[fingerprint] = fingerprints[fingerprint]['parsed']['extensions']['authority_info_access']['ocsp_urls'][0]
+            host = fingerprints[fingerprint]['parsed']['extensions']['authority_info_access']['ocsp_urls'][0]
+            host = get_base_domain(host)
+            d[fingerprint] = host
         except:
             pass
 
@@ -302,10 +210,27 @@ def get_fingerprint_to_ocsp_host():
             pass
     return d
 
+def get_median_dict(d):
+    import statistics
+    key_to_median = {}
+
+    for k in d:
+        lst = []
+        try:
+            for element in d[k]:
+                lst.append(element)
+        except:
+            pass
+        if len(lst) == 0:
+            continue
+        median_element = statistics.median(lst)
+        key_to_median[k] = median_element
+
+    return key_to_median
+
 
 def until_first_filter():
     final_list = get_final_list()
-
     #server_dns_name_to_lst = defaultdict(lambda: list())
 
     # dns stuff
@@ -315,6 +240,9 @@ def until_first_filter():
     # build_dns(dns_log)
 
     # ocsp stuff
+
+    ocsp_host_set = set()
+
     list_only_tls2 = []
     server_name_set = set()
     for p in final_list:
@@ -340,12 +268,14 @@ def until_first_filter():
     fingerprint_to_ocsp_host = get_fingerprint_to_ocsp_host()
 
     for e in list_only_tls2:
-        fields = ['server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
+        fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
         for field in fields:
             if field not in e:
                 continue
         if e['fingerprint'] not in fingerprint_to_ocsp_host:
             continue
+        e['ocsp_host'] = fingerprint_to_ocsp_host[e['fingerprint']]
+        ocsp_host_set.add(fingerprint_to_ocsp_host[e['fingerprint']])
         server_name_set.add(e['server_name'])
         list_only_first_filter.append(e)
 
@@ -356,73 +286,132 @@ def until_first_filter():
 
 
 
-# version_set = set()
-#
-# index = 0
-#
-# print(len(final_list))
-#
-# done_correct = 0
-# done_incorrect = 0
-#
-# incorrect_counter = defaultdict(lambda : 0)
-#
-# master_arr = []
-#
-# for p in final_list:
-#     try:
-#         e = final_list[p].__dict__
-#         # if 'ocsp_1' not in e and 'ocsp_2' not in e:
-#         #     continue
-#         #print(list(e.keys()))
-#
-#         if e['resumed']:
-#             continue
-#         index += 1
-#         arr = []
-#         # arr.append(e["dns_start"])
-#         # arr.append(e["dns_end"])
-#         arr.append(e["client_hello_time"])
-#         arr.append(e["server_hello_time"])
-#         #arr.append(e['change_cipher_time_client'])
-#         arr.append(e['change_cipher_time_server'])
-#         #arr.append(e['established_time'])
-#         arr.append(e['encrypted_data_time_app'])
-#
-#
-#         arr.append(arr[-1] - arr[-2])
-#         arr.append(e['server_name'])
-#
-#         master_arr.append(arr)
-#
-#         # if e['version'] == 'TLSv13':
-#         #     continue
-#         # if e['ocsp_1'] > e['encrypted_data_time_app']:
-#         #     continue
-#         # if e['ocsp_dns_1'] is not None:
-#         #     a = 1
-#         #draw_line_only_ssl(arr, "x", "y", e['server_name'], index)
-#         done_correct += 1
-#         a = 1
-#     except Exception as er:
-#         incorrect_counter[str(er)] += 1
-#         done_incorrect += 1
-#         #print(er)
-#         #print(e)
-#         pass
-#
-# print("Correct {}, Incorrect {}".format(done_correct, done_incorrect))
-# print(incorrect_counter)
-#
-# master_arr.sort(key = lambda x:  -x[-2])
-# index = 0
-# # for e in master_arr:
-# #     sn = e[-1]
-# #     arr = e[: -2]
-# #     draw_line_only_ssl(arr, "x", "y", sn, index)
-# #     index += 1
-# #     if index == 100:
-# #         break
+    host_to_uid_list, uids_of_interest_in_http = get_host_to_uid_list(ocsp_host_set)
+    uid_to_response_time = analyze_custom_logs(allowed_uids=uids_of_interest_in_http)
 
+    qname_to_rtt_list_vt, qname_to_rtt_list_nvt = build_dns()
+
+    qname_to_median_rtt_vt = get_median_dict(qname_to_rtt_list_vt)
+    qname_to_median_rtt_nvt = get_median_dict(qname_to_rtt_list_nvt)
+
+    import statistics
+    host_to_median_http_time = {}
+
+
+    for host in host_to_uid_list:
+        lst = []
+        try:
+            for uid in host_to_uid_list[host]:
+                lst.append(uid_to_response_time[uid])
+        except:
+            pass
+        if len(lst) == 0:
+            continue
+        median_response_time = statistics.median(lst)
+        host_to_median_http_time[host] = median_response_time
+
+    # qname_to_median_rtt_vt = get_median_dict(qname_to_rtt_list_vt)
+    # qname_to_median_rtt_nvt = get_median_dict(qname_to_rtt_list_nvt)
+    # host_to_median_http_time[host] = median_response_time
+
+    perc_change = []
+    perc_change_cache = []
+
+    for e in list_only_first_filter:
+        #         fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
+        server_name = e['server_name']
+        ocsp_host = e['ocsp_host']
+
+        dns_A_time = None
+        if server_name in qname_to_median_rtt_vt:
+            dns_A_time = qname_to_median_rtt_vt[server_name]
+        elif server_name in qname_to_median_rtt_nvt:
+            dns_A_time = qname_to_median_rtt_nvt[server_name]
+
+        dns_OCSP_time = None
+        if ocsp_host in qname_to_median_rtt_vt:
+            dns_OCSP_time = qname_to_median_rtt_vt[ocsp_host]
+        elif ocsp_host in qname_to_median_rtt_nvt:
+            dns_OCSP_time = qname_to_median_rtt_nvt[ocsp_host]
+
+        ocsp_http_time = None
+        if ocsp_host in host_to_median_http_time:
+            ocsp_http_time = host_to_median_http_time['ocsp_host']
+
+
+
+        client_hello_time = e['client_hello_time']
+        server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
+        change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
+        encrypted_data_time_app = None
+        if 'encrypted_data_time_app' in e:
+            encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
+
+
+
+        if dns_A_time and dns_OCSP_time and ocsp_http_time:
+            # think why **
+            old_finish_time = change_cipher_time_server
+
+            ocsp_http_finish_time = max(server_hello_time + ocsp_http_time, old_finish_time)
+
+            ocsp_dns_fetch = dns_OCSP_time
+
+            if ocsp_dns_fetch < old_finish_time:
+                ocsp_dns_finish_time = old_finish_time
+            else:
+                ocsp_dns_finish_time = ocsp_dns_fetch
+
+
+            tot_time = ocsp_http_finish_time - client_hello_time
+
+            perc_change.append((ocsp_dns_finish_time - ocsp_http_finish_time) / tot_time)
+
+    with open('perc_change.json', "w") as ouf:
+        json.dump(perc_change, fp=ouf)
+
+    for e in list_only_first_filter:
+        #         fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
+        server_name = e['server_name']
+        ocsp_host = e['ocsp_host']
+
+        dns_A_time = .5/1000
+        dns_OCSP_time = .5/1000
+
+        ocsp_http_time = None
+        if ocsp_host in host_to_median_http_time:
+            ocsp_http_time = host_to_median_http_time['ocsp_host']
+
+
+
+        client_hello_time = e['client_hello_time']
+        server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
+        change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
+        encrypted_data_time_app = None
+        if 'encrypted_data_time_app' in e:
+            encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
+
+
+
+        if dns_A_time and dns_OCSP_time and ocsp_http_time:
+            # think why **
+            old_finish_time = change_cipher_time_server
+
+            ocsp_http_finish_time = max(server_hello_time + ocsp_http_time, old_finish_time)
+
+            ocsp_dns_fetch = dns_OCSP_time
+
+            if ocsp_dns_fetch < old_finish_time:
+                ocsp_dns_finish_time = old_finish_time
+            else:
+                ocsp_dns_finish_time = ocsp_dns_fetch
+
+
+            tot_time = ocsp_http_finish_time - client_hello_time
+
+            perc_change_cache.append((ocsp_dns_finish_time - ocsp_http_finish_time) / tot_time)
+
+    with open('perc_change_cache.json', "w") as ouf:
+        json.dump(perc_change_cache, fp=ouf)
 
 
