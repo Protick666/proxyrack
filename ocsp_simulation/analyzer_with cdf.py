@@ -308,7 +308,6 @@ for p in final_list:
         tp = arr.copy()
         tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'],  e['ocsp_2'], e['server_name']]
         master_arr.append(tp)
-
         a = 1
     except:
         pass
