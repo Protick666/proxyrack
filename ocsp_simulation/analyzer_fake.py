@@ -349,7 +349,7 @@ def until_first_filter():
         server_name_set.add(e['server_name'])
         list_only_first_filter.append(e)
 
-    print("TLS connections after first filter {}, for {} servers".format(len(list_only_tls2), len(server_name_set)))
+    print("TLS connections after first filter {}, for {} servers".format(len(list_only_first_filter), len(server_name_set)))
 
     with open('first_filter.json', "w") as ouf:
         json.dump(list_only_first_filter, fp=ouf)
