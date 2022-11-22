@@ -267,6 +267,9 @@ def until_first_filter():
     list_only_first_filter = []
     fingerprint_to_ocsp_host = get_fingerprint_to_ocsp_host()
 
+    field_case = 0
+    fingerprint_case = 0
+
     for e in list_only_tls2:
         fields = ['client_hello_time', 'server_hello_time', 'change_cipher_time_server', 'server_name', 'fingerprint']
 
@@ -276,14 +279,17 @@ def until_first_filter():
                 not_found = True
                 break
         if not_found:
+            field_case += 1
             continue
 
         if e['fingerprint'] not in fingerprint_to_ocsp_host:
+            fingerprint_case += 1
             continue
         e['ocsp_host'] = fingerprint_to_ocsp_host[e['fingerprint']]
         ocsp_host_set.add(fingerprint_to_ocsp_host[e['fingerprint']])
         server_name_set.add(e['server_name'])
         list_only_first_filter.append(e)
+    print("Field case {}, fingerprint case {}".format(field_case, fingerprint_case))
 
     print("TLS connections after first filter {}, for {} servers".format(len(list_only_first_filter), len(server_name_set)))
 
