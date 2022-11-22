@@ -300,18 +300,18 @@ def until_first_filter():
     host_to_uid_list, uids_of_interest_in_http = get_host_to_uid_list(ocsp_host_set)
     uid_to_response_time = analyze_custom_logs(allowed_uids=uids_of_interest_in_http)
 
-    qname_to_rtt_list_vt, qname_to_rtt_list_nvt = build_dns()
+    # qname_to_rtt_list_vt, qname_to_rtt_list_nvt = build_dns()
 
-    # f = open('qname_to_rtt_list_vt.json')
-    # qname_to_rtt_list_vt = json.load(f)
-    # f = open('qname_to_rtt_list_nvt.json')
-    # qname_to_rtt_list_nvt = json.load(f)
+    f = open('qname_to_rtt_list_vt.json')
+    qname_to_rtt_list_vt = json.load(f)
+    f = open('qname_to_rtt_list_nvt.json')
+    qname_to_rtt_list_nvt = json.load(f)
 
-    with open('qname_to_rtt_list_vt.json', "w") as ouf:
-        json.dump(qname_to_rtt_list_vt, fp=ouf)
-
-    with open('qname_to_rtt_list_nvt.json', "w") as ouf:
-        json.dump(qname_to_rtt_list_nvt, fp=ouf)
+    # with open('qname_to_rtt_list_vt.json', "w") as ouf:
+    #     json.dump(qname_to_rtt_list_vt, fp=ouf)
+    #
+    # with open('qname_to_rtt_list_nvt.json', "w") as ouf:
+    #     json.dump(qname_to_rtt_list_nvt, fp=ouf)
 
     qname_to_median_rtt_vt = get_median_dict(qname_to_rtt_list_vt)
     qname_to_median_rtt_nvt = get_median_dict(qname_to_rtt_list_nvt)
@@ -408,7 +408,7 @@ def until_first_filter():
     tot = not_found_server_dns.union(not_found_host_dns).union(not_found_host_ocsp)
     print("not_found_server_dns {}, not_found_host_dns {}, not_found_host_ocsp {}".format(len(not_found_server_dns), len(not_found_host_dns), len(not_found_host_dns)))
     print("total malfunc {}".format(len(tot)))
-    print("new correct {}".format(new_correct))
+    print("new correct {}".format(len(new_correct)))
 
     ultimate = []
 
