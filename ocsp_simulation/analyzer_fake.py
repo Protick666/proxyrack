@@ -376,7 +376,7 @@ def until_first_filter():
 
         if ocsp_http_time is None:
             not_found_host_ocsp.add(e['uid'])
-            print(ocsp_host)
+            #print(ocsp_host)
 
         if dns_A_time and dns_OCSP_time and ocsp_http_time:
             new_correct.append(e)
