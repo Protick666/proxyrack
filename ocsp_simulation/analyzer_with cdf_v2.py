@@ -9,7 +9,7 @@ import matplotlib
 global_normal_dns_rtt = []
 
 def do_so(mode, sesh):
-    base_path = '/source/pcap/zeek_logs/{}/{}-{}/'.format(mode, sesh - 500 + 1, sesh)
+    base_path = '/net/data/dns-ttl/pcap/zeek_logs/{}/{}-{}/'.format(mode, sesh - 500 + 1, sesh)
     #base_path = '/home/protick/zeek_dumps/'
     def analyze_custom_logs():
         # serial_number = (start, end)
