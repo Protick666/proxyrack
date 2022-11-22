@@ -338,18 +338,15 @@ def until_first_filter():
         if ocsp_host in host_to_median_http_time:
             ocsp_http_time = host_to_median_http_time['ocsp_host']
 
-
-
-        client_hello_time = e['client_hello_time']
-        server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
-        change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
-        encrypted_data_time_app = None
-        if 'encrypted_data_time_app' in e:
-            encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
-
-
-
         if dns_A_time and dns_OCSP_time and ocsp_http_time:
+            client_hello_time = e['client_hello_time']
+            server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
+            change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
+            encrypted_data_time_app = None
+            if 'encrypted_data_time_app' in e:
+                encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
+
+
             # think why **
             old_finish_time = change_cipher_time_server
 
@@ -382,18 +379,13 @@ def until_first_filter():
         if ocsp_host in host_to_median_http_time:
             ocsp_http_time = host_to_median_http_time['ocsp_host']
 
-
-
-        client_hello_time = e['client_hello_time']
-        server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
-        change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
-        encrypted_data_time_app = None
-        if 'encrypted_data_time_app' in e:
-            encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
-
-
-
         if dns_A_time and dns_OCSP_time and ocsp_http_time:
+            client_hello_time = e['client_hello_time']
+            server_hello_time = e['server_hello_time'] - client_hello_time + dns_A_time
+            change_cipher_time_server = e['change_cipher_time_server'] - client_hello_time + dns_A_time
+            encrypted_data_time_app = None
+            if 'encrypted_data_time_app' in e:
+                encrypted_data_time_app = e['encrypted_data_time_app'] - client_hello_time + dns_A_time
             # think why **
             old_finish_time = change_cipher_time_server
 
