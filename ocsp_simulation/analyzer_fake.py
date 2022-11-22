@@ -357,7 +357,7 @@ def until_first_filter():
 
         if dns_A_time is None:
             not_found_server_dns.add(e['uid'])
-            print(server_name)
+
 
         dns_OCSP_time = None
         if ocsp_host in qname_to_rtt_list_vt:
@@ -374,6 +374,7 @@ def until_first_filter():
 
         if ocsp_http_time is None:
             not_found_host_ocsp.add(e['uid'])
+            print(server_name)
 
         if dns_A_time and dns_OCSP_time and ocsp_http_time:
             new_correct.append(e)
