@@ -40,7 +40,7 @@ def load_time_lst(mode):
             time_lst.append((domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain]))
         except:
             pass
-
+    time_lst.sort()
     return time_lst
 
 
