@@ -179,7 +179,6 @@ def do_so(mode, sesh):
                 for key in e:
                     meta.__setattr__(key, e[key])
 
-
                 uid_to_info[meta.uid] = meta
             except Exception as e:
                 pass
@@ -193,14 +192,15 @@ def do_so(mode, sesh):
                     ts = uid_to_info[uid].ts
                     #print("For ts getting {} {}".format(ts, uid_to_info[uid].server_name))
                     meta_data = get_meta(time_lst, ts)
+                    print("Got meta {}".format(meta_data))
                     uid_to_info[uid].__setattr__('meta_data', meta_data)
-                    if len(meta_data) != 0:
-
-                        print("For ts got {} {}".format(ts, uid_to_info[uid].server_name))
+                    # if len(meta_data) != 0:
+                    #     print("For ts got {} {}".format(ts, uid_to_info[uid].server_name))
 
             except Exception as e:
                 print(e)
                 pass
+
 
         for uid in uid_to_info:
             try:
@@ -339,6 +339,7 @@ def do_so(mode, sesh):
             # draw_line(arr, "x", "y", e['server_name'], index, e['ocsp_1'],  e['ocsp_2'], e['ocsp_dns_1'], e['ocsp_dns_2'])
 
             tp = arr.copy()
+            print("meta {}".format(e['meta_data']))
             tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name'], e['meta_data']]
             master_arr.append(tp)
             a = 1
