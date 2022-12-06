@@ -191,10 +191,13 @@ def do_so(mode, sesh):
                     for key in e:
                         uid_to_info[uid].__setattr__(key, e[key])
                     ts = uid_to_info[uid].ts
+                    print("For ts getting {}".format(ts))
                     meta_data = get_meta(time_lst, ts)
                     uid_to_info[uid].__setattr__(meta_data, meta_data)
+                    print("For ts got {} {}".format(ts, meta_data))
 
             except Exception as e:
+                print(e)
                 pass
 
         for uid in uid_to_info:
