@@ -28,6 +28,7 @@ def load_time_lst(mode):
 
     for line in open('{}/my_log.log'.format(mode), 'r'):
         segments = line.split()
+        print()
         if 'end' in line:
             domain_to_end[segments[3]] = float(segments[-1])
         if 'start' in line:
@@ -35,7 +36,10 @@ def load_time_lst(mode):
         domain_to_rank[segments[3]] = segments[1]
 
     for domain in domain_to_rank:
-        time_lst.append((domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain]))
+        try:
+            time_lst.append((domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain]))
+        except:
+            pass
 
     return time_lst
 
@@ -55,6 +59,7 @@ def get_meta(time_lst, ts):
             l = mid + 1
         else:
             return mid
+    return []
 
 
 def do_so(mode, sesh):
