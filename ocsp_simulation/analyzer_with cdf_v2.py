@@ -8,8 +8,57 @@ import matplotlib
 
 global_normal_dns_rtt = []
 
+
+# Rank: 1, Domain: facebook.com, start: 1668757856.9980085
+# Rank: 1, Domain: facebook.com, end: 1668757859.3641381
+# [start, end, domain, rank]
+
+# docker cp warm_instance:/projects/stresstest/selenium_v2/log/my_log.log /home/protick/proxyrack/ocsp_simulation/warm_log
+# docker cp normal_instance:/projects/stresstest/selenium_v2/log/my_log.log /home/protick/proxyrack/ocsp_simulation/normal_log
+# docker cp cold_instance:/projects/stresstest/selenium_v2/log/my_log.log /home/protick/proxyrack/ocsp_simulation/cold_log
+
+
+# docker cp warm_instance:/projects/stresstest/selenium_v2/log/my_log.log /home/protick/proxyrack/ocsp_simulation/normal_log
+def load_time_lst(mode):
+    time_lst = []
+
+    domain_to_rank = {}
+    domain_to_start = {}
+    domain_to_end = {}
+
+    for line in open('{}/my_log.log'.format(mode), 'r'):
+        segments = line.split()
+        if 'end' in line:
+            domain_to_end[segments[3]] = float(segments[-1])
+        if 'start' in line:
+            domain_to_start[segments[3]] = float(segments[-1])
+        domain_to_rank[segments[3]] = segments[1]
+
+    for domain in domain_to_rank:
+        time_lst.append((domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain]))
+
+    return time_lst
+
+
+# (domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain])
+def get_meta(time_lst, ts):
+    l = 0
+    r = len(time_lst) - 1
+
+    while l <= r:
+        mid = (l + r) / 2
+        element_st = time_lst[mid][0]
+        element_end = time_lst[mid][1]
+        if element_st > ts:
+            r = mid - 1
+        elif element_end < ts:
+            l = mid + 1
+        else:
+            return mid
+
+
 def do_so(mode, sesh):
-    base_path = '/net/data/dns-ttl/pcap/zeek_logs/{}/{}-{}/'.format(mode, sesh - 500 + 1, sesh)
+    base_path = 'c/{}/{}-{}/'.format(mode, sesh - 500 + 1, sesh)
     #base_path = '/home/protick/zeek_dumps/'
     def analyze_custom_logs():
         # serial_number = (start, end)
@@ -56,7 +105,6 @@ def do_so(mode, sesh):
                     del uid_to_req_time[uid]
         return serial_num_to_tuples
 
-
     def get_uid_to_host():
         log_custom = []
         uid_to_host = {}
@@ -78,7 +126,7 @@ def do_so(mode, sesh):
             fingerprint_to_serial[e['fingerprint']] = e['certificate.serial']
         return fingerprint_to_serial
 
-    def get_final_list():
+    def get_final_list(time_lst):
         class Meta:
             pass
 
@@ -125,6 +173,8 @@ def do_so(mode, sesh):
                 meta = Meta()
                 for key in e:
                     meta.__setattr__(key, e[key])
+
+
                 uid_to_info[meta.uid] = meta
             except Exception as e:
                 pass
@@ -135,6 +185,10 @@ def do_so(mode, sesh):
                 if uid in uid_to_info:
                     for key in e:
                         uid_to_info[uid].__setattr__(key, e[key])
+                    ts = uid_to_info[uid].ts
+                    meta_data = get_meta(time_lst, ts)
+                    uid_to_info[uid].__setattr__(meta_data, meta_data)
+
             except Exception as e:
                 pass
 
@@ -143,7 +197,8 @@ def do_so(mode, sesh):
                 server_name = uid_to_info[uid].server_name
                 client_hello_time = uid_to_info[uid].client_hello_time
                 client_ip = uid_to_info[uid].__getattribute__('id.orig_h')
-                ans_tuple = get_dns_time(server_name=server_name, client_hello_time=client_hello_time,
+                ans_tuple = get_dns_time(server_name=server_name,
+                                         client_hello_time=client_hello_time,
                                          client_ip=client_ip,
                                          dns_log=dns_log)
                 if ans_tuple is not None:
@@ -156,7 +211,6 @@ def do_so(mode, sesh):
         for uid in uid_to_info:
             if hasattr(uid_to_info[uid], 'dns_start'):
                 final_list[uid] = uid_to_info[uid]
-
         return final_list
 
     init_time = time.time()
@@ -166,10 +220,12 @@ def do_so(mode, sesh):
     serial_num_to_tuples = analyze_custom_logs()
     for key in serial_num_to_tuples:
         serial_num_to_tuples[key].sort()
-    a = 1
 
     # all TLS timestamps with DNS
-    final_list = get_final_list()
+
+    time_lst = load_time_lst(mode)
+    final_list = get_final_list(time_lst)
+
     index = 0
 
     def get_appropriate_tuple(serial, serial_num_to_tuples, server_hello, server_name):
@@ -241,8 +297,6 @@ def do_so(mode, sesh):
         except:
             pass
 
-    version_set = set()
-
     # 1460
     master_arr = []
     for p in final_list:
@@ -252,8 +306,10 @@ def do_so(mode, sesh):
                 continue
             if e['resumed']:
                 continue
+
             index += 1
             arr = []
+
             arr.append(e["dns_start"])
             arr.append(e["dns_end"])
             arr.append(e["client_hello_time"])
@@ -269,10 +325,11 @@ def do_so(mode, sesh):
                 continue
             if e['ocsp_dns_1'] is not None:
                 a = 1
+
             # draw_line(arr, "x", "y", e['server_name'], index, e['ocsp_1'],  e['ocsp_2'], e['ocsp_dns_1'], e['ocsp_dns_2'])
 
             tp = arr.copy()
-            tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name']]
+            tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name'], e['meta_data']]
             master_arr.append(tp)
             a = 1
         except:
@@ -280,11 +337,12 @@ def do_so(mode, sesh):
 
     print("Time taken {}".format((time.time() - init_time) / 60))
 
-    with open("exp/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
+    with open("expv2/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
         json.dump(master_arr, fp=ouf)
 
 
 modes = ['cold_log', 'warm_log', 'normal_log']
+
 for mode in modes:
     init = 1
     sesh = 500
@@ -296,3 +354,8 @@ for mode in modes:
 
 with open("exp/normal_rtt.json", "w") as ouf:
     json.dump(global_normal_dns_rtt, fp=ouf)
+
+
+
+
+
