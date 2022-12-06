@@ -58,7 +58,7 @@ def get_meta(time_lst, ts):
         elif element_end < ts:
             l = mid + 1
         else:
-            return mid
+            return time_lst[mid]
     return []
 
 
@@ -193,7 +193,7 @@ def do_so(mode, sesh):
                     ts = uid_to_info[uid].ts
                     print("For ts getting {}".format(ts))
                     meta_data = get_meta(time_lst, ts)
-                    uid_to_info[uid].__setattr__(meta_data, meta_data)
+                    uid_to_info[uid].__setattr__('meta_data', meta_data)
                     print("For ts got {} {}".format(ts, meta_data))
 
             except Exception as e:
