@@ -28,7 +28,7 @@ def load_time_lst(mode):
 
     for line in open('{}/my_log.log'.format(mode), 'r'):
         segments = line.split()
-        print()
+        # print()
         if 'end' in line:
             domain_to_end[segments[3]] = float(segments[-1])
         if 'start' in line:
