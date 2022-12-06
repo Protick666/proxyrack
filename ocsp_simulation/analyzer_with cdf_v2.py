@@ -191,10 +191,12 @@ def do_so(mode, sesh):
                     for key in e:
                         uid_to_info[uid].__setattr__(key, e[key])
                     ts = uid_to_info[uid].ts
-                    print("For ts getting {} {}".format(ts, uid_to_info[uid].server_name))
+                    #print("For ts getting {} {}".format(ts, uid_to_info[uid].server_name))
                     meta_data = get_meta(time_lst, ts)
                     uid_to_info[uid].__setattr__('meta_data', meta_data)
-                    print("For ts got {} {}".format(ts, meta_data))
+                    if len(meta_data) == 0:
+
+                        print("For ts got {} {}".format(ts, uid_to_info[uid].server_name))
 
             except Exception as e:
                 print(e)
