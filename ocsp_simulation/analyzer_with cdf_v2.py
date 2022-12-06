@@ -50,7 +50,7 @@ def get_meta(time_lst, ts):
     r = len(time_lst) - 1
 
     while l <= r:
-        mid = (l + r) / 2
+        mid = (l + r) // 2
         element_st = time_lst[mid][0]
         element_end = time_lst[mid][1]
         if element_st > ts:
