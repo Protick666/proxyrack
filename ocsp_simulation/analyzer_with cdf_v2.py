@@ -194,7 +194,7 @@ def do_so(mode, sesh):
                     #print("For ts getting {} {}".format(ts, uid_to_info[uid].server_name))
                     meta_data = get_meta(time_lst, ts)
                     uid_to_info[uid].__setattr__('meta_data', meta_data)
-                    if len(meta_data) == 0:
+                    if len(meta_data) != 0:
 
                         print("For ts got {} {}".format(ts, uid_to_info[uid].server_name))
 
