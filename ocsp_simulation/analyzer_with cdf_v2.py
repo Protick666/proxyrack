@@ -192,7 +192,7 @@ def do_so(mode, sesh):
                     ts = uid_to_info[uid].ts
                     #print("For ts getting {} {}".format(ts, uid_to_info[uid].server_name))
                     meta_data = get_meta(time_lst, ts)
-                    print("Got meta {}".format(meta_data))
+                    #print("Got meta {}".format(meta_data))
                     uid_to_info[uid].__setattr__('meta_data', meta_data)
                     # if len(meta_data) != 0:
                     #     print("For ts got {} {}".format(ts, uid_to_info[uid].server_name))
@@ -329,6 +329,10 @@ def do_so(mode, sesh):
             arr.append(e['established_time'])
             arr.append(e['encrypted_data_time_app'])
 
+            ocsp_staple_time = -1
+            if 'stapled_ocsp_time' in e:
+                ocsp_staple_time = e['stapled_ocsp_time']
+
             if e['version'] == 'TLSv13':
                 continue
             if e['ocsp_1'] > e['encrypted_data_time_app']:
@@ -341,13 +345,16 @@ def do_so(mode, sesh):
             tp = arr.copy()
             print("meta {}".format(e['meta_data']))
             tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name'], e['meta_data']]
+
+            tp.append(ocsp_staple_time)
+
             master_arr.append(tp)
         except:
             pass
 
     print("Time taken {}".format((time.time() - init_time) / 60))
 
-    with open("expv3/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
+    with open("expv4/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
         json.dump(master_arr, fp=ouf)
 
 
