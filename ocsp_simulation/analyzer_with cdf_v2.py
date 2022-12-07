@@ -238,7 +238,7 @@ def do_so(mode, sesh):
 
     master_arr = []
     for e in final_list:
-        master_arr.append(e.__dict__)
+        master_arr.append(final_list[e].__dict__)
 
     # index = 0
     #
