@@ -236,125 +236,129 @@ def do_so(mode, sesh):
     time_lst = load_time_lst(mode)
     final_list = get_final_list(time_lst)
 
-    index = 0
-
-    def get_appropriate_tuple(serial, serial_num_to_tuples, server_hello, server_name):
-        if serial not in serial_num_to_tuples:
-            return None
-        for t1, t2, uid in serial_num_to_tuples[serial]:
-            if t1 > server_hello:
-                host = None
-                if uid in uid_to_host:
-                    host = uid_to_host[uid]
-                return t1, t2, host
-        return None
-
-    server_dns_name_to_lst = defaultdict(lambda: list())
-
-    def build_dns(dns_log):
-        for e in dns_log:
-            try:
-                server_dns_name_to_lst[e['query']].append(e)
-                if 'rtt' in e and mode == 'normal_log':
-                    global_normal_dns_rtt.append(e['rtt'])
-
-            except:
-                pass
-
-    def get_dns_tuple(lim1, lim2, q_name):
-        set_ans = None
-        for e in server_dns_name_to_lst[q_name]:
-            try:
-                a = 1
-                if e['query'] == q_name and lim1 <= e['ts'] < e['ts'] + e['rtt'] <= lim2:
-                    if not set_ans:
-                        set_ans = e['ts'], e['ts'] + e['rtt']
-                    elif set_ans[0] < e['ts']:
-                        set_ans = e['ts'], e['ts'] + e['rtt']
-                a = 1
-            except Exception as err:
-                a = 1
-        if set_ans is None:
-            return None, None
-        return set_ans
-
-    dns_log = []
-    for line in open('{}dns.log'.format(base_path), 'r'):
-        dns_log.append(json.loads(line))
-    build_dns(dns_log)
-    # 643856ed9d2fce5408ca7ba627126996f20ceb0827f6ebd4fe7d80cea7a6a2c5
-
-    for p in final_list:
-        try:
-            e = final_list[p]
-            if hasattr(e, "cert_chain_fps"):
-                fp = e.cert_chain_fps[0]
-                serial = fingerprint_to_serial[fp]
-                server_hello = e.server_hello_time
-                time_tuple = get_appropriate_tuple(serial, serial_num_to_tuples, server_hello, e.server_name)
-                if time_tuple is not None:
-                    final_list[p].ocsp_1 = time_tuple[0]
-                    final_list[p].ocsp_2 = time_tuple[1]
-                    final_list[p].ocsp_host = time_tuple[2]
-
-                    # need change if dns not present !!
-
-                    final_list[p].ocsp_dns_1, final_list[p].ocsp_dns_2 = get_dns_tuple(e.server_hello_time,
-                                                                                       time_tuple[0],
-                                                                                       time_tuple[2])
-                else:
-                    a = 1
-        except:
-            pass
-
-    # 1460
     master_arr = []
-    for p in final_list:
-        try:
-            e = final_list[p].__dict__
-            if 'ocsp_1' not in e and 'ocsp_2' not in e:
-                continue
-            if e['resumed']:
-                continue
+    for e in final_list:
+        master_arr.append(e.__dict__)
 
-            index += 1
-            arr = []
+    # index = 0
+    #
+    # def get_appropriate_tuple(serial, serial_num_to_tuples, server_hello, server_name):
+    #     if serial not in serial_num_to_tuples:
+    #         return None
+    #     for t1, t2, uid in serial_num_to_tuples[serial]:
+    #         if t1 > server_hello:
+    #             host = None
+    #             if uid in uid_to_host:
+    #                 host = uid_to_host[uid]
+    #             return t1, t2, host
+    #     return None
+    #
+    # server_dns_name_to_lst = defaultdict(lambda: list())
+    #
+    # def build_dns(dns_log):
+    #     for e in dns_log:
+    #         try:
+    #             server_dns_name_to_lst[e['query']].append(e)
+    #             if 'rtt' in e and mode == 'normal_log':
+    #                 global_normal_dns_rtt.append(e['rtt'])
+    #
+    #         except:
+    #             pass
+    #
+    # def get_dns_tuple(lim1, lim2, q_name):
+    #     set_ans = None
+    #     for e in server_dns_name_to_lst[q_name]:
+    #         try:
+    #             a = 1
+    #             if e['query'] == q_name and lim1 <= e['ts'] < e['ts'] + e['rtt'] <= lim2:
+    #                 if not set_ans:
+    #                     set_ans = e['ts'], e['ts'] + e['rtt']
+    #                 elif set_ans[0] < e['ts']:
+    #                     set_ans = e['ts'], e['ts'] + e['rtt']
+    #             a = 1
+    #         except Exception as err:
+    #             a = 1
+    #     if set_ans is None:
+    #         return None, None
+    #     return set_ans
+    #
+    # dns_log = []
+    # for line in open('{}dns.log'.format(base_path), 'r'):
+    #     dns_log.append(json.loads(line))
+    # build_dns(dns_log)
+    # # 643856ed9d2fce5408ca7ba627126996f20ceb0827f6ebd4fe7d80cea7a6a2c5
+    #
+    # for p in final_list:
+    #     try:
+    #         e = final_list[p]
+    #         if hasattr(e, "cert_chain_fps"):
+    #             fp = e.cert_chain_fps[0]
+    #             serial = fingerprint_to_serial[fp]
+    #             server_hello = e.server_hello_time
+    #             time_tuple = get_appropriate_tuple(serial, serial_num_to_tuples, server_hello, e.server_name)
+    #             if time_tuple is not None:
+    #                 final_list[p].ocsp_1 = time_tuple[0]
+    #                 final_list[p].ocsp_2 = time_tuple[1]
+    #                 final_list[p].ocsp_host = time_tuple[2]
+    #
+    #                 # need change if dns not present !!
+    #
+    #                 final_list[p].ocsp_dns_1, final_list[p].ocsp_dns_2 = get_dns_tuple(e.server_hello_time,
+    #                                                                                    time_tuple[0],
+    #                                                                                    time_tuple[2])
+    #             else:
+    #                 a = 1
+    #     except:
+    #         pass
+    #
+    # # 1460
+    # master_arr = []
+    # for p in final_list:
+    #     try:
+    #         e = final_list[p].__dict__
+    #         if 'ocsp_1' not in e and 'ocsp_2' not in e:
+    #             continue
+    #         if e['resumed']:
+    #             continue
+    #
+    #         index += 1
+    #         arr = []
+    #
+    #         arr.append(e["dns_start"])
+    #         arr.append(e["dns_end"])
+    #         arr.append(e["client_hello_time"])
+    #         arr.append(e["server_hello_time"])
+    #         arr.append(e['change_cipher_time_client'])
+    #         arr.append(e['change_cipher_time_server'])
+    #         arr.append(e['established_time'])
+    #         arr.append(e['encrypted_data_time_app'])
+    #
+    #         ocsp_staple_time = -1
+    #         if 'stapled_ocsp_time' in e:
+    #             ocsp_staple_time = e['stapled_ocsp_time']
+    #
+    #         if e['version'] == 'TLSv13':
+    #             continue
+    #         if e['ocsp_1'] > e['encrypted_data_time_app']:
+    #             continue
+    #         if e['ocsp_dns_1'] is not None:
+    #             a = 1
+    #
+    #         # draw_line(arr, "x", "y", e['server_name'], index, e['ocsp_1'],  e['ocsp_2'], e['ocsp_dns_1'], e['ocsp_dns_2'])
+    #
+    #         tp = arr.copy()
+    #         #print("meta {}".format(e['meta_data']))
+    #         tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name'], e['meta_data']]
+    #
+    #         tp.append(ocsp_staple_time)
+    #
+    #         master_arr.append(tp)
+    #     except:
+    #         pass
+    #
+    # print("Time taken {}".format((time.time() - init_time) / 60))
 
-            arr.append(e["dns_start"])
-            arr.append(e["dns_end"])
-            arr.append(e["client_hello_time"])
-            arr.append(e["server_hello_time"])
-            arr.append(e['change_cipher_time_client'])
-            arr.append(e['change_cipher_time_server'])
-            arr.append(e['established_time'])
-            arr.append(e['encrypted_data_time_app'])
-
-            ocsp_staple_time = -1
-            if 'stapled_ocsp_time' in e:
-                ocsp_staple_time = e['stapled_ocsp_time']
-
-            if e['version'] == 'TLSv13':
-                continue
-            if e['ocsp_1'] > e['encrypted_data_time_app']:
-                continue
-            if e['ocsp_dns_1'] is not None:
-                a = 1
-
-            # draw_line(arr, "x", "y", e['server_name'], index, e['ocsp_1'],  e['ocsp_2'], e['ocsp_dns_1'], e['ocsp_dns_2'])
-
-            tp = arr.copy()
-            #print("meta {}".format(e['meta_data']))
-            tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name'], e['meta_data']]
-
-            tp.append(ocsp_staple_time)
-
-            master_arr.append(tp)
-        except:
-            pass
-
-    print("Time taken {}".format((time.time() - init_time) / 60))
-
-    with open("expv4/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
+    with open("expv5/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
         json.dump(master_arr, fp=ouf)
 
 
