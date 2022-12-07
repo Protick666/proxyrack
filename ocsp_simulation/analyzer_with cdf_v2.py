@@ -342,17 +342,17 @@ def do_so(mode, sesh):
             print("meta {}".format(e['meta_data']))
             tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name'], e['meta_data']]
             master_arr.append(tp)
-            a = 1
         except:
             pass
 
     print("Time taken {}".format((time.time() - init_time) / 60))
 
-    with open("expv2/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
+    with open("expv3/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
         json.dump(master_arr, fp=ouf)
 
 
 modes = ['cold_log', 'warm_log', 'normal_log']
+# modes = ['cold_log']
 
 for mode in modes:
     init = 1
