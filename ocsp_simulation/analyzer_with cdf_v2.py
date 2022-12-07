@@ -358,7 +358,7 @@ def do_so(mode, sesh):
     #
     # print("Time taken {}".format((time.time() - init_time) / 60))
 
-    with open("expv5/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
+    with open("expv6/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
         json.dump(master_arr, fp=ouf)
 
 
