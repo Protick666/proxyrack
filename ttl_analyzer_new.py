@@ -323,6 +323,38 @@ def table_maker_v2():
             json.dump(country_to_meta, fp=ouf, indent=2)
 
 
+def get_client_to_country_distro():
+    print("Yo")
+    f = open("/home/protick/ocsp_dns_tools/ttl_new_results/ip_hash_to_asn_global.json")
+    ip_hash_to_asn = json.load(f)
+    cn_to_exitnode_set = defaultdict(lambda: set())
+    exitnode_set = set()
+    cn_to_perc_list = []
+    for ttl in allowed_ttl:
+        final_dict = get_verdict_list(ttl)
+
+        for key in final_dict:
+            for e in final_dict[key]["b"]:
+                client_asn = ip_hash_to_asn[e]
+                exitnode_set.add(e)
+                org, cntry = get_org_cn(client_asn)
+                cn_to_exitnode_set[cntry].add(e)
+
+            for e in final_dict[key]["g"]:
+                client_asn = ip_hash_to_asn[e]
+                exitnode_set.add(e)
+                org, cntry = get_org_cn(client_asn)
+                cn_to_exitnode_set[cntry].add(e)
+
+    for cn in cn_to_exitnode_set:
+        cn_to_perc_list.append((len(cn_to_exitnode_set[cn])/len(exitnode_set), cn))
+    cn_to_perc_list.sort(reverse=True)
+
+    with open("cn_to_perc_list.json", "w") as ouf:
+        json.dump(cn_to_perc_list, fp=ouf)
+
+
+
 def table_maker_v3():
     org_to_local_count = defaultdict(lambda : 0)
     resolver_to_ratio = {}
@@ -366,10 +398,12 @@ def table_maker_v3():
 
             # if total < 5:
             #     continue
-            if total>0:
+
+            if total > 0:
                 ratio = len(incorrect_set) / total
             else:
                 ratio = "n/a"
+
             resolver_to_ratio[key] = ratio
             resolver_to_tot[key] = total
 
@@ -880,4 +914,6 @@ def find_one_min_dishonoring_resolvers():
 
 # find_one_min_dishonoring_resolvers()
 
-init()
+# init()
+
+get_client_to_country_distro()
