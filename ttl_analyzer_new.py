@@ -347,12 +347,13 @@ def get_client_to_country_distro():
                 cn_to_exitnode_set[cntry].add(e)
 
     for cn in cn_to_exitnode_set:
-        cn_to_perc_list.append((len(cn_to_exitnode_set[cn])/len(exitnode_set), cn))
+        cn_to_perc_list.append((len(cn_to_exitnode_set[cn])/len(exitnode_set), cn, len(cn_to_exitnode_set[cn])))
     cn_to_perc_list.sort(reverse=True)
+
+    print(len(exitnode_set))
 
     with open("cn_to_perc_list.json", "w") as ouf:
         json.dump(cn_to_perc_list, fp=ouf)
-
 
 
 def table_maker_v3():
