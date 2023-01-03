@@ -108,12 +108,10 @@ def preprocess_all_resolvers():
 
 
 def preprocess_all_resolver_v2():
-    f = open("/home/ashiq/PulseMaster/Outer_updates/dnssec_result/new_ttl_dnssec_summary_support_validate.json")
+    f = open("/home/ashiq/PulseMaster/Outer_updates/temp/resolver-list.json")
     d = json.load(f)
-    ans = list()
-    ans = list(d.keys())
 
-    resolver_list = list(ans)
+    resolver_list = list(d)
 
     pool = ThreadPool(30)
     results = pool.map(preprocess_resolver, resolver_list)
@@ -917,4 +915,4 @@ def find_one_min_dishonoring_resolvers():
 
 # init()
 
-get_client_to_country_distro()
+# get_client_to_country_distro()
