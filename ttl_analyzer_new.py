@@ -127,6 +127,7 @@ def preprocess_all_resolver_v2():
 
     with open(parent_path + "ip_to_asn_dict_ishtiaq.json", "w") as ouf:
         json.dump(ip_to_asn, fp=ouf)
+    print(ip_to_asn)
     print("Done")
 
 
