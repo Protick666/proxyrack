@@ -109,7 +109,7 @@ def analyze_second_step():
     d = json.load(f)
     a = 1
 
-analyze_second_step()
+analyze_init()
 
 
 
