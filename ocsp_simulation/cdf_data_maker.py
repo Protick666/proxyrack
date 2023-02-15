@@ -4,26 +4,26 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def multiple_line_drawer(N, x_list, y_list, tick_index, label_list, title='x', marker='.', linewidth=.025):
+def multiple_line_drawer(N, x_list, y_list, label_list, title='x', marker='.'):
     # import seaborn as sns
     # sns.set()
-    # fig, axs = plt.subplots(figsize=(20, 15))
+    #fig, axs = plt.subplots(figsize=(10, 20))
     # No of data points used
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
 
-    fig, ax = plt.subplots(figsize=(25, 5))
+    fig, ax = plt.subplots(figsize=(10, 8))
 
     for i in range(N):
-        y_lst_in_ms = [e * 100 for e in y_list[i]]
-        plt.plot(x_list[i], y_lst_in_ms, label=label_list[i], marker=marker, linewidth=linewidth)
+        y_lst_in_ms = [e * 1000 for e in y_list[i]]
+        plt.plot(x_list[i], y_lst_in_ms, label=label_list[i], marker=marker)
     # plt.xlabel('Iterations')
-    plt.ylabel('Response time in seconds')
+    plt.ylabel('Response time in milliseconds')
     plt.legend(loc='best')
 
-    x_ticks = [e[0] for e in tick_index]
-    x_ticks_labels = [e[1] for e in tick_index]
-    plt.xticks(x_ticks, x_ticks_labels)
+    # x_ticks = [e[0] for e in tick_index]
+    # x_ticks_labels = [e[1] for e in tick_index]
+    # plt.xticks(x_ticks, x_ticks_labels)
 
     plt.title(title)
 
@@ -141,7 +141,7 @@ def analyze_single_entry(e):
         else:
             diff_reactive =  reactive_ocsp_end - old_ocsp_end
             diff_proactive = proactive_ocsp_end - old_ocsp_end
-        return diff_reactive / tot_time, diff_proactive / tot_time, graph_tuple
+        return diff_reactive / tot_time, diff_proactive / tot_time, graph_tuple, diff_reactive, diff_proactive
     except Exception as e:
         a = 1
 
@@ -150,16 +150,22 @@ def analyze_zeek_output(file):
     d = json.load(f)
     arr_reactive = []
     arr_proactive = []
+
+    arr_reactive_ac = []
+    arr_proactive_ac = []
+
     for e in d:
         try:
-            reactive_ratio, proactive_ratio, graph_tuple = analyze_single_entry(e)
+            reactive_ratio, proactive_ratio, graph_tuple, diff_reactive, diff_proactive = analyze_single_entry(e)
             if reactive_ratio is not None:
                 arr_reactive.append((reactive_ratio, graph_tuple))
+                arr_reactive_ac.append(diff_reactive)
             if proactive_ratio is not None:
                 arr_proactive.append((proactive_ratio, graph_tuple))
+                arr_proactive_ac.append(diff_proactive)
         except Exception as err:
             a = 1
-    return arr_reactive, arr_proactive
+    return arr_reactive, arr_proactive, arr_reactive_ac, arr_proactive_ac
 
 
 def analyze_init():
@@ -167,10 +173,16 @@ def analyze_init():
 
     for mode in modes:
         for staple_mode in staple_modes:
+
             first_reactive_arr = []
             first_proactive_arr = []
             second_proactive_arr = []
             second_reactive_arr = []
+
+            first_reactive_arr_ac = []
+            first_proactive_arr_ac = []
+            second_proactive_arr_ac = []
+            second_reactive_arr_ac = []
 
             first_domains = 0
             second_domains = 0
@@ -182,16 +194,22 @@ def analyze_init():
                 sub_segs = file_name.split("-")
                 index_first = int(sub_segs[0])
                 index_second = int(sub_segs[1][: -5])
-                arr_reactive, arr_proactive = analyze_zeek_output(file)
+                arr_reactive, arr_proactive, arr_reactive_ac, arr_proactive_ac  = analyze_zeek_output(file)
 
                 if index_first < 30000:
                     first_domains += index_second - index_first + 1
                     first_reactive_arr += arr_reactive
                     first_proactive_arr += arr_proactive
+
+                    first_reactive_arr_ac += arr_reactive_ac
+                    first_proactive_arr_ac += arr_proactive_ac
                 else:
                     second_domains += index_second - index_first + 1
                     second_reactive_arr += arr_reactive
                     second_proactive_arr += arr_proactive
+
+                    second_reactive_arr_ac += arr_reactive_ac
+                    second_proactive_arr_ac += arr_proactive_ac
 
             mother_str = "{}-{}".format(mode, staple_mode)
             store = {}
@@ -199,6 +217,11 @@ def analyze_init():
             store["second_reactive_arr"] = second_reactive_arr
             store["first_proactive_arr"] = first_proactive_arr
             store["second_proactive_arr"] = second_proactive_arr
+
+            store["first_reactive_arr_ac"] = first_reactive_arr_ac
+            store["second_reactive_arr_ac"] = second_reactive_arr_ac
+            store["first_proactive_arr_ac"] = first_proactive_arr_ac
+            store["second_proactive_arr_ac"] = second_proactive_arr_ac
 
             store["f_domains"] = first_domains
             store["l_domains"] = second_domains
@@ -214,6 +237,38 @@ def draw_graphs():
     d = json.load(f)
     a = 1
     # a = 1
+    tuple_list = []
+    for e in d['warm-stapledon']['second_proactive_arr']:
+        tuple = e[1]
+        tuple_list.append(tuple)
+        # dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
+    tuple_list.sort()
+
+    base_dns_list = []
+    ocsp_dns_list = []
+    ocsp_http_list = []
+    base_tls_list = []
+    tot_ocsp_overhead_list = []
+    x_list = []
+    x_list_master = []
+
+    index = 1
+
+    for tuple in tuple_list:
+        dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
+        # base_dns_list.append(base_dns)
+        ocsp_dns_list.append(ocsp_dns)
+        ocsp_http_list.append(ocsp_http)
+        base_tls_list.append(base_tls)
+        x_list.append(index)
+        index += 1
+        tot_ocsp_overhead_list.append(tot_ocsp_overhead)
+        if index == 50:
+            break
+
+    for i in range(3):
+        x_list_master.append(x_list)
+    multiple_line_drawer(N=3, x_list=x_list_master, y_list=[ocsp_dns_list, ocsp_http_list, base_tls_list], label_list=["ocsp_dns_list", "ocsp_http_list", "base_tls_list"], title='xx')
 
 analyze_init()
 # analyze_second_step()
