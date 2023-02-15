@@ -80,9 +80,9 @@ def cdf_multiple(x_list, label_lst, title, x_label):
 
         x_x, y_y = get_smaller_cdf(x, y)
         new_list = zip(x_x, y_y)
-        with open("paper_cdf/cdn-{}.csv".format(lb), 'w') as csvfile:
-            filewriter = csv.writer(csvfile)
-            filewriter.writerows(new_list)
+        # with open("paper_cdf/cdn-{}.csv".format(lb), 'w') as csvfile:
+        #     filewriter = csv.writer(csvfile)
+        #     filewriter.writerows(new_list)
 
         plt.plot(x, y, marker='.', label=label, lw=.1)
         index += 1
@@ -137,7 +137,7 @@ def analyze_single_entry(e):
         tot_time = encrypted_data_time_app - client_hello_time
 
         if old_ocsp_end <= established_time:
-            return 0, 0, graph_tuple
+            return 0, 0, graph_tuple, 0, 0
         else:
             diff_reactive =  reactive_ocsp_end - old_ocsp_end
             diff_proactive = proactive_ocsp_end - old_ocsp_end
@@ -231,12 +231,25 @@ def analyze_init():
     with open("mother_dict.json", "w") as ouf:
         json.dump(store_dict, fp=ouf)
 
+def mult(arr, p):
+    d = []
+    for e in arr:
+        d.append(max(e * p, -100))
+    return d
 
 def draw_graphs():
     f = open("data/mother_dict.json")
     d = json.load(f)
     a = 1
     # a = 1
+
+    f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/ocsp_simulation/data/mother_dict.json")
+    d = json.load(f)
+
+    cdf_multiple(
+        [mult(d['cold-stapledon']['first_proactive_arr_ac'], 100), mult(d['cold-stapledon']['second_proactive_arr_ac'], 100)],
+        ['Top', 'Bottom'], "CDF", "Percentage")
+
     tuple_list = []
     for e in d['warm-stapledon']['second_proactive_arr']:
         tuple = e[1]
