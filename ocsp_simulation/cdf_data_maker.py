@@ -22,8 +22,8 @@ def analyze_single_entry(e):
         # dns_start, dns_end, client_hello_time, server_hello_time, change_cipher_time_client, change_cipher_time_server, established_time, encrypted_data_time_app, ocsp_dns_1, ocsp_dns_2, ocsp_1, ocsp_2, server_name, meta, _ = e
         dns_start, dns_end, client_hello_time, server_hello_time, change_cipher_time_client, change_cipher_time_server, established_time, encrypted_data_time_app, ocsp_dns_1, ocsp_dns_2, ocsp_1, ocsp_2, server_name = e
 
-        # if "demdex" in server_name or "mozilla" in server_name:
-        #     return None, None
+        if "demdex" in server_name or "mozilla" in server_name:
+            return None, None
 
         old_ocsp_end = ocsp_2
         reactive_ocsp_end = max(ocsp_dns_2, established_time)
@@ -48,9 +48,9 @@ def analyze_zeek_output(file):
     for e in d:
         try:
             reactive_ratio, proactive_ratio = analyze_single_entry(e)
-            if reactive_ratio:
+            if reactive_ratio is not None:
                 arr_reactive.append(reactive_ratio)
-            if proactive_ratio:
+            if proactive_ratio is not None:
                 arr_proactive.append(proactive_ratio)
         except Exception as err:
             a = 1
@@ -105,11 +105,12 @@ def analyze_init():
 
 
 def analyze_second_step():
-    f = open("data/mother_dict.json")
+    f = open("data/mother_dict_cor.json")
     d = json.load(f)
     a = 1
 
 analyze_init()
+# analyze_second_step()
 
 
 
