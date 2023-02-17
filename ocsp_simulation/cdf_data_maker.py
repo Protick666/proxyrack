@@ -137,11 +137,11 @@ def analyze_single_entry(e):
         tot_time = encrypted_data_time_app - client_hello_time
 
         if old_ocsp_end <= established_time:
-            return 0, 0, graph_tuple, 0, 0
+            return 0, 0, graph_tuple, 0, 0, 0, 0
         else:
             diff_reactive =  reactive_ocsp_end - old_ocsp_end
             diff_proactive = proactive_ocsp_end - old_ocsp_end
-        return diff_reactive / tot_time, diff_proactive / tot_time, graph_tuple, diff_reactive, diff_proactive
+        return diff_reactive / tot_time, diff_proactive / tot_time, graph_tuple, diff_reactive, diff_proactive, old_ocsp_end - established_time, (old_ocsp_end - established_time) / tot_time
     except Exception as e:
         a = 1
 
@@ -154,9 +154,16 @@ def analyze_zeek_output(file):
     arr_reactive_ac = []
     arr_proactive_ac = []
 
+    penalty_arr = []
+    penalty_normalized_arr = []
+
     for e in d:
         try:
-            reactive_ratio, proactive_ratio, graph_tuple, diff_reactive, diff_proactive = analyze_single_entry(e)
+            reactive_ratio, proactive_ratio, graph_tuple, diff_reactive, diff_proactive, penalty, penalty_normalized = analyze_single_entry(e)
+
+            penalty_arr.append(penalty)
+            penalty_normalized_arr.append(penalty_normalized)
+
             if reactive_ratio is not None:
                 arr_reactive.append((reactive_ratio, graph_tuple))
                 arr_reactive_ac.append(diff_reactive)
@@ -165,7 +172,7 @@ def analyze_zeek_output(file):
                 arr_proactive_ac.append(diff_proactive)
         except Exception as err:
             a = 1
-    return arr_reactive, arr_proactive, arr_reactive_ac, arr_proactive_ac
+    return arr_reactive, arr_proactive, arr_reactive_ac, arr_proactive_ac, penalty_arr, penalty_normalized_arr
 
 
 def analyze_init():
@@ -184,6 +191,11 @@ def analyze_init():
             second_proactive_arr_ac = []
             second_reactive_arr_ac = []
 
+            first_penalty_arr = []
+            first_penalty_normalized_arr = []
+            second_penalty_arr = []
+            second_penalty_normalized_arr = []
+
             first_domains = 0
             second_domains = 0
 
@@ -194,7 +206,7 @@ def analyze_init():
                 sub_segs = file_name.split("-")
                 index_first = int(sub_segs[0])
                 index_second = int(sub_segs[1][: -5])
-                arr_reactive, arr_proactive, arr_reactive_ac, arr_proactive_ac  = analyze_zeek_output(file)
+                arr_reactive, arr_proactive, arr_reactive_ac, arr_proactive_ac, penalty_arr, penalty_normalized_arr  = analyze_zeek_output(file)
 
                 if index_first < 30000:
                     first_domains += index_second - index_first + 1
@@ -203,6 +215,9 @@ def analyze_init():
 
                     first_reactive_arr_ac += arr_reactive_ac
                     first_proactive_arr_ac += arr_proactive_ac
+
+                    first_penalty_arr += penalty_arr
+                    first_penalty_normalized_arr += penalty_normalized_arr
                 else:
                     second_domains += index_second - index_first + 1
                     second_reactive_arr += arr_reactive
@@ -210,6 +225,9 @@ def analyze_init():
 
                     second_reactive_arr_ac += arr_reactive_ac
                     second_proactive_arr_ac += arr_proactive_ac
+
+                    second_penalty_arr += penalty_arr
+                    second_penalty_normalized_arr += penalty_normalized_arr
 
             mother_str = "{}-{}".format(mode, staple_mode)
             store = {}
@@ -223,6 +241,11 @@ def analyze_init():
             store["first_proactive_arr_ac"] = first_proactive_arr_ac
             store["second_proactive_arr_ac"] = second_proactive_arr_ac
 
+            store["first_penalty_arr"] = first_penalty_arr
+            store["first_penalty_normalized_arr"] = first_penalty_normalized_arr
+            store["second_penalty_arr"] = second_penalty_arr
+            store["second_penalty_normalized_arr"] = second_penalty_normalized_arr
+
             store["f_domains"] = first_domains
             store["l_domains"] = second_domains
 
@@ -233,8 +256,10 @@ def analyze_init():
 
 def mult(arr, p):
     d = []
+    arr = [e[0] for e in arr]
     for e in arr:
-        d.append(max(e * p, -100))
+        d.append(max(e * p, -200))
+        # d.append(e * p)
     return d
 
 def draw_graphs():
@@ -247,16 +272,18 @@ def draw_graphs():
     d = json.load(f)
 
     cdf_multiple(
-        [mult(d['cold-stapledon']['first_proactive_arr_ac'], 100), mult(d['cold-stapledon']['second_proactive_arr_ac'], 100)],
-        ['Top', 'Bottom'], "CDF", "Percentage")
+        [mult(d['warm-stapledon']['first_proactive_arr'], 100), mult(d['warm-stapledon']['second_proactive_arr'], 100),
+         mult(d['cold-stapledon']['first_proactive_arr'], 100), mult(d['cold-stapledon']['second_proactive_arr'], 100)],
+        ['Warm Cache Top 5k', 'Warm Cache Bottom 5k', 'Cold Cache Top 5k', 'Cold Cache Bottom 5k'], "CDF", "Percentage")
 
     tuple_list = []
+
     for e in d['warm-stapledon']['second_proactive_arr']:
         tuple = e[1]
         tuple_list.append(tuple)
         # dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
-    tuple_list.sort()
 
+    tuple_list.sort()
     base_dns_list = []
     ocsp_dns_list = []
     ocsp_http_list = []
@@ -281,11 +308,93 @@ def draw_graphs():
 
     for i in range(3):
         x_list_master.append(x_list)
+
     multiple_line_drawer(N=3, x_list=x_list_master, y_list=[ocsp_dns_list, ocsp_http_list, base_tls_list], label_list=["ocsp_dns_list", "ocsp_http_list", "base_tls_list"], title='xx')
+
+
+
+def draw_graphs_v2():
+    # f = open("data/mother_dict.json")
+    # d = json.load(f)
+    # a = 1
+    # # a = 1
+
+    f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/ocsp_simulation/data/mother_dict.json")
+    d = json.load(f)
+
+    # cdf_multiple(
+    #     [mult(d['warm-stapledon']['first_proactive_arr'], 100), mult(d['warm-stapledon']['second_proactive_arr'], 100),
+    #      mult(d['cold-stapledon']['first_proactive_arr'], 100), mult(d['cold-stapledon']['second_proactive_arr'], 100)],
+    #     ['Warm Cache Top 5k', 'Warm Cache Bottom 5k', 'Cold Cache Top 5k', 'Cold Cache Bottom 5k'], "CDF", "Percentage")
+
+    tuple_list_warm_first = []
+    tuple_list_warm_second = []
+
+    for e in d['warm-stapledon']['second_proactive_arr']:
+        tuple = e[1]
+        tuple_list_warm_second.append(tuple)
+
+    for e in d['warm-stapledon']['first_proactive_arr']:
+        tuple = e[1]
+        tuple_list_warm_first.append(tuple)
+        # dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
+
+    tuple_list_warm_first.sort()
+    tuple_list_warm_second.sort(reverse=True)
+
+    # base_dns_list = []
+    # ocsp_dns_list = []
+    # ocsp_http_list = []
+    # base_tls_list = []
+    # tot_ocsp_overhead_list = []
+
+    x_list = []
+    x_list_first = []
+    x_list_second = []
+
+    ocsp_http_list_second = []
+    base_tls_list_second = []
+    ocsp_http_list_first = []
+    base_tls_list_first = []
+
+    index = 1
+    for tuple in tuple_list_warm_first:
+        dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
+        # base_dns_list.append(base_dns)
+        ocsp_http_list_first.append(ocsp_http)
+        base_tls_list_first.append(base_tls)
+
+        x_list_first.append(index)
+        index += 1
+        if index == 100:
+            break
+
+    index = 1
+    for tuple in tuple_list_warm_second:
+        dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
+        # base_dns_list.append(base_dns)
+
+        ocsp_http_list_second.append(ocsp_http)
+        base_tls_list_second.append(base_tls)
+
+        #x_list_first.append(index)
+        index += 1
+        if index == 100:
+            break
+
+    for i in range(2):
+        x_list.append(x_list_first)
+
+    # multiple_line_drawer(N=2, x_list=x_list, y_list=[ocsp_http_list_second, base_tls_list_second, ocsp_http_list_first, base_tls_list_first], label_list=["OCSP HTTP response time - Bottom 5k", "OCSP TLS handshake time - Bottom 5k", "OCSP HTTP response time - Top 5k", "OCSP TLS handshake time - Top 5k"], title='xx')
+    # multiple_line_drawer(N=2, x_list=x_list, y_list=[ocsp_http_list_second, ocsp_http_list_first], label_list=["OCSP HTTP response time - Bottom 5k", "OCSP HTTP response time - Top 5k"], title='xx')
+
+    multiple_line_drawer(N=2, x_list=x_list, y_list=[base_tls_list_second, base_tls_list_first], label_list=["OCSP TLS handshake time - Bottom 5k", "OCSP TLS handshake time - Top 5k"], title='xx')
+
 
 analyze_init()
 # analyze_second_step()
 # draw_graphs()
+# draw_graphs_v2()
 
 
 
