@@ -26,7 +26,7 @@ def get_ocsp_url(info_access):
             for e in nested:
 
                 if e.startswith("URI"):
-                    print(e)
+                    # print(e)
                     url = e[4: ]
                     return url
     return None
