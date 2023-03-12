@@ -77,7 +77,7 @@ def print_callback(message, context):
                 ocsp_url_to_serial_stuff
                 akid_to_cert
             '''
-
+            print(ocsp_url)
             # sys.stdout.flush()
     except:
         pass
@@ -103,4 +103,10 @@ def transfer_akids():
         print(key_decoded, parent_value)
         child_r.set(key_decoded, parent_value)
 
-# transfer_akids()
+
+def check_redis():
+    r = redis.Redis(host=redis_host, port=6379, db=4,
+                          password="certificatesarealwaysmisissued")
+    a = 1
+
+# check_redis()
