@@ -85,8 +85,6 @@ def do_so(tup):
 
     print("done with {}/{}".format(ind, tot))
 
-source_path = "data/zeek_logs"
-
 
 def get_range_to_index():
     d = {}
@@ -114,10 +112,10 @@ def load_time_lst(index):
     for line in open('log_2/{}/my_log.log'.format(index), 'r'):
         segments = line.split()
         if 'end' in line:
-            domain_to_end[segments[3]] = float(segments[-1])
+            domain_to_end[segments[-3][0: -1]] = float(segments[-1])
         if 'start' in line:
-            domain_to_start[segments[3]] = float(segments[-1])
-        domain_to_rank[segments[3]] = segments[1]
+            domain_to_start[segments[-3][0: -1]] = float(segments[-1])
+        domain_to_rank[segments[-3][0: -1]] = int(segments[-5][0: -1])
 
     for domain in domain_to_rank:
         try:
