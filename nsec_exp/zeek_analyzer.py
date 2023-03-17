@@ -83,7 +83,7 @@ def do_so(tup):
         except:
             pass
 
-    print("done with {}/{}".format(ind/tot))
+    print("done with {}/{}".format(ind, tot))
 
 source_path = "data/zeek_logs"
 
