@@ -63,6 +63,17 @@ def do_so(tup):
     base_path = dir + "/"
     global ans_list
 
+    fp_to_serial = {}
+
+    for line in open('{}x509.log'.format(base_path), 'r'):
+        try:
+            d = json.loads(line)
+            fp = d['fingerprint']
+            serial = d['certificate.serial']
+            fp_to_serial[fp] = serial
+        except:
+            pass
+
     for line in open('{}ssl.log'.format(base_path), 'r'):
         try:
             d = json.loads(line)
@@ -78,8 +89,8 @@ def do_so(tup):
             if rank_main_domain_tuple is None:
                 continue
             rank, main_domain = rank_main_domain_tuple
-            # tls domain, rank, main domain, cert fp, parent cert fp
-            ans_list.append((server_name, rank, main_domain, own_cert_fp, signer_cert_fp))
+            # tls domain, rank, main domain, cert fp, parent cert fp, serial
+            ans_list.append((server_name, rank, main_domain, own_cert_fp, signer_cert_fp, fp_to_serial[own_cert_fp]))
         except:
             pass
 
@@ -150,7 +161,7 @@ results = pool.map(do_so, dir_order)
 pool.close()
 pool.join()
 
-# tls domain, rank, main domain, cert fp, parent cert fp
+# tls domain, rank, main domain, cert fp, parent cert fp, serial
 ans_list.sort(key=lambda x: x[1])
 
 print("Ending exp")
