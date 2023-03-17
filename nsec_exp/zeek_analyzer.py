@@ -64,17 +64,24 @@ def do_so(tup):
     global ans_list
 
     for line in open('{}ssl.log'.format(base_path), 'r'):
-        d = json.loads(line)
-        ts = d['ts']
-        server_name = d['server_name']
-        own_cert_fp = d['cert_chain_fps'][0]
-        signer_cert_fp = d['cert_chain_fps'][1]
-        rank_main_domain_tuple = get_rank_main_domain_tuple(file_name, ts)
-        if rank_main_domain_tuple is None:
-            continue
-        rank, main_domain = rank_main_domain_tuple
-        # tls domain, rank, main domain, cert fp, parent cert fp
-        ans_list.append((server_name, rank, main_domain, own_cert_fp, signer_cert_fp))
+        try:
+            d = json.loads(line)
+            ts = d['ts']
+            server_name = d['server_name']
+
+            if "demdex" in server_name or "mozilla" in server_name:
+                continue
+
+            own_cert_fp = d['cert_chain_fps'][0]
+            signer_cert_fp = d['cert_chain_fps'][1]
+            rank_main_domain_tuple = get_rank_main_domain_tuple(file_name, ts)
+            if rank_main_domain_tuple is None:
+                continue
+            rank, main_domain = rank_main_domain_tuple
+            # tls domain, rank, main domain, cert fp, parent cert fp
+            ans_list.append((server_name, rank, main_domain, own_cert_fp, signer_cert_fp))
+        except:
+            pass
 
     print("done with {}/{}".format(ind/tot))
 
