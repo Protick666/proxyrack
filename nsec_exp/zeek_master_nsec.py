@@ -29,12 +29,19 @@ modes = ['warm', 'cold', 'normal']
 
 
 def zeekify(file):
+    global parsed_ranges
     # # /cold-stapledoff-999701-999800.pcap
     print("Started processing {}".format(file))
     end_str = file.split("/")[-1]
     segments = end_str.split("-")
     st_index = segments[2]
     end_index = segments[3][0: -5]
+
+    nsec_range = "{}-{}".format(st_index, end_index)
+    if nsec_range in parsed_ranges:
+        print("Already Done")
+        return
+
     dump_directory = "zeek_logs/nsec/{}-{}/".format(st_index, end_index)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
     cmd = "/opt/zeek/bin/zeek -r  " \
@@ -47,7 +54,16 @@ def zeekify(file):
     print("Ended processing {}".format(file))
 
 
+def analyze_parsed_files(already_parsed_files):
+    pared_ranges = set()
+    for e in already_parsed_files:
+        range = e.split("/")[-2]
+        pared_ranges.add(range)
+    return pared_ranges
+
 files = get_leaf_files("/source/normal_log")
+already_parsed_files = get_leaf_files("zeek_logs/nsec")
+parsed_ranges = analyze_parsed_files(already_parsed_files)
 st = time.time()
 print("Total files {}".format(len(files)))
 # print(mode, files)
