@@ -153,20 +153,22 @@ def get_curl_timing(website):
             total_time = c.getinfo(pycurl.TOTAL_TIME)
             download_speed = c.getinfo(pycurl.SPEED_DOWNLOAD)
             c.close()
+
+            if i != 0:
+                curl_info_list.append(
+                    {
+                        "dns_time": dns_time,
+                        "connect_time": connect_time,
+                        "app_connect_time": app_connect_time,
+                        "ttfb": ttfb,
+                        "total_time": total_time,
+                        "download_speed": download_speed
+                    }
+                )
         except:
             pass
 
-        if i != 0:
-            curl_info_list.append(
-                {
-                    "dns_time": dns_time,
-                    "connect_time": connect_time,
-                    "app_connect_time": app_connect_time,
-                    "ttfb": ttfb,
-                    "total_time": total_time,
-                    "download_speed": download_speed
-                }
-            )
+
 
 
     return website, curl_info_list
