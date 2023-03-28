@@ -7,7 +7,7 @@ import aiohttp
 
 SAMPLE_PER_WEBSITE = 50
 
-website_to_meta_data = defaultdict(lambda : {})
+
 
 class CDNSigPro:
     def extract_loc(self, headers, target_cdn):
@@ -210,7 +210,7 @@ def carry_out_exp(hops, url):
 def carry_out_luminati_exp(cadidate_websites_to_cdn):
     candidate_websites = list(cadidate_websites_to_cdn.keys())
 
-    country_codes = get_country_codes()[: 10]
+    country_codes = get_country_codes()
     for website in candidate_websites:
         carry_out_exp(hops=country_codes, url=website)
 
@@ -282,6 +282,7 @@ def find_geohints():
 
     alpha2_to_country_dict = get_alpha2_to_country_dict()
     iata_to_country_dict = get_iata_to_country_dict()
+    # Adjustment of missing iata
     iata_to_country_dict['qpg'] = 'Singapore'
 
     website_to_country_iata_country_pair = defaultdict(lambda : list())
@@ -319,26 +320,36 @@ def analyzeSiteData(siteData):
     for cdn in cdn_to_websites:
         websites_using_cdns += list(cdn_to_websites[cdn])
 
-    websites_using_cdns = websites_using_cdns[: 5]
+    # websites_using_cdns = websites_using_cdns
 
-    # from multiprocessing import Pool
-    # with Pool() as pool:
-    #     for result in pool.imap_unordered(get_dns_timing, websites_using_cdns):
-    #         website, resolution_time_list = result
-    #         website_to_meta_data[website]['dns'] = resolution_time_list
-    #
-    #
-    # from multiprocessing import Pool
-    # with Pool() as pool:
-    #     for result in pool.imap_unordered(get_curl_timing, websites_using_cdns):
-    #         website, curl_time_list = result
-    #         website_to_meta_data[website]['curl'] = curl_time_list
+    websites_to_meta_data = None
+    websites_to_meta_data_Filename = 'websites_to_meta_data.json'
+    try:
+        with open(websites_to_meta_data_Filename, 'r') as f:
+            import json
+            websites_to_meta_data_Filename_loaded = json.load(f)
+            websites_to_meta_data = websites_to_meta_data_Filename_loaded
+    except Exception:
+        website_to_meta_data = defaultdict(lambda: {})
+        from multiprocessing import Pool
+        with Pool() as pool:
+            for result in pool.imap_unordered(get_dns_timing, websites_using_cdns):
+                website, resolution_time_list = result
+                website_to_meta_data[website]['dns'] = resolution_time_list
+
+        from multiprocessing import Pool
+        with Pool() as pool:
+            for result in pool.imap_unordered(get_curl_timing, websites_using_cdns):
+                website, curl_time_list = result
+                website_to_meta_data[website]['curl'] = curl_time_list
+
+        with open(websites_to_meta_data_Filename, 'w') as f:
+            import json
+            json.dump(website_to_meta_data, f)
+
 
     find_geohints()
 
-    a = 1
-    a = 1
-    # TODO: Your code analysis goes here!
     #
     # 1. Identify domains served by CDNs by either the IP addresses and ASNs, or hostnames and CNAMEs. 
     #    You can use whatever source of data you wish. You do not need to be exhaustive. Pick a handful of CDNs to study.
@@ -351,7 +362,6 @@ def analyzeSiteData(siteData):
     #
     # Open Question: how would you expand on this analysis and what other data would you collect?
 
-    print('Add your code!')
     sys.exit()
 
 def collectSite(hostname):
