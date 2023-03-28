@@ -195,7 +195,7 @@ def get_dns_timing(website):
 
 def get_country_codes():
     import json
-    f = open("countries.json")
+    f = open("data/countries.json")
     d = json.load(f)
     country_codes = []
     for e in d:
