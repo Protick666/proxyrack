@@ -123,8 +123,9 @@ def get_final_list():
         write.writerows(tls_2)
 
 
-    config_tls.print()
+
     config_dns.print()
+    config_tls.print(config_dns)
 
 
 get_final_list()
