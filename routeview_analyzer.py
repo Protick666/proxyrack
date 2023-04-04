@@ -1,6 +1,6 @@
 from multiprocessing.dummy import Pool as ThreadPool
 import pyasn
-cdn = 'facebook'
+cdn = 'netflix'
 
 from asn_org_tools.org_finder import AS2ISP
 
