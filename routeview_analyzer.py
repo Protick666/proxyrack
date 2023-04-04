@@ -84,6 +84,7 @@ def shortify(org):
 def make_line(prefix, as_path, prefix_owner_org, date_str):
     print("go")
     s = ""
+    print(prefix, as_path, prefix_owner_org, date_str)
     for asn in as_path:
         if is_korean(asn):
             appendix = "KR"
