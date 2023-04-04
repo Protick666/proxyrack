@@ -73,10 +73,18 @@ def get_final_list():
     config_tls.total_tls_conn = len(ssl_log)
 
     tls_2 = []
-
+    temp_set = set()
     for e in ssl_log:
         try:
             if e['version'] == 'TLSv12':
+                temp_set.add(e['server_name'])
+                temp_set.add(e['id_orig_h'])
+                temp_set.add(e['id_resp_h'])
+                temp_set.add(e['cert_chain_fps'][0])
+                temp_set.add(e['cert_chain_fps'][1])
+
+
+
                 config_tls.total_tls_1_2 += 1
                 config_tls.distinct_domains.add(e['server_name'])
                 config_tls.distinct_source.add(e['id_orig_h'])
