@@ -82,21 +82,24 @@ def shortify(org):
 
 
 def make_line(prefix, as_path, prefix_owner_org, date_str):
-    print("go")
-    s = ""
-    print(prefix, as_path, prefix_owner_org, date_str)
-    for asn in as_path:
-        if is_korean(asn):
-            appendix = "KR"
-        else:
-            appendix = "Non-KR"
+    try:
+        print("go")
+        s = ""
+        print(prefix, as_path, prefix_owner_org, date_str)
+        for asn in as_path:
+            if is_korean(asn):
+                appendix = "KR"
+            else:
+                appendix = "Non-KR"
 
-        s = s + "({}-{}-{})->".format(asn, shortify(get_asn_to_org(asn)), appendix)
+            s = s + "({}-{}-{})->".format(asn, shortify(get_asn_to_org(asn)), appendix)
 
-    s = s[: -2]
-    s = "({}-{}):::{}".format(prefix, prefix_owner_org, s)
-    print(s)
-    return date_str, s
+        s = s[: -2]
+        s = "({}-{}):::{}".format(prefix, prefix_owner_org, s)
+        print(s)
+        return date_str, s
+    except Exception as e:
+        print(e)
 
 
 
