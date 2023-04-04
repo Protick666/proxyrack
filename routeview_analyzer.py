@@ -82,6 +82,7 @@ def shortify(org):
 
 
 def make_line(prefix, as_path, prefix_owner_org, date_str):
+    print("go")
     s = ""
     for asn in as_path:
         if is_korean(asn):
@@ -93,6 +94,7 @@ def make_line(prefix, as_path, prefix_owner_org, date_str):
 
     s = s[: -2]
     s = "({}-{}):::{}".format(prefix, prefix_owner_org, s)
+    print(s)
     return date_str, s
 
 
