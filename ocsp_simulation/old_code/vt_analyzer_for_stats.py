@@ -127,3 +127,4 @@ def get_final_list():
     config_dns.print()
 
 
+get_final_list()
