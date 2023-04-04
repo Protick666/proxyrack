@@ -75,7 +75,7 @@ prefix_isp_asn_cdn = defaultdict(lambda : list())
 def shortify(org):
     org = org.strip()
     segments = org.split()
-    if segments > 2:
+    if len(segments) > 2:
         return "{} {}".format(segments[0], segments[1])
     else:
         return org
@@ -176,9 +176,9 @@ def analyze_file(filename):
     tot_lines = len(lines)
     index = 0
 
-    chunks = get_chunks(lines, 200)
+    chunks = get_chunks(lines, 300)
 
-    pool = ThreadPool(50)
+    pool = ThreadPool(100)
     results = pool.map(analyze_line_chunk, chunks)
     pool.close()
     pool.join()
