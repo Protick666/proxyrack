@@ -246,7 +246,10 @@ def init(n):
     print("Total files to analyze {}".format(len(files)))
 
     for file in files:
-        analyze_file(file)
+        try:
+            analyze_file(file)
+        except:
+            pass
         print("Done with {}/{}".format(index, len(files)))
         index += 1
 
