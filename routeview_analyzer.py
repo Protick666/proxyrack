@@ -82,7 +82,7 @@ def shortify(org):
         return org
 
 
-def make_line(prefix, as_path, prefix_owner_org, date_str):
+def make_line(prefix, as_path, prefix_owner_org, date_str, vantage):
     try:
         # print("go")
         s = ""
@@ -98,13 +98,13 @@ def make_line(prefix, as_path, prefix_owner_org, date_str):
         s = s[: -2]
         s = "({}-{}):::{}".format(prefix, prefix_owner_org, s)
         print(s)
-        return date_str, s
+        return date_str, vantage, s
     except Exception as e:
         print(e)
 
 
 
-def find_case(line, date_str):
+def find_case(line, date_str, vantage):
     # prefix_cdn_asn_isp = defaultdict(lambda: list()) -> 1, 2
     # prefix_cdn_asn_cdn = defaultdict(lambda: list()) -> 3, 4
     # prefix_isp_asn_cdn = defaultdict(lambda: list()) -> 5, 6
@@ -124,24 +124,24 @@ def find_case(line, date_str):
         a = 1
         if cdn.lower() in prefix_owner_org.lower():
             if is_korean(last_as):
-                prefix_cdn_asn_isp[0].append((make_line(prefix, as_path, prefix_owner_org, date_str)))
+                prefix_cdn_asn_isp[0].append((make_line(prefix, as_path, prefix_owner_org, date_str, vantage)))
             elif cdn.lower() in last_as_owner_org.lower():
                 last_second_as = as_path[-2]
                 if is_korean(last_second_as):
-                    prefix_cdn_asn_cdn[0].append((make_line(prefix, as_path, prefix_owner_org, date_str)))
+                    prefix_cdn_asn_cdn[0].append((make_line(prefix, as_path, prefix_owner_org, date_str, vantage)))
                 elif has_korean(as_path):
-                    prefix_cdn_asn_cdn[1].append((make_line(prefix, as_path, prefix_owner_org, date_str)))
+                    prefix_cdn_asn_cdn[1].append((make_line(prefix, as_path, prefix_owner_org, date_str, vantage)))
 
                 # prefix_cdn_asn_isp[0].append((make_line(prefix, as_path, prefix_owner_org, date_str)))
             elif has_korean(as_path):
-                prefix_cdn_asn_isp[1].append((make_line(prefix, as_path, prefix_owner_org, date_str)))
+                prefix_cdn_asn_isp[1].append((make_line(prefix, as_path, prefix_owner_org, date_str, vantage)))
 
         elif is_korean(prefix_asn) and cdn.lower() in last_as_owner_org.lower():
             last_second_as = as_path[-2]
             if is_korean(last_second_as):
-                prefix_isp_asn_cdn[0].append((make_line(prefix, as_path, prefix_owner_org, date_str)))
+                prefix_isp_asn_cdn[0].append((make_line(prefix, as_path, prefix_owner_org, date_str, vantage)))
             else:
-                prefix_isp_asn_cdn[1].append((make_line(prefix, as_path, prefix_owner_org, date_str)))
+                prefix_isp_asn_cdn[1].append((make_line(prefix, as_path, prefix_owner_org, date_str, vantage)))
         else:
             a = 1
     except Exception as e:
@@ -155,7 +155,7 @@ def get_chunks(lst, n):
     return ans
 
 def analyze_line_chunk(tup):
-    chunk, date_str = tup
+    chunk, date_str, vantage = tup
     for line_ in chunk:
         try:
             # prefix_cdn_asn_isp = defaultdict(lambda: list()) -> 1, 2
@@ -165,7 +165,7 @@ def analyze_line_chunk(tup):
 
             line = line_.strip()
 
-            case = find_case(line, date_str)
+            case = find_case(line, date_str, vantage)
 
 
         except Exception as e:
@@ -173,6 +173,7 @@ def analyze_line_chunk(tup):
 
 def analyze_file(filename):
     date_str = filename.split("/")[-1]
+    vantage = filename.split("/")[-1]
     file = open(filename, 'r')
     lines = file.readlines()
     tot_lines = len(lines)
@@ -181,7 +182,7 @@ def analyze_file(filename):
     chunks = get_chunks(lines, 300)
     chunk_date_tuple_list = []
     for chunk in chunks:
-        chunk_date_tuple_list.append((chunk, date_str))
+        chunk_date_tuple_list.append((chunk, date_str, vantage))
 
     pool = ThreadPool(100)
     results = pool.map(analyze_line_chunk, chunk_date_tuple_list)
