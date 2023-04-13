@@ -173,7 +173,7 @@ def analyze_line_chunk(tup):
 
 def analyze_file(filename):
     date_str = filename.split("/")[-1]
-    vantage = filename.split("/")[-1]
+    vantage = filename.split("/")[-2]
     file = open(filename, 'r')
     lines = file.readlines()
     tot_lines = len(lines)
@@ -233,8 +233,8 @@ def init(n):
     files = []
     for dir in dirs:
         # TODO change
-        for year in range(2023, 2024):
-            for month in range(1, 2):
+        for year in range(2014, 2024):
+            for month in range(1, 13):
                 month_str = str(month)
                 if month < 10:
                     month_str = "0" + month_str
