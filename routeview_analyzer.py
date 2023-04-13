@@ -234,7 +234,7 @@ def init(n):
     for dir in dirs:
         # TODO change
         for year in range(2014, 2024):
-            for month in range(1, 13):
+            for month in range(1, 13, 2):
                 month_str = str(month)
                 if month < 10:
                     month_str = "0" + month_str
