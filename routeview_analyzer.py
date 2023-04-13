@@ -1,6 +1,7 @@
 from multiprocessing.dummy import Pool as ThreadPool
 import pyasn
-cdn = 'netflix'
+cdn = None
+#
 
 from asn_org_tools.org_finder import AS2ISP
 
@@ -83,7 +84,7 @@ def shortify(org):
 
 def make_line(prefix, as_path, prefix_owner_org, date_str):
     try:
-        print("go")
+        # print("go")
         s = ""
         print(prefix, as_path, prefix_owner_org, date_str)
         for asn in as_path:
@@ -153,7 +154,8 @@ def get_chunks(lst, n):
         ans.append(lst[i:i + n])
     return ans
 
-def analyze_line_chunk(chunk):
+def analyze_line_chunk(tup):
+    chunk, date_str = tup
     for line_ in chunk:
         try:
             # prefix_cdn_asn_isp = defaultdict(lambda: list()) -> 1, 2
@@ -163,7 +165,7 @@ def analyze_line_chunk(chunk):
 
             line = line_.strip()
 
-            case = find_case(line, '20230310')
+            case = find_case(line, date_str)
 
 
         except Exception as e:
@@ -177,9 +179,12 @@ def analyze_file(filename):
     index = 0
 
     chunks = get_chunks(lines, 300)
+    chunk_date_tuple_list = []
+    for chunk in chunks:
+        chunk_date_tuple_list.append((chunk, date_str))
 
     pool = ThreadPool(100)
-    results = pool.map(analyze_line_chunk, chunks)
+    results = pool.map(analyze_line_chunk, chunk_date_tuple_list)
     pool.close()
     pool.join()
 
@@ -191,31 +196,65 @@ def get_files_from_dir(path):
     files = [path + f for f in listdir(path) if isfile(join(path, f))]
     return files
 
+# import json
+# f = open("bgppath/data/fb-asns.json")
+# d = json.load(f)
+# a = 1
 
-files = get_files_from_dir("/net/data/rpki/raw-datasets/routeviews/bgpdump-parsed-reduced/bgpdata/")
-filtered_files = []
-allowed_strs = ['202302']
-for file in files:
-    for s in allowed_strs:
-        if s in file:
-            filtered_files.append(file)
+dirs = ['bgpdata',
+'route-views.chile',
+'route-views.mwix',
+'route-views.sg',
+'route-views.eqix',
+'route-views.napafrica',
+'route-views.soxrs',
+'route-views2.saopaulo',
+'route-views.flix',
+'route-views.nwax',
+'route-views.sydney',
+'route-views3',
+'route-views.isc',
+'route-views.perth',
+'route-views.telxatl',
+'route-views4',
+'route-views.jinx',
+'route-views.saopaulo',
+'route-views.wide',
+'route-views6',
+'route-views.kixp',
+'route-views.chicago',
+'route-views.linx',
+'route-views.sfmix']
 
-index = 1
-for file in filtered_files:
-    analyze_file( file)
-    print("Done with {}/{}".format(index,len(filtered_files)))
-    index += 1
+def init(n):
+    global cdn
+    cdn = n
+    files = []
+    for dir in dirs:
+        # TODO change
+        for year in range(2023, 2024):
+            for month in range(1, 2):
+                month_str = str(month)
+                if month < 10:
+                    month_str = "0" + month_str
+                    files.append(
+                        "/net/data/rpki/raw-datasets/routeviews/bgpdump-parsed-reduced/{}/{}{}01".format(dir, year,
+                                                                                                         month_str))
 
-# prefix_cdn_asn_isp = defaultdict(lambda : list())
-# prefix_cdn_asn_cdn = defaultdict(lambda : list())
-# prefix_isp_asn_cdn = defaultdict(lambda : list())
+    index = 1
+    print("Total files to analyze {}".format(len(files)))
 
-d = {
-    "prefix_cdn_asn_isp": prefix_cdn_asn_isp,
-    "prefix_cdn_asn_cdn": prefix_cdn_asn_cdn,
-    "prefix_isp_asn_cdn": prefix_isp_asn_cdn
-}
+    for file in files:
+        analyze_file(file)
+        print("Done with {}/{}".format(index, len(files)))
+        index += 1
 
-import json
-with open("asns.json", "w") as ouf:
-    json.dump(d, fp=ouf)
+    d = {
+        "prefix_cdn_asn_isp": prefix_cdn_asn_isp,
+        "prefix_cdn_asn_cdn": prefix_cdn_asn_cdn,
+        "prefix_isp_asn_cdn": prefix_isp_asn_cdn
+    }
+
+    import json
+    with open("routeviews-{}.json".format(cdn), "w") as ouf:
+        json.dump(d, fp=ouf)
