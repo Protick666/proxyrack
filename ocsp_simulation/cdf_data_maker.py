@@ -4,31 +4,132 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def multiple_line_drawer(N, x_list, y_list, label_list, title='x', marker='.'):
-    # import seaborn as sns
-    # sns.set()
-    #fig, axs = plt.subplots(figsize=(10, 20))
-    # No of data points used
+def histogram_maker_v2(counters, labels, x_title, y_title, title, shortened=False):
+    import seaborn as sns
+    sns.set()
+
+    import matplotlib.pyplot as plt
+    ans = []
+
+    if not shortened:
+        fig = plt.figure(figsize=(30, 10))
+    else:
+        fig = plt.figure(figsize=(10, 5))
+
+    index = 0
+    x = []
+    y = []
+
+    for counter in counters:
+        for key in counter:
+            ans.append((key, counter[key]))
+        ans.sort()
+        x_arr = [str(e[0]) for e in ans]
+        y_arr = [e[1] for e in ans]
+        y_sum = sum(y_arr)
+        y_arr = [(e/y_sum) * 100 for e in y_arr]
+        x.append(x_arr)
+        y.append(y_arr)
+        # plt.bar(x_arr, y_arr, edgecolor='black', label=labels[index])
+        index += 1
+
+    plt.bar(x, y, edgecolor='black', label=labels)
+    plt.legend(loc='best')
+    plt.title(title)
+    plt.xlabel(x_title)
+    plt.ylabel(y_title)
+    plt.show()
+
+def histogram_maker(counter, x_title, y_title, title, shortened=False):
+    import seaborn as sns
+    sns.set()
+
+    import matplotlib.pyplot as plt
+    ans = []
+    if not shortened:
+        fig = plt.figure(figsize=(10, 10))
+    else:
+        fig = plt.figure(figsize=(10, 5))
+    for key in counter:
+        ans.append((key, counter[key]))
+    ans.sort()
+
+    x_arr = [str(e[0]) for e in ans]
+    y_arr = [e[1] for e in ans]
+    # x_ticks = []
+    # x_ticks_labels = []
+    #
+    # mod = 1
+    #
+    # cmp = [3600, 9000, 16200, 27000, 43200, 72000]
+    # # for i in range(200000):
+    # #     cmp.append(cmp[-1] + 30 * 60)
+    # matched = 0
+    # for index in range(len(x_arr)):
+    #     e = x_arr[index]
+    #     if abs(cmp[matched] - int(e)) < 100:
+    #         x_ticks.append(index)
+    #         x_ticks_labels.append("{} hours".format(cmp[matched]//3600))
+    #         mod += 1
+    #         matched += 1
+    #         if matched >= len(cmp):
+    #             break
+
+    plt.bar(x_arr, y_arr, edgecolor='black')
+    # plt.xticks(x_ticks, x_ticks_labels, rotation=80)
+    plt.title(title)
+    plt.xlabel(x_title)
+    plt.ylabel(y_title)
+    plt.show()
+    #plt.savefig('ttl_result/histogram-{}.png'.format(title), bbox_inches="tight")
+    #plt.clf()
+
+def pie_chart_maker(values, labels):
+
+    def autopct_format(values):
+        def my_format(pct):
+            total = sum(values)
+            val = int(round(pct * total / 100.0))
+            return '{:.1f}%\n({v:d})'.format(pct, v=val)
+
+        return my_format
+
+    import seaborn as sns
+    sns.set()
+    # labels = 'Random', 'Decreasing', 'Increasing', 'Regular'
+    sizes = values
+    explode = (0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    plt.figure(figsize=(10, 10))
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, labels=labels, autopct=autopct_format(sizes),
+             startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    # plt.savefig('graphs_final_3/pattern.png', bbox_inches="tight")
+    # plt.clf()
+    plt.show()
+
+def multiple_line_drawer(N, x_list, y_list, label_list, x_ticks, tick_labels, title='.', marker='.', y_label=''):
+    import seaborn as sns
+    sns.set()
+
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
 
-    fig, ax = plt.subplots(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=(15, 8))
 
     for i in range(N):
-        y_lst_in_ms = [e * 1000 for e in y_list[i]]
-        plt.plot(x_list[i], y_lst_in_ms, label=label_list[i], marker=marker)
+        # y_lst_in_ms = [e * 1000 for e in y_list[i]]
+        plt.plot(x_list[i], y_list[i], label=label_list[i], marker=marker)
     # plt.xlabel('Iterations')
-    plt.ylabel('Response time in milliseconds')
+    plt.ylabel(y_label)
     plt.legend(loc='best')
 
     # x_ticks = [e[0] for e in tick_index]
     # x_ticks_labels = [e[1] for e in tick_index]
-    # plt.xticks(x_ticks, x_ticks_labels)
+    plt.xticks(x_ticks, tick_labels, rotation='60')
 
     plt.title(title)
 
-    import random
-    # plt.savefig('ttl_result/{}.png'.format(random.randint(1, 1000)), bbox_inches="tight")
     plt.show()
     plt.clf()
 
@@ -49,12 +150,13 @@ def get_smaller_cdf(x, y):
     y_y = [e[1] for e in smaller_points]
     return x_x, y_y
 
-# 1460
-def cdf_multiple(x_list, label_lst, title, x_label):
+
+
+def cdf_multiple_from_counter(x_to_counters, label_lst, title, x_label):
     import seaborn as sns
     sns.set()
 
-    fig, ax = plt.subplots(figsize=(14, 8))
+    fig, ax = plt.subplots(figsize=(12, 8))
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
     plt.xlabel(x_label)
@@ -62,42 +164,58 @@ def cdf_multiple(x_list, label_lst, title, x_label):
     plt.title(title)
 
     index = 0
-    allowed_ttl = [1, 5, 15, 30, 60]
+    # .sort()
+
+    for counter in x_to_counters:
+        x_list = list(counter.keys())
+        x_list.sort()
+        label = label_lst[index]
+        arr = x_list
+        y = []
+        temp = 0
+        tot = 0
+        # 630938650
+        for e in arr:
+            tot += counter[e]
+        for e in arr:
+            temp += counter[e]
+            y.append(temp/tot)
+        a = 1
+        plt.plot(x_list, y, marker='.', label=label)
+        index += 1
+    plt.legend(
+        loc='best', shadow=True,
+    )
+    plt.show()
+    plt.clf()
+
+def cdf_multiple(x_list, label_lst, title, x_label):
+    import seaborn as sns
+    sns.set()
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    plt.xlabel(x_label)
+    plt.ylabel("CDF")
+    plt.title(title)
 
     index = 0
     for lst in x_list:
-        lb = label_lst[index]
-        l_trunc = [x for x in lst]
         label = label_lst[index]
-
-        arr = l_trunc
+        arr = lst
+        arr = [e for e in arr if e < 100]
         N = len(arr)
         data = np.array(arr)
         x = np.sort(data)
         y = np.arange(N) / float(N)
-
-        import csv
-
-        x_x, y_y = get_smaller_cdf(x, y)
-        new_list = zip(x_x, y_y)
-        # with open("paper_cdf/cdn-{}.csv".format(lb), 'w') as csvfile:
-        #     filewriter = csv.writer(csvfile)
-        #     filewriter.writerows(new_list)
-
-        plt.plot(x, y, marker='.', label=label, lw=.1)
+        plt.plot(x, y, marker='.', label=label)
         index += 1
-        # plt.show()
-    # plt.axvline(x=1232)
-    # plt.text(x_pos_ratio + .1, .5, "at y = {} % : {} {}s".format(x_line_threshold * 100, x[i], xlabel), fontsize=22)
-
     plt.legend(
         loc='best', shadow=True,
     )
-
     plt.show()
     plt.clf()
-    # plt.savefig('graphs_final_3/comodo.png', bbox_inches="tight", format='png')
-    # plt.clf()
 
 
 def get_leaf_files(path):
@@ -173,6 +291,26 @@ def analyze_zeek_output(file):
         except Exception as err:
             a = 1
     return arr_reactive, arr_proactive, arr_reactive_ac, arr_proactive_ac, penalty_arr, penalty_normalized_arr
+
+
+def coalesce_entries():
+
+    files = get_leaf_files("/home/protick/proxyrack/ocsp_simulation/simulation_results/nsec")
+    arr = []
+    for file in files:
+        print("Analyzin file ",file)
+        f = open(file)
+        d = json.load(f)
+        arr = arr + d
+
+    with open("amulgum.json", "w") as ouf:
+        json.dump(arr, fp=ouf)
+
+
+coalesce_entries()
+
+def one_million_analyzer():
+    all_entries = coalesce_entries()
 
 
 def analyze_init():
@@ -254,11 +392,18 @@ def analyze_init():
     with open("mother_dict.json", "w") as ouf:
         json.dump(store_dict, fp=ouf)
 
-def mult(arr, p):
+def mult(arr, p, constaint=True):
     d = []
-    arr = [e[0] for e in arr]
+    arr = arr
     for e in arr:
-        d.append(max(e * p, -200))
+        a = 1
+        try:
+            if constaint:
+                d.append(min(e[0] * p, 300))
+            else:
+                d.append(e[0] * p)
+        except Exception as ee:
+            a = 1
         # d.append(e * p)
     return d
 
@@ -266,50 +411,70 @@ def draw_graphs():
     f = open("data/mother_dict.json")
     d = json.load(f)
     a = 1
+    normalized_arr = d['normal-stapledon']['first_penalty_normalized_arr']
+    penalty_arr = d['normal-stapledon']['first_penalty_arr']
+
+    ocsp_http_call_arr = []
+    for e in d['normal-stapledon']['second_proactive_arr']:
+        dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = e[1]
+        ocsp_http_call_arr.append(ocsp_http)
+    cdf_multiple([mult(ocsp_http_call_arr, 1000, constaint=False)], ['OCSP response time'],
+                 "OCSP response time (milliseconds)", "milliseconds")
+
+    cdf_multiple([mult(penalty_arr, 1000, constaint=False)], ['OCSP overhead'],
+                 "OCSP Overhead in TLS connections (milliseconds)", "milliseconds")
+    cdf_multiple([mult(normalized_arr, 100, constaint=True)], ['OCSP overhead percentage '],
+                 "OCSP Overhead ratio", "OCSP overhead percentage")
     # a = 1
+    # return
 
     f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/ocsp_simulation/data/mother_dict.json")
     d = json.load(f)
 
+    # cdf_multiple(
+    #     [mult(d['warm-stapledon']['first_proactive_arr'], 100), mult(d['warm-stapledon']['second_proactive_arr'], 100),
+    #      mult(d['cold-stapledon']['first_proactive_arr'], 100), mult(d['cold-stapledon']['second_proactive_arr'], 100)],
+    #     ['Warm Cache Top 5k', 'Warm Cache Bottom 5k', 'Cold Cache Top 5k', 'Cold Cache Bottom 5k'], "CDF", "Percentage")
+
+    a = 1
     cdf_multiple(
-        [mult(d['warm-stapledon']['first_proactive_arr'], 100), mult(d['warm-stapledon']['second_proactive_arr'], 100),
-         mult(d['cold-stapledon']['first_proactive_arr'], 100), mult(d['cold-stapledon']['second_proactive_arr'], 100)],
-        ['Warm Cache Top 5k', 'Warm Cache Bottom 5k', 'Cold Cache Top 5k', 'Cold Cache Bottom 5k'], "CDF", "Percentage")
+        [mult(d['warm-stapledon']['first_proactive_arr'], 100), mult(d['warm-stapledon']['second_proactive_arr'], 100)],
+        ['Warm Cache Top 5k', 'Warm Cache Bottom 5k'], "CDF", "Percentage")
 
-    tuple_list = []
-
-    for e in d['warm-stapledon']['second_proactive_arr']:
-        tuple = e[1]
-        tuple_list.append(tuple)
-        # dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
-
-    tuple_list.sort()
-    base_dns_list = []
-    ocsp_dns_list = []
-    ocsp_http_list = []
-    base_tls_list = []
-    tot_ocsp_overhead_list = []
-    x_list = []
-    x_list_master = []
-
-    index = 1
-
-    for tuple in tuple_list:
-        dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
-        # base_dns_list.append(base_dns)
-        ocsp_dns_list.append(ocsp_dns)
-        ocsp_http_list.append(ocsp_http)
-        base_tls_list.append(base_tls)
-        x_list.append(index)
-        index += 1
-        tot_ocsp_overhead_list.append(tot_ocsp_overhead)
-        if index == 50:
-            break
-
-    for i in range(3):
-        x_list_master.append(x_list)
-
-    multiple_line_drawer(N=3, x_list=x_list_master, y_list=[ocsp_dns_list, ocsp_http_list, base_tls_list], label_list=["ocsp_dns_list", "ocsp_http_list", "base_tls_list"], title='xx')
+    # tuple_list = []
+    #
+    # for e in d['warm-stapledon']['second_proactive_arr']:
+    #     tuple = e[1]
+    #     tuple_list.append(tuple)
+    #     # dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
+    #
+    # tuple_list.sort()
+    # base_dns_list = []
+    # ocsp_dns_list = []
+    # ocsp_http_list = []
+    # base_tls_list = []
+    # tot_ocsp_overhead_list = []
+    # x_list = []
+    # x_list_master = []
+    #
+    # index = 1
+    #
+    # for tuple in tuple_list:
+    #     dns_start, base_dns, ocsp_dns, ocsp_http, base_tls, tot_ocsp_overhead = tuple
+    #     # base_dns_list.append(base_dns)
+    #     ocsp_dns_list.append(ocsp_dns)
+    #     ocsp_http_list.append(ocsp_http)
+    #     base_tls_list.append(base_tls)
+    #     x_list.append(index)
+    #     index += 1
+    #     tot_ocsp_overhead_list.append(tot_ocsp_overhead)
+    #     if index == 50:
+    #         break
+    #
+    # for i in range(3):
+    #     x_list_master.append(x_list)
+    #
+    # multiple_line_drawer(N=3, x_list=x_list_master, y_list=[ocsp_dns_list, ocsp_http_list, base_tls_list], label_list=["ocsp_dns_list", "ocsp_http_list", "base_tls_list"], title='xx')
 
 
 
@@ -321,7 +486,7 @@ def draw_graphs_v2():
 
     f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/ocsp_simulation/data/mother_dict.json")
     d = json.load(f)
-
+    # dns_start, dns_end, client_hello_time, server_hello_time, change_cipher_time_client, change_cipher_time_server, established_time, encrypted_data_time_app, ocsp_dns_1, ocsp_dns_2, ocsp_1, ocsp_2, server_name
     # cdf_multiple(
     #     [mult(d['warm-stapledon']['first_proactive_arr'], 100), mult(d['warm-stapledon']['second_proactive_arr'], 100),
     #      mult(d['cold-stapledon']['first_proactive_arr'], 100), mult(d['cold-stapledon']['second_proactive_arr'], 100)],
@@ -391,7 +556,37 @@ def draw_graphs_v2():
     multiple_line_drawer(N=2, x_list=x_list, y_list=[base_tls_list_second, base_tls_list_first], label_list=["OCSP TLS handshake time - Bottom 5k", "OCSP TLS handshake time - Top 5k"], title='xx')
 
 
-analyze_init()
+def process_data(d):
+    for key in d:
+        print(key, len(d[key]), sum(d[key]))
+
+def draw_nsec_graph():
+    # def cdf_multiple(x_list, label_lst, title, x_label):
+    f = open("../ccadb/remote_data/cdf_data_global.json")
+    d = json.load(f)
+    a = 1
+    x_list = [d]
+
+    label_list = ["Overall"]
+
+    #keys = ['INTERNET SECURITY RESEARCH GROUP', 'DIGICERT', 'GLOBALSIGN NV', 'GODADDY', 'IDENTRUST SERVICES, LLC', 'GOOGLE TRUST SERVICES LLC']
+
+    # process_data(d)
+    # return
+
+    # for key in keys:
+    #     x_list.append(d[key])
+    #     label_list.append(key)
+
+        # for nsec in d['ans_dict']:
+        #     x_list.append(d['ans_dict'][nsec])
+        #     label_list.append(str(nsec))
+
+    cdf_multiple(x_list, label_list, 'CDF', 'Number of serials per NSEC')
+    # cdf_multiple([d['ans_dict_selective']['2'], d['ans_dict_selective']['3'], d['ans_dict_selective']['300000']], ['1000', '10000','100000'], 'CDF', 'Number of serials per NSEC (selective)')
+
+# draw_nsec_graph()
+# draw_graphs()
 # analyze_second_step()
 # draw_graphs()
 # draw_graphs_v2()
