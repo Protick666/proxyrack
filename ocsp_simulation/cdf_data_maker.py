@@ -350,7 +350,7 @@ def one_million_analyzer():
 
 
 
-one_million_analyzer()
+# one_million_analyzer()
 
 def analyze_init():
     store_dict = {}
