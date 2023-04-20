@@ -307,11 +307,41 @@ def coalesce_entries():
         json.dump(arr, fp=ouf)
 
 
-coalesce_entries()
+# coalesce_entries()
 
 def one_million_analyzer():
-    all_entries = coalesce_entries()
+    f = open("amulgum.json")
+    d = json.load(f)
 
+    tot = 0
+    servers = set()
+    ocsp_requests = 0
+    ocsp_req_time = []
+
+    index = 0
+    for entry in d:
+        index += 1
+        if index % 100000 == 0:
+            print("Cycle {}".format(index ))
+        server_name = entry[-1]
+        if "demdex" in server_name or "mozilla" in server_name:
+            continue
+
+        servers.add(server_name)
+        tot += 1
+        ocsp_start, ocsp_end = entry[-3], entry[-2]
+
+        if ocsp_start is not None and ocsp_end is not None:
+            ocsp_requests += 1
+            ocsp_req_time.append(ocsp_end - ocsp_start)
+
+    with open("ocsp_req.json", "w") as ouf:
+        json.dump(ocsp_req_time, fp=ouf)
+
+    print("Tot TSL connections {}".format(tot), "Tot domains {}".format(len(servers)), "Tot OCSP requests {}".format(ocsp_requests))
+
+
+one_million_analyzer()
 
 def analyze_init():
     store_dict = {}
