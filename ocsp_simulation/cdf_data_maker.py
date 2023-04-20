@@ -193,7 +193,7 @@ def cdf_multiple(x_list, label_lst, title, x_label):
     import seaborn as sns
     sns.set()
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(20, 6))
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
     plt.xlabel(x_label)
@@ -204,13 +204,16 @@ def cdf_multiple(x_list, label_lst, title, x_label):
     for lst in x_list:
         label = label_lst[index]
         arr = lst
-        arr = [e for e in arr if e < 100]
+        arr_waste = [e for e in arr if e > 2000]
+        arr = [e for e in arr if e < 2000]
+        # arr_waste = [e for e in arr if e > 2000]
         N = len(arr)
         data = np.array(arr)
         x = np.sort(data)
         y = np.arange(N) / float(N)
         plt.plot(x, y, marker='.', label=label)
         index += 1
+        print("len waste {}".format(len(arr_waste)))
     plt.legend(
         loc='best', shadow=True,
     )
@@ -231,6 +234,31 @@ result_path = "results"
 modes = ['cold', 'warm', 'normal']
 staple_modes = ['stapledon', 'stapledoff']
 
+
+def analyze_xxxx():
+    f = open("amulgum.json")
+    d = json.load(f)
+    tot_tls  = 0
+    tot_ocsp = 0
+    server_set = set()
+
+    for e in d:
+        server_name = e[-1]
+        ocsp_1 = e[-3]
+        ocsp_2 = e[-2]
+
+        if "demdex" in server_name or "mozilla" in server_name:
+            continue
+
+        tot_tls += 1
+        server_set.add(server_name)
+        if ocsp_1 is not None and ocsp_2 is not  None:
+            tot_ocsp += 1
+
+    print(tot_tls, len(server_set), tot_ocsp)
+
+
+analyze_xxxx()
 
 def analyze_single_entry(e):
     try:
@@ -298,7 +326,7 @@ def coalesce_entries():
     files = get_leaf_files("/home/protick/proxyrack/ocsp_simulation/simulation_results/nsec")
     arr = []
     for file in files:
-        print("Analyzin file ",file)
+        print("Analyzing file ",file)
         f = open(file)
         d = json.load(f)
         arr = arr + d
@@ -310,35 +338,16 @@ def coalesce_entries():
 # coalesce_entries()
 
 def one_million_analyzer():
-    f = open("amulgum.json")
+    f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/nsec_exp/data/ocsp_req.json")
     d = json.load(f)
+    req_time = [int(e * 1000) for e in d]
+    from collections import defaultdict
+    counter = defaultdict(lambda : 0)
+    for e in req_time:
+        counter[e] += 1
 
-    tot = 0
-    servers = set()
-    ocsp_requests = 0
-    ocsp_req_time = []
+    cdf_multiple([req_time], ['OCSP response time'], 'OCSP response', 'Response time in milliseconds')
 
-    index = 0
-    for entry in d:
-        index += 1
-        if index % 100000 == 0:
-            print("Cycle {}".format(index ))
-        server_name = entry[-1]
-        if "demdex" in server_name or "mozilla" in server_name:
-            continue
-
-        servers.add(server_name)
-        tot += 1
-        ocsp_start, ocsp_end = entry[-3], entry[-2]
-
-        if ocsp_start is not None and ocsp_end is not None:
-            ocsp_requests += 1
-            ocsp_req_time.append(ocsp_end - ocsp_start)
-
-    with open("ocsp_req.json", "w") as ouf:
-        json.dump(ocsp_req_time, fp=ouf)
-
-    print("Tot TSL connections {}".format(tot), "Tot domains {}".format(len(servers)), "Tot OCSP requests {}".format(ocsp_requests))
 
 
 one_million_analyzer()
@@ -455,6 +464,8 @@ def draw_graphs():
                  "OCSP Overhead in TLS connections (milliseconds)", "milliseconds")
     cdf_multiple([mult(normalized_arr, 100, constaint=True)], ['OCSP overhead percentage '],
                  "OCSP Overhead ratio", "OCSP overhead percentage")
+
+
     # a = 1
     # return
 
