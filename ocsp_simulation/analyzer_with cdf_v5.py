@@ -404,6 +404,7 @@ def get_dirs(path):
 
 for mode in modes:
     directories = get_dirs("{}/{}".format(source_path, mode))
+    print("Total directories to process {}".format(directories))
 
     with Pool() as pool:
         for result in pool.imap_unordered(do_so, directories):
