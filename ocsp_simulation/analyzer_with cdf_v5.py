@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 from multiprocessing.dummy import Pool as ThreadPool
 #base_path = '/Users/protick.bhowmick/zeek/'
+from multiprocessing import Pool
 
 global_normal_dns_rtt = []
 
@@ -387,7 +388,7 @@ def do_so(dir):
 
     print("time taken {}".format((time.time() - initt) / 60))
     print("Ending {}".format(dir))
-
+    return -1
     # with open("expv6/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
     #     json.dump(master_arr, fp=ouf)
 
@@ -403,10 +404,16 @@ def get_dirs(path):
 
 for mode in modes:
     directories = get_dirs("{}/{}".format(source_path, mode))
-    pool = ThreadPool(50)
-    results = pool.map(do_so, directories)
-    pool.close()
-    pool.join()
+
+    with Pool() as pool:
+        for result in pool.imap_unordered(do_so, directories):
+            ans = result
+
+
+    # pool = ThreadPool(50)
+    # results = pool.map(do_so, directories)
+    # pool.close()
+    # pool.join()
         # a = 1
         # for dir in directories:
         #     do_so(dir)
