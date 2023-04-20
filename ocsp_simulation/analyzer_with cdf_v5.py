@@ -69,6 +69,7 @@ def get_meta(time_lst, ts):
 
 
 def do_so(dir):
+    initt = time.time()
     print("starting {}".format(dir))
     segments = dir.split("/")
     mode = segments[-2]
@@ -384,6 +385,7 @@ def do_so(dir):
     with open(dump_directory + "{}.json".format(file_name), "w") as ouf:
         json.dump(master_arr, fp=ouf)
 
+    print("time taken {}".format((time.time() - initt) / 60))
     print("Ending {}".format(dir))
 
     # with open("expv6/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
