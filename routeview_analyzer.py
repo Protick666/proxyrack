@@ -88,7 +88,7 @@ def make_line(prefix, as_path, prefix_owner_org, date_str, vantage):
     try:
         # print("go")
         s = ""
-        print(prefix, as_path, prefix_owner_org, date_str)
+        # print(prefix, as_path, prefix_owner_org, date_str)
         for asn in as_path:
             if is_korean(asn):
                 appendix = "KR"
@@ -199,7 +199,7 @@ def analyze_file(filename):
     with Pool() as pool:
         for result in pool.imap_unordered(analyze_line_chunk, chunk_date_tuple_list):
             lst = result
-            print(lst)
+            # print(lst)
             # print("xxx", prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn)
 
             prefix_cdn_asn_isp_global[0] = prefix_cdn_asn_isp_global[0] + lst[0]
