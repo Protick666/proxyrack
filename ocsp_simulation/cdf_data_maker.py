@@ -242,20 +242,34 @@ def analyze_xxxx():
     tot_ocsp = 0
     server_set = set()
 
+    ocsp_req_time = []
+    ocsp_over_head = []
+
     for e in d:
-        server_name = e[-1]
-        ocsp_1 = e[-3]
-        ocsp_2 = e[-2]
+        dns_start, dns_end, client_hello_time, server_hello_time, change_cipher_time_client, change_cipher_time_server, established_time, encrypted_data_time_app, ocsp_dns_1, ocsp_dns_2, ocsp_1, ocsp_2, server_name = e
+
 
         if "demdex" in server_name or "mozilla" in server_name:
             continue
 
         tot_tls += 1
+
         server_set.add(server_name)
-        if ocsp_1 is not None and ocsp_2 is not  None:
+
+        if ocsp_1 is not None and ocsp_2 is not None:
             tot_ocsp += 1
+            ocsp_req_time.append(ocsp_2 - ocsp_1)
+            over_head = 0
+            if ocsp_2 > established_time:
+                over_head = ocsp_2 - established_time
+            ocsp_over_head.append(over_head)
 
     print(tot_tls, len(server_set), tot_ocsp)
+    with open("ocsp_initial_graphs.json", "w") as ouf:
+        json.dump({
+            "ocsp_over_head": ocsp_over_head,
+            "ocsp_req_time": ocsp_req_time
+        }, fp=ouf)
 
 
 analyze_xxxx()
