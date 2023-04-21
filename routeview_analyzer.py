@@ -58,7 +58,8 @@ def get_ip_to_org_cn(ip):
     return org, None
 
 def is_korean(asn):
-    return asn in korea_asns
+    return True
+    # return asn in korea_asns
 
 def has_korean(as_path):
     for asn in as_path:
@@ -122,6 +123,7 @@ def find_case(line, date_str, vantage, prefix_cdn_asn_isp, prefix_cdn_asn_cdn, p
         if is_korean(last_as):
             a = 1
         a = 1
+        # print(cdn.lower(), prefix_owner_org.lower())
         if cdn.lower() in prefix_owner_org.lower():
             if is_korean(last_as):
                 prefix_cdn_asn_isp[0].append((make_line(prefix, as_path, prefix_owner_org, date_str, vantage)))
