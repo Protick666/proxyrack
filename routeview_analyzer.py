@@ -2,7 +2,6 @@ from multiprocessing.dummy import Pool as ThreadPool
 import pyasn
 cdn = None
 #
-
 from asn_org_tools.org_finder import AS2ISP
 
 asndb = pyasn.pyasn('asn_org_tools/data/ipsan_db.dat')
@@ -69,9 +68,9 @@ def has_korean(as_path):
 
 from collections import defaultdict
 
-prefix_cdn_asn_isp = defaultdict(lambda : list())
-prefix_cdn_asn_cdn = defaultdict(lambda : list())
-prefix_isp_asn_cdn = defaultdict(lambda : list())
+prefix_cdn_asn_isp_global = defaultdict(lambda : list())
+prefix_cdn_asn_cdn_global = defaultdict(lambda : list())
+prefix_isp_asn_cdn_global = defaultdict(lambda : list())
 
 def shortify(org):
     org = org.strip()
@@ -104,7 +103,7 @@ def make_line(prefix, as_path, prefix_owner_org, date_str, vantage):
 
 
 
-def find_case(line, date_str, vantage):
+def find_case(line, date_str, vantage, prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn):
     # prefix_cdn_asn_isp = defaultdict(lambda: list()) -> 1, 2
     # prefix_cdn_asn_cdn = defaultdict(lambda: list()) -> 3, 4
     # prefix_isp_asn_cdn = defaultdict(lambda: list()) -> 5, 6
@@ -155,6 +154,11 @@ def get_chunks(lst, n):
     return ans
 
 def analyze_line_chunk(tup):
+    prefix_cdn_asn_isp = defaultdict(lambda: list())
+    prefix_cdn_asn_cdn = defaultdict(lambda: list())
+    prefix_isp_asn_cdn = defaultdict(lambda: list())
+
+
     chunk, date_str, vantage = tup
     for line_ in chunk:
         try:
@@ -164,14 +168,16 @@ def analyze_line_chunk(tup):
             # 7 -> unknown
 
             line = line_.strip()
-
-            case = find_case(line, date_str, vantage)
+            case = find_case(line, date_str, vantage, prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn)
 
 
         except Exception as e:
             a = 1
 
+    return prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn
+
 def analyze_file(filename):
+    global prefix_cdn_asn_isp_global, prefix_cdn_asn_cdn_global, prefix_isp_asn_cdn_global
     date_str = filename.split("/")[-1]
     vantage = filename.split("/")[-2]
     file = open(filename, 'r')
@@ -184,10 +190,24 @@ def analyze_file(filename):
     for chunk in chunks:
         chunk_date_tuple_list.append((chunk, date_str, vantage))
 
-    pool = ThreadPool(100)
-    results = pool.map(analyze_line_chunk, chunk_date_tuple_list)
-    pool.close()
-    pool.join()
+    from multiprocessing import Pool
+    with Pool() as pool:
+        for result in pool.imap_unordered(analyze_line_chunk, chunk_date_tuple_list):
+            prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn = result
+
+            prefix_cdn_asn_isp_global[0] = prefix_cdn_asn_isp_global[0] + prefix_cdn_asn_isp[0]
+            prefix_cdn_asn_isp_global[1] = prefix_cdn_asn_isp_global[1] + prefix_cdn_asn_isp[1]
+
+            prefix_cdn_asn_cdn_global[0] = prefix_cdn_asn_cdn_global[0] + prefix_cdn_asn_cdn[0]
+            prefix_cdn_asn_cdn_global[1] = prefix_cdn_asn_cdn_global[1] + prefix_cdn_asn_cdn[1]
+
+            prefix_isp_asn_cdn_global[0] = prefix_isp_asn_cdn_global[0] + prefix_isp_asn_cdn[0]
+            prefix_isp_asn_cdn_global[1] = prefix_isp_asn_cdn_global[1] + prefix_isp_asn_cdn[1]
+
+    # pool = ThreadPool(100)
+    # prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn = pool.map(analyze_line_chunk, chunk_date_tuple_list)
+    # pool.close()
+    # pool.join()
 
 
 
@@ -256,9 +276,9 @@ def init(n):
         index += 1
 
     d = {
-        "prefix_cdn_asn_isp": prefix_cdn_asn_isp,
-        "prefix_cdn_asn_cdn": prefix_cdn_asn_cdn,
-        "prefix_isp_asn_cdn": prefix_isp_asn_cdn
+        "prefix_cdn_asn_isp": prefix_cdn_asn_isp_global,
+        "prefix_cdn_asn_cdn": prefix_cdn_asn_cdn_global,
+        "prefix_isp_asn_cdn": prefix_isp_asn_cdn_global
     }
 
     import json
