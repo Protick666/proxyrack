@@ -1,3 +1,4 @@
+import random
 from multiprocessing.dummy import Pool as ThreadPool
 import pyasn
 cdn = None
@@ -265,6 +266,7 @@ def init(n):
 
 
     index = 1
+    files = random.sample(files, 50)
     print("Total files to analyze {}".format(len(files)))
 
     for file in files:
@@ -285,5 +287,9 @@ def init(n):
     with open("routeviews-{}-v2.json".format(cdn), "w") as ouf:
         json.dump(d, fp=ouf)
 
+import sys
+if __name__ == '__main__':
+    # print(sys.argv[1])
+    init(sys.argv[1])
 
-init("facebook")
+# init("facebook")
