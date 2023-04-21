@@ -190,7 +190,7 @@ def analyze_file(filename):
     tot_lines = len(lines)
     index = 0
 
-    chunks = get_chunks(lines, 300)
+    chunks = get_chunks(lines, 500)
     chunk_date_tuple_list = []
     for chunk in chunks:
         chunk_date_tuple_list.append((chunk, date_str, vantage))
@@ -265,7 +265,7 @@ def init(n):
                 month_str = str(month)
                 if month < 10:
                     month_str = "0" + month_str
-                for date in ["01", "15"]:
+                for date in ["01", "08", "15", "22"]:
                     files.append(
                         "/net/data/rpki/raw-datasets/routeviews/bgpdump-parsed-reduced/{}/{}{}{}".format(dir, year,
                                                                                                          month_str, date))
