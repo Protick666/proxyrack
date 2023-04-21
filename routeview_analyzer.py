@@ -265,7 +265,7 @@ def init(n):
                 month_str = str(month)
                 if month < 10:
                     month_str = "0" + month_str
-                for date in ["01", "08", "15", "22"]:
+                for date in ["01", "15"]:
                     files.append(
                         "/net/data/rpki/raw-datasets/routeviews/bgpdump-parsed-reduced/{}/{}{}{}".format(dir, year,
                                                                                                          month_str, date))
