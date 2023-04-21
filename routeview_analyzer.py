@@ -87,7 +87,7 @@ def make_line(prefix, as_path, prefix_owner_org, date_str, vantage):
     try:
         # print("go")
         s = ""
-        print(prefix, as_path, prefix_owner_org, date_str)
+        # print(prefix, as_path, prefix_owner_org, date_str)
         for asn in as_path:
             if is_korean(asn):
                 appendix = "KR"
@@ -177,6 +177,7 @@ def analyze_line_chunk(tup):
         except Exception as e:
             a = 1
 
+    print(prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn)
     return prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn
 
 def analyze_file(filename):
