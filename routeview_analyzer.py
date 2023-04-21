@@ -233,14 +233,16 @@ def init(n):
     files = []
     for dir in dirs:
         # TODO change
-        for year in range(2014, 2024):
-            for month in range(1, 13, 3):
+        for year in range(2013, 2024):
+            for month in range(1, 13):
                 month_str = str(month)
                 if month < 10:
                     month_str = "0" + month_str
+                for date in ["01", "08", "15", "22"]:
                     files.append(
-                        "/net/data/rpki/raw-datasets/routeviews/bgpdump-parsed-reduced/{}/{}{}01".format(dir, year,
-                                                                                                         month_str))
+                        "/net/data/rpki/raw-datasets/routeviews/bgpdump-parsed-reduced/{}/{}{}{}".format(dir, year,
+                                                                                                         month_str, date))
+
 
     index = 1
     print("Total files to analyze {}".format(len(files)))
@@ -260,5 +262,8 @@ def init(n):
     }
 
     import json
-    with open("routeviews-{}.json".format(cdn), "w") as ouf:
+    with open("routeviews-{}-v2.json".format(cdn), "w") as ouf:
         json.dump(d, fp=ouf)
+
+
+init("facebook")
