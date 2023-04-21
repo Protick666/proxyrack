@@ -244,6 +244,7 @@ def analyze_xxxx():
 
     ocsp_req_time = []
     ocsp_over_head = []
+    tls_time = []
 
     for e in d:
         dns_start, dns_end, client_hello_time, server_hello_time, change_cipher_time_client, change_cipher_time_server, established_time, encrypted_data_time_app, ocsp_dns_1, ocsp_dns_2, ocsp_1, ocsp_2, server_name = e
@@ -263,16 +264,18 @@ def analyze_xxxx():
             if ocsp_2 > established_time:
                 over_head = ocsp_2 - established_time
             ocsp_over_head.append(over_head)
+            tls_time.append(established_time - server_hello_time)
 
     print(tot_tls, len(server_set), tot_ocsp)
     with open("ocsp_initial_graphs.json", "w") as ouf:
         json.dump({
             "ocsp_over_head": ocsp_over_head,
-            "ocsp_req_time": ocsp_req_time
+            "ocsp_req_time": ocsp_req_time,
+            "tls_time": tls_time
         }, fp=ouf)
 
 
-analyze_xxxx()
+# analyze_xxxx()
 
 def analyze_single_entry(e):
     try:
@@ -352,15 +355,19 @@ def coalesce_entries():
 # coalesce_entries()
 
 def one_million_analyzer():
-    f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/nsec_exp/data/ocsp_req.json")
+    #f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/nsec_exp/data/ocsp_req.json")
+    f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/nsec_exp/data/ocsp_initial_graphs.json")
     d = json.load(f)
-    req_time = [int(e * 1000) for e in d]
+    # req_time = [int(e * 1000) for e in d]
+    over_head = d['ocsp_over_head']
+    over_head = [int(e * 1000) for e in over_head]
     from collections import defaultdict
     counter = defaultdict(lambda : 0)
-    for e in req_time:
+    for e in over_head:
         counter[e] += 1
 
-    cdf_multiple([req_time], ['OCSP response time'], 'OCSP response', 'Response time in milliseconds')
+
+    cdf_multiple([over_head], ['OCSP overhead'], 'OCSP response', 'Overhead time in milliseconds')
 
 
 
