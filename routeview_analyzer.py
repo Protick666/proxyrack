@@ -275,7 +275,7 @@ def init(n):
     index = 1
     files = random.sample(files, 5)
     # 20200701, route-views4,
-    files = "/net/data/rpki/raw-datasets/routeviews/bgpdump-parsed-reduced/route-views4/20200701"
+    files = ["/net/data/rpki/raw-datasets/routeviews/bgpdump-parsed-reduced/route-views4/20200701"]
     print("Total files to analyze {}".format(len(files)))
 
     for file in files:
