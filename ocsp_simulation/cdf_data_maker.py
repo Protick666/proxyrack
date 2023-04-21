@@ -275,7 +275,7 @@ def analyze_xxxx():
         }, fp=ouf)
 
 
-# analyze_xxxx()
+analyze_xxxx()
 
 def analyze_single_entry(e):
     try:
