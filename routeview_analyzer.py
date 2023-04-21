@@ -190,7 +190,7 @@ def analyze_file(filename):
     tot_lines = len(lines)
     index = 0
 
-    chunks = get_chunks(lines, 500)
+    chunks = get_chunks(lines, 100)
     chunk_date_tuple_list = []
     for chunk in chunks:
         chunk_date_tuple_list.append((chunk, date_str, vantage))
