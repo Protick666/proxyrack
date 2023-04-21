@@ -163,6 +163,7 @@ def analyze_line_chunk(tup):
 
 
     chunk, date_str, vantage = tup
+
     for line_ in chunk:
         try:
             # prefix_cdn_asn_isp = defaultdict(lambda: list()) -> 1, 2
@@ -177,7 +178,7 @@ def analyze_line_chunk(tup):
         except Exception as e:
             a = 1
 
-    return prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn
+    return [prefix_cdn_asn_isp[0], prefix_cdn_asn_isp[1], prefix_cdn_asn_cdn[0],prefix_cdn_asn_cdn[1], prefix_isp_asn_cdn[0], prefix_isp_asn_cdn[1]]
 
 def analyze_file(filename):
     global prefix_cdn_asn_isp_global, prefix_cdn_asn_cdn_global, prefix_isp_asn_cdn_global
@@ -196,17 +197,18 @@ def analyze_file(filename):
     from multiprocessing import Pool
     with Pool() as pool:
         for result in pool.imap_unordered(analyze_line_chunk, chunk_date_tuple_list):
-            prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn = result
-            print("xxx", prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn)
+            lst = result
+            print(lst)
+            # print("xxx", prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn)
 
-            prefix_cdn_asn_isp_global[0] = prefix_cdn_asn_isp_global[0] + prefix_cdn_asn_isp[0]
-            prefix_cdn_asn_isp_global[1] = prefix_cdn_asn_isp_global[1] + prefix_cdn_asn_isp[1]
+            prefix_cdn_asn_isp_global[0] = prefix_cdn_asn_isp_global[0] + lst[0]
+            prefix_cdn_asn_isp_global[1] = prefix_cdn_asn_isp_global[1] + lst[1]
 
-            prefix_cdn_asn_cdn_global[0] = prefix_cdn_asn_cdn_global[0] + prefix_cdn_asn_cdn[0]
-            prefix_cdn_asn_cdn_global[1] = prefix_cdn_asn_cdn_global[1] + prefix_cdn_asn_cdn[1]
+            prefix_cdn_asn_cdn_global[0] = prefix_cdn_asn_cdn_global[0] + lst[2]
+            prefix_cdn_asn_cdn_global[1] = prefix_cdn_asn_cdn_global[1] + lst[3]
 
-            prefix_isp_asn_cdn_global[0] = prefix_isp_asn_cdn_global[0] + prefix_isp_asn_cdn[0]
-            prefix_isp_asn_cdn_global[1] = prefix_isp_asn_cdn_global[1] + prefix_isp_asn_cdn[1]
+            prefix_isp_asn_cdn_global[0] = prefix_isp_asn_cdn_global[0] + lst[4]
+            prefix_isp_asn_cdn_global[1] = prefix_isp_asn_cdn_global[1] + lst[5]
 
     # pool = ThreadPool(100)
     # prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn = pool.map(analyze_line_chunk, chunk_date_tuple_list)
