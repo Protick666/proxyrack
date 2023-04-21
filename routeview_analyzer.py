@@ -59,7 +59,7 @@ def get_ip_to_org_cn(ip):
 
 def is_korean(asn):
     # return True
-    print(korea_asns)
+    #print(korea_asns)
     return asn in korea_asns
 
 def has_korean(as_path):
