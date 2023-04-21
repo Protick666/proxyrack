@@ -59,6 +59,7 @@ def get_ip_to_org_cn(ip):
 
 def is_korean(asn):
     # return True
+    print(korea_asns)
     return asn in korea_asns
 
 def has_korean(as_path):
@@ -87,7 +88,7 @@ def make_line(prefix, as_path, prefix_owner_org, date_str, vantage):
     try:
         # print("go")
         s = ""
-        # print(prefix, as_path, prefix_owner_org, date_str)
+        print(prefix, as_path, prefix_owner_org, date_str)
         for asn in as_path:
             if is_korean(asn):
                 appendix = "KR"
