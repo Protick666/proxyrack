@@ -98,7 +98,7 @@ def make_line(prefix, as_path, prefix_owner_org, date_str, vantage):
 
         s = s[: -2]
         s = "({}-{}):::{}".format(prefix, prefix_owner_org, s)
-        print(s)
+        # print(s)
         return date_str, vantage, s
     except Exception as e:
         print(e)
@@ -177,7 +177,6 @@ def analyze_line_chunk(tup):
         except Exception as e:
             a = 1
 
-    print(prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn)
     return prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn
 
 def analyze_file(filename):
@@ -198,6 +197,7 @@ def analyze_file(filename):
     with Pool() as pool:
         for result in pool.imap_unordered(analyze_line_chunk, chunk_date_tuple_list):
             prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn = result
+            print("xxx", prefix_cdn_asn_isp, prefix_cdn_asn_cdn, prefix_isp_asn_cdn)
 
             prefix_cdn_asn_isp_global[0] = prefix_cdn_asn_isp_global[0] + prefix_cdn_asn_isp[0]
             prefix_cdn_asn_isp_global[1] = prefix_cdn_asn_isp_global[1] + prefix_cdn_asn_isp[1]
