@@ -266,7 +266,7 @@ def init(n):
 
 
     index = 1
-    files = random.sample(files, 50)
+    files = random.sample(files, 5)
     print("Total files to analyze {}".format(len(files)))
 
     for file in files:
