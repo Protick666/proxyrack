@@ -426,6 +426,8 @@ while lft <= 2000000:
     temp = temp // 100
     file_index = temp % 5
     file_name_to_log_index["{}-{}".format(lft, rt)] = file_index
+    lft += 100
+    rt += 100
 
 def get_dirs(path):
     import os
