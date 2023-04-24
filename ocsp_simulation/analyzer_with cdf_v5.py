@@ -9,6 +9,43 @@ from multiprocessing import Pool
 
 global_normal_dns_rtt = []
 
+index_to_time_lst = {}
+
+file_name_to_log_index = {}
+
+def load_time_lst():
+
+    for log_index in range(5):
+
+        time_lst = []
+
+        domain_to_rank = {}
+        domain_to_start = {}
+        domain_to_end = {}
+
+        for line in open('log_2/{}/my_log.log'.format(log_index), 'r'):
+            segments = line.split()
+            domain_here = segments[4]
+            domain_here = domain_here[: -1]
+            rank_here = segments[2]
+            rank_here = rank_here[: -1]
+            rank_here = int(rank_here)
+            # print()
+            if 'end' in line:
+                domain_to_end[domain_here] = float(segments[-1])
+            if 'start' in line:
+                domain_to_start[domain_here] = float(segments[-1])
+            domain_to_rank[domain_here] = rank_here
+
+        for domain in domain_to_rank:
+            try:
+                time_lst.append((domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain]))
+            except:
+                pass
+        time_lst.sort()
+        index_to_time_lst[log_index] = time_lst
+
+
 def get_leaf_files(path):
     import os
     list_of_files = []
@@ -27,29 +64,6 @@ def get_leaf_files(path):
 # docker cp cold_instance:/projects/stresstest/selenium_v2/log/my_log.log /home/protick/proxyrack/ocsp_simulation/cold_log
 
 # docker cp warm_instance:/projects/stresstest/selenium_v2/log/my_log.log /home/protick/proxyrack/ocsp_simulation/normal_log
-def load_time_lst(mode):
-    time_lst = []
-    domain_to_rank = {}
-    domain_to_start = {}
-    domain_to_end = {}
-
-    for line in open('{}/my_log.log'.format(mode), 'r'):
-        segments = line.split()
-        # print()
-        if 'end' in line:
-            domain_to_end[segments[3]] = float(segments[-1])
-        if 'start' in line:
-            domain_to_start[segments[3]] = float(segments[-1])
-        domain_to_rank[segments[3]] = segments[1]
-
-    for domain in domain_to_rank:
-        try:
-            time_lst.append((domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain]))
-        except:
-            pass
-    time_lst.sort()
-    return time_lst
-
 
 # (domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain])
 def get_meta(time_lst, ts):
@@ -236,6 +250,11 @@ def do_so(dir):
                 if uid in uid_to_info:
                     for key in e:
                         uid_to_info[uid].__setattr__(key, e[key])
+                    ts = uid_to_info[uid].ts
+                    global index_to_time_lst, file_name_to_log_index
+
+                    meta_data = get_meta(index_to_time_lst[file_name_to_log_index[file_name]], ts)
+                    uid_to_info[uid].__setattr__('meta_data', meta_data)
             except Exception as e:
                 pass
 
@@ -363,6 +382,7 @@ def do_so(dir):
             arr.append(e['change_cipher_time_server'])
             arr.append(e['established_time'])
             arr.append(e['encrypted_data_time_app'])
+            # tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name']]
 
             if e['version'] == 'TLSv13':
                 continue
@@ -373,14 +393,15 @@ def do_so(dir):
             # draw_line(arr, "x", "y", e['server_name'], index, e['ocsp_1'],  e['ocsp_2'], e['ocsp_dns_1'], e['ocsp_dns_2'])
 
             tp = arr.copy()
-            tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name']]
+            tp = tp + [e['ocsp_dns_1'], e['ocsp_dns_2'], e['ocsp_1'], e['ocsp_2'], e['server_name'], e['meta_data']]
             master_arr.append(tp)
+
             a = 1
         except:
             pass
 
     from pathlib import Path
-    dump_directory = "simulation_results/{}/".format(mode)
+    dump_directory = "simulation_results_2/{}/".format(mode)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
     a = 1
     with open(dump_directory + "{}.json".format(file_name), "w") as ouf:
@@ -398,9 +419,19 @@ modes = ['nsec']
 # staple_modes = ['stapledon', 'stapledoff']
 # modes = ['cold_log']
 
+lft, rt = 1, 100
+while lft <= 2000000:
+    temp = lft
+    temp = temp - 1
+    temp = temp // 100
+    file_index = temp % 5
+    file_name_to_log_index["{}-{}".format(lft, rt)] = file_index
+
 def get_dirs(path):
     import os
     return [os.path.join(path, name) for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
+
+load_time_lst()
 
 for mode in modes:
     directories = get_dirs("{}/{}".format(source_path, mode))
