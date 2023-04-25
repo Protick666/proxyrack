@@ -69,7 +69,13 @@ def analyze_single_file(tuple):
 
 print("Total files {}".format(len(files_numbered)))
 
+files_numbered = files_numbered[: 100]
+
 pool = ThreadPool(100)
 results = pool.map(analyze_single_file, files_numbered)
 pool.close()
 pool.join()
+
+import json
+with open("lum_summary.json", "w") as ouf:
+    json.dump(ocsp_url_to_tuple_list, fp=ouf)
