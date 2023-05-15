@@ -1,6 +1,7 @@
 import dns.resolver
 import time
 
+
 def resolve_domains(domain_resolver_tuple):
     try:
         domain, resolver_ip = domain_resolver_tuple
@@ -39,6 +40,8 @@ def get_qnames_from_nsec_exp():
     directories = get_dirs("/net/data/dns-ttl/pcap/zeek_logs/nsec")
 
     ans = []
+
+    from multiprocessing import Pool
 
     with Pool() as pool:
         for res in pool.imap_unordered(parse_dns, directories):
@@ -79,7 +82,7 @@ if __name__ == '__main__':
 
     qnames = load_qnames()
 
-    from multiprocessing import Pool
+
 
     qname_tuples = []
 
@@ -89,6 +92,8 @@ if __name__ == '__main__':
             qname_tuples.append((qname, resolver_))
 
     qname_resolver_to_response_time = {}
+
+    from multiprocessing import Pool
 
     with Pool() as pool:
         for result in pool.imap_unordered(resolve_domains, qname_tuples):
