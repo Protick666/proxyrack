@@ -1,4 +1,6 @@
+import json
 from collections import defaultdict
+import matplotlib.pyplot as plt
 from multiprocessing.dummy import Pool as ThreadPool
 import pydig
 import pycurl
@@ -7,8 +9,83 @@ import aiohttp
 
 SAMPLE_PER_WEBSITE = 50
 
+def box_plot(cdn_to_arr, title):
+    import seaborn as sns
+    sns.set()
+    data_to_plot = []
+    labels = []
+    for cdn in cdn_to_arr:
+        data_to_plot.append(cdn_to_arr[cdn])
+        labels.append(cdn)
+
+    fig = plt.figure(1, figsize=(9, 6))
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+
+    # Create an axes instance
+    ax = fig.add_subplot(111)
 
 
+    bp = ax.boxplot(data_to_plot, patch_artist=True)
+
+    ## change outline color, fill color and linewidth of the boxes
+    for box in bp['boxes']:
+        # change outline color
+        box.set(color='#7570b3', linewidth=2)
+        # change fill color
+        box.set(facecolor='#1b9e77')
+
+    ## change color and linewidth of the whiskers
+    for whisker in bp['whiskers']:
+        whisker.set(color='#7570b3', linewidth=2)
+
+    ## change color and linewidth of the caps
+    for cap in bp['caps']:
+        cap.set(color='#7570b3', linewidth=2)
+
+    ## change color and linewidth of the medians
+    for median in bp['medians']:
+        median.set(color='#b2df8a', linewidth=2)
+
+    ## change the style of fliers and their fill
+    for flier in bp['fliers']:
+        flier.set(marker='o', color='#e7298a', alpha=0.5)
+
+    ax.set_xticklabels(labels)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+
+    ax.set_ylabel('millisecons')
+
+    plt.title(title)
+    plt.show()
+
+
+def histogram_maker(counter, x_title, y_title, title, mul=1):
+    import seaborn as sns
+    sns.set()
+    ans = []
+
+    fig = plt.figure(figsize=(8, 6))
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+
+    for key in counter:
+        ans.append((key, counter[key]))
+    ans.sort()
+    x_arr = [str(e[0]) for e in ans]
+    y_arr = [e[1] * mul for e in ans]
+    plt.bar(x_arr, y_arr, edgecolor='black')
+    plt.title(title)
+    plt.xlabel(x_title)
+    plt.ylabel(y_title)
+    plt.show()
+
+
+
+'''
+This class extracts iata from HTTP headers
+'''
 class CDNSigPro:
     def extract_loc(self, headers, target_cdn):
         try:
@@ -33,6 +110,9 @@ class CDNSigPro:
         cn, target_cdn, headers, _ = tuple
         return cn, target_cdn, self.extract_loc(headers, target_cdn)
 
+'''
+These string hints are used for finding if a domain is used by a CDN
+'''
 CDN_hints = ['Akamai',
         'Cachefly',
         'EdgeCast',
@@ -90,7 +170,8 @@ async def query_through_luminati(hop, session, target):
         session_key = ''.join(random.choice(letters) for i in range(8)) + str(int(time.time()))
 
         cn = hop
-        proxy_url = 'http://lum-customer-c_9c799542-zone-protick-dns-remote-country-{}-session-{}:cbp4uaamzwpy@zproxy.lum-superproxy.io:22225'.format(cn, session_key)
+        # id and passwords anonymzed
+        proxy_url = 'http://lum-customer-xxx-zone-protick-dns-remote-country-{}-session-{}:xxx@zproxy.lum-superproxy.io:22225'.format(cn, session_key)
 
         async with session.get(url='https://{}'.format(target), proxy=proxy_url) as response:
             try:
@@ -115,6 +196,10 @@ async def process_urls_async(chosen_hop_list, target):
             except Exception as e:
                 pass
         execution_results = await asyncio.gather(*tasks)
+
+'''
+Rank CDNs accroding to domain count
+'''
 def get_rank_of_cdns(cdn_to_websites):
     cdn_arr = []
     for cdn in cdn_to_websites:
@@ -122,6 +207,9 @@ def get_rank_of_cdns(cdn_to_websites):
     cdn_arr.sort(key=lambda x: x[1], reverse=True)
     return cdn_arr
 
+'''
+Consider only the resolution time for getting the authoritative answer
+'''
 def get_A_resolution_time_from_trace(trace):
     for element in trace[::-1]:
         try:
@@ -134,7 +222,7 @@ def get_A_resolution_time_from_trace(trace):
 
 
 def get_curl_timing(website):
-    SAMPLE_PER_WEBSITE = 50
+    SAMPLE_PER_WEBSITE = 10
     curl_info_list = []
 
     schemed_url = website
@@ -145,6 +233,7 @@ def get_curl_timing(website):
         try:
             c = pycurl.Curl()
             c.setopt(c.URL, schemed_url)
+            c.setopt(pycurl.TIMEOUT, 20)
             c.perform()
             dns_time = c.getinfo(pycurl.NAMELOOKUP_TIME)
             connect_time = c.getinfo(pycurl.CONNECT_TIME)
@@ -168,13 +257,11 @@ def get_curl_timing(website):
         except:
             pass
 
-
-
-
+    print("Done with curl: {}".format(website))
     return website, curl_info_list
 
 def get_dns_timing(website):
-    SAMPLE_PER_WEBSITE = 50
+    SAMPLE_PER_WEBSITE = 10
 
     resolution_time_list = []
 
@@ -192,6 +279,7 @@ def get_dns_timing(website):
         except:
             pass
 
+    print("Done with dns: {}".format(website))
     return website, resolution_time_list
 
 
@@ -286,8 +374,12 @@ def find_geohints():
     iata_to_country_dict = get_iata_to_country_dict()
     # Adjustment of missing iata
     iata_to_country_dict['qpg'] = 'Singapore'
-
-    website_to_country_iata_country_pair = defaultdict(lambda : list())
+    iata_to_country_dict['kld'] = 'Russia'
+    iata_to_country_dict['par'] = 'France'
+    iata_to_country_dict['pdk'] = 'United states'
+    iata_to_country_dict['fty'] = 'United states'
+    iata_to_country_dict['yto'] = 'China'
+    cdn_to_country_iata_country_pair = defaultdict(lambda : list())
 
     for website in website_to_cn_iata_pair:
         if website not in candidates_with_geo_hint:
@@ -299,23 +391,90 @@ def find_geohints():
 
         for element in website_to_cn_iata_pair[website]:
             cn, iata = element
+            if iata is None:
+                continue
             iata_set.add(iata)
             country_string = alpha2_to_country_dict[cn.lower()]
             iata_country = iata_to_country_dict[iata.lower()]
-            website_to_country_iata_country_pair[website].append((country_string, iata_country))
+            cdn_to_country_iata_country_pair[website].append((country_string, iata_country))
 
         print(cdn, total_countries, len(iata_set))
 
 
-    with open("website_to_country_iata_country_pair.json", 'w') as f:
+    with open("cdn_to_country_iata_country_pair.json", 'w') as f:
         import json
-        json.dump(website_to_country_iata_country_pair, f, indent = 2)
+        json.dump(cdn_to_country_iata_country_pair, f, indent = 2)
+
+    return website_to_cn_iata_pair
+
+def analyze_ping_files_from_ripe_atlas():
+    cadidate_websites_to_cdn = {
+        "www.oracle.com": "Akamai",
+        "www.blogger.com": "Google",
+        "www.roku.com": "Cloudflare",
+        "www.ign.com": "Fastly",
+        "www.imdb.com": "Cloudfront"
+    }
+
+    cdn_to_rtt_list = defaultdict(lambda : list())
+
+    for key in cadidate_websites_to_cdn:
+        f = open("atlas_files/{}.json".format(key))
+        d = json.load(f)
+        for element in d:
+            average_rtt = element['avg']
+            cdn_to_rtt_list[cadidate_websites_to_cdn[key]].append(average_rtt)
+
+    return cdn_to_rtt_list
+
+def analyze_meta_data(website_to_meta_data, cdn_to_websites):
+    website_to_cdn = {}
+    import statistics
+
+    cdn_to_median_attributes = defaultdict(lambda : defaultdict(lambda : list()))
+
+    for cdn in cdn_to_websites:
+        for website in cdn_to_websites[cdn]:
+            website_to_cdn[website] = cdn
+
+    for website in website_to_meta_data:
+        if website not in website_to_cdn:
+            continue
+        cdn = website_to_cdn[website]
+        try:
+            cdn_to_median_attributes[cdn]['dns'].append(statistics.median(website_to_meta_data[website]['dns']))
+            cdn_to_median_attributes[cdn]['connect'].append(
+                statistics.median(e['connect_time'] - e['dns_time'] for e in website_to_meta_data[website]['curl']))
+            cdn_to_median_attributes[cdn]['ssl_handshake'].append(
+                statistics.median(
+                    e['app_connect_time'] - e['connect_time'] for e in website_to_meta_data[website]['curl']))
+            cdn_to_median_attributes[cdn]['ttfb'].append(
+                statistics.median(e['ttfb'] for e in website_to_meta_data[website]['curl']))
+            cdn_to_median_attributes[cdn]['total'].append(
+                statistics.median(e['total_time'] for e in website_to_meta_data[website]['curl']))
+            cdn_to_median_attributes[cdn]['download_speed'].append(
+                statistics.median(e['download_speed'] for e in website_to_meta_data[website]['curl']))
+        except:
+            pass
+
+    attributes = ['dns', 'connect', 'ssl_handshake', 'ttfb', 'total', 'download_speed']
+
+    for attribute in attributes:
+        mul = 1
+        if attribute != 'dns':
+            mul = mul * 1000
+        counter = defaultdict(lambda : 0)
+        for cdn in cdn_to_median_attributes:
+            if cdn == 'Azure':
+                continue
+            counter[cdn] = statistics.median(cdn_to_median_attributes[cdn][attribute])
+        histogram_maker(counter=counter, x_title='CDNs',  y_title='median value in millisecond', title=attribute, mul=mul)
 
 
+    a = 1
 def analyzeSiteData(siteData):
     cdn_to_websites = get_cdn_to_websites(siteData=siteData)
 
-    # [ (CDN_name. Number of Websites Served), ..... ]  => sorted in decreasing order of number of websites served
     rank_of_cdns = get_rank_of_cdns(cdn_to_websites)
 
     websites_using_cdns = []
@@ -324,13 +483,14 @@ def analyzeSiteData(siteData):
 
     # websites_using_cdns = websites_using_cdns
 
-    websites_to_meta_data = None
+    website_to_meta_data = None
     websites_to_meta_data_Filename = 'websites_to_meta_data.json'
+
     try:
         with open(websites_to_meta_data_Filename, 'r') as f:
             import json
             websites_to_meta_data_Filename_loaded = json.load(f)
-            websites_to_meta_data = websites_to_meta_data_Filename_loaded
+            website_to_meta_data = websites_to_meta_data_Filename_loaded
     except Exception:
         website_to_meta_data = defaultdict(lambda: {})
         from multiprocessing import Pool
@@ -349,20 +509,13 @@ def analyzeSiteData(siteData):
             import json
             json.dump(website_to_meta_data, f)
 
-
-    find_geohints()
-
-    #
-    # 1. Identify domains served by CDNs by either the IP addresses and ASNs, or hostnames and CNAMEs. 
-    #    You can use whatever source of data you wish. You do not need to be exhaustive. Pick a handful of CDNs to study.
-    #
-    # 2. Rank the CDNs by the number of sites served.
-    #
-    # 3. Calculate the average timings (e.g., dns/ttfb) per CDN and rank the CDNs by timing.
-    #
-    # Open Question: what insights can you get from this data?
-    #
-    # Open Question: how would you expand on this analysis and what other data would you collect?
+    # get geohints from http headers using brightdata proxy
+    website_to_cn_iata_pair = find_geohints()
+    # analyze different timing info like dns, tcp conn etc and draw bar plots
+    analyze_meta_data(website_to_meta_data, cdn_to_websites)
+    # get rtt list for each cdn from ripe atlas
+    cdn_to_rtt_list = analyze_ping_files_from_ripe_atlas()
+    box_plot(cdn_to_arr=cdn_to_rtt_list, title="RTT")
 
     sys.exit()
 
@@ -502,8 +655,6 @@ def loadTrancoList():
             print('Loaded Tranco list from cache on disk')
             return trancoList
     except Exception:
-        # Unexpected problem loading tranco list from disk.
-        # It may not be downloaded yet or corrupt.
         pass
 
     try:
@@ -547,5 +698,5 @@ if __name__ == "__main__":
     trancoList = loadTrancoList()
 
     siteData = loadSiteData(trancoList)
-    #
+
     analyzeSiteData(siteData)

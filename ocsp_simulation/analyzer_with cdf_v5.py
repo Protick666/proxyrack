@@ -80,6 +80,7 @@ def get_meta(time_lst, ts):
             l = mid + 1
         else:
             return time_lst[mid]
+
     return []
 
 
@@ -390,6 +391,7 @@ def do_so(dir):
                 continue
             if e['ocsp_dns_1'] is not None:
                 a = 1
+
             # draw_line(arr, "x", "y", e['server_name'], index, e['ocsp_1'],  e['ocsp_2'], e['ocsp_dns_1'], e['ocsp_dns_2'])
 
             tp = arr.copy()

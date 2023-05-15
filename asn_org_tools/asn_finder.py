@@ -5,7 +5,6 @@ import pyasn
 asndb = pyasn.pyasn('data/ipsan_db.dat')
 
 
-
 def get_asn(ip):
     # TODO what returns for not present??
     try:

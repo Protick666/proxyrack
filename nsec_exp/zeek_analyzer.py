@@ -23,8 +23,6 @@ def get_leaf_files(path):
 
 # docker cp warm_instance:/projects/stresstest/selenium_v2/log/my_log.log /home/protick/proxyrack/ocsp_simulation/normal_log
 
-
-
 # (domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain])
 
 

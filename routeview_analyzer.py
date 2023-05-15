@@ -5,7 +5,7 @@ cdn = None
 #
 from asn_org_tools.org_finder import AS2ISP
 
-asndb = pyasn.pyasn('asn_org_tools/data/ipsan_db.dat')
+asndb = pyasn.pyasn('/Users/protick.bhowmick/PriyoRepos/proxyRack/asn_org_tools/data/ipsan_db.dat')
 as2isp = AS2ISP()
 
 ip_to_asn = {}
@@ -22,7 +22,7 @@ def get_korea_asns():
     asn_list = [int(e) for e in asn_list]
     return asn_list
 
-korea_asns = set(get_korea_asns())
+# korea_asns = set(get_korea_asns())
 
 def get_ip_to_asn(ip):
     if ip in ip_to_asn:
@@ -31,7 +31,9 @@ def get_ip_to_asn(ip):
     ip_to_asn[ip] = asn
     return asn
 
+ip_to_org = {}
 
+asn_to_cn = {}
 def get_asn_to_org(asn):
     if asn in asn_to_org:
         return asn_to_org[asn]
@@ -39,7 +41,13 @@ def get_asn_to_org(asn):
     asn_to_org[asn] = org
     return org
 
-ip_to_org = {}
+
+def get_asn_to_cn(asn):
+    if asn in asn_to_cn:
+        return asn_to_cn[asn]
+    org, cn = str(as2isp.getISP("20221212", asn)[0]), str(as2isp.getISP("20221212", asn)[1])
+    asn_to_cn[asn] = cn
+    return cn
 
 def get_org_from_ip(ip):
     try:
@@ -296,9 +304,9 @@ def init(n):
     with open("routeviews-{}-v2.json".format(cdn), "w") as ouf:
         json.dump(d, fp=ouf)
 
-import sys
-if __name__ == '__main__':
-    # print(sys.argv[1])
-    init(sys.argv[1])
+# import sys
+# if __name__ == '__main__':
+#     # print(sys.argv[1])
+#     init(sys.argv[1])
 
 # init("facebook")

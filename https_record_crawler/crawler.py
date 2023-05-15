@@ -67,5 +67,4 @@ async def crawl():
     with open("{}/{}.json".format(dump_directory, int(time.time())), "w") as ouf:
         json.dump(mother_dict, fp=ouf)
 
-
 results = asyncio.run(crawl())

@@ -2,15 +2,13 @@
 import json
 
 '''
-
     * Find out -> Total distinct certs in this period -> 19960045
 
     * Distinct domains it was mapped for -> 34388557
     
-    * Distinct domains where it was mult domains-> 3286129
+    * Distinct domains where it was mult domains -> 3286129
 
     * All distinct domains -> [serial numbers]
-
 '''
 
 

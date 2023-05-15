@@ -71,8 +71,7 @@ def get_meta(time_lst, ts):
 def do_so(dir):
     print("starting {}".format(dir))
     segments = dir.split("/")
-    mode = segments[-3]
-    staple_mod = segments[-2]
+    mode = segments[-2]
     file_name = segments[-1]
 
     base_path = dir + "/"
@@ -379,7 +378,7 @@ def do_so(dir):
             pass
 
     from pathlib import Path
-    dump_directory = "results/{}/{}/".format(mode, staple_mod)
+    dump_directory = "simulation_results/{}/".format(mode)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
     a = 1
     with open(dump_directory + "{}.json".format(file_name), "w") as ouf:
@@ -392,8 +391,8 @@ def do_so(dir):
 
 source_path = "data/zeek_logs"
 
-modes = ['cold', 'warm', 'normal']
-staple_modes = ['stapledon', 'stapledoff']
+modes = ['nsec']
+# staple_modes = ['stapledon', 'stapledoff']
 # modes = ['cold_log']
 
 def get_dirs(path):
@@ -401,12 +400,11 @@ def get_dirs(path):
     return [os.path.join(path, name) for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
 
 for mode in modes:
-    for staple_mode in staple_modes:
-        directories = get_dirs("{}/{}/{}".format(source_path, mode, staple_mode))
-        pool = ThreadPool(50)
-        results = pool.map(do_so, directories)
-        pool.close()
-        pool.join()
+    directories = get_dirs("{}/{}".format(source_path, mode))
+    pool = ThreadPool(50)
+    results = pool.map(do_so, directories)
+    pool.close()
+    pool.join()
         # a = 1
         # for dir in directories:
         #     do_so(dir)

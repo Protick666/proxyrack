@@ -69,9 +69,9 @@ def analyze_files(files, resolver_to_is_dishonor_vote, flag, ttl_list, reached_b
                 ttl_2 = d[req_id]["ttl_2"]
                 ip_1 = d[req_id]["ip_1"]
                 ip_2 = d[req_id]["ip_2"]
-                t_1 = d[req_id]['timestamp_1']
-                t_2 = d[req_id]['timestamp_2']
-                time_def = t_2 - t_1
+                # t_1 = d[req_id]['timestamp_1']
+                # t_2 = d[req_id]['timestamp_2']
+                # time_def = t_2 - t_1
 
                 if ttl_1 > 60:
                     ttl_list.append(ttl_1)
@@ -137,14 +137,14 @@ def get_resolver_to_dishonor_dict_v2(str):
     # proxy_rack_dump_files = get_files_from_dir("cross_check_v21/{}/".format(str))
 
     is_True = False
-    direct_dump_files = ["data/dishonor_direct.json"]
-    proxy_rack_dump_files = ["data/dishonor_proxy.json"]
+    direct_dump_files = ["proxy-direct-dump/dishonor_direct.json"]
+    proxy_rack_dump_files = ["proxy-direct-dump/dishonor_proxy.json"]
 
-    f = open("data/dishonor_direct.json")
-    dishonor_dd = json.load(f)
-
-    f = open("data/dishonor_proxy.json")
-    dishonor_pxy = json.load(f)
+    # f = open("data/dishonor_direct.json")
+    # dishonor_dd = json.load(f)
+    #
+    # f = open("data/dishonor_proxy.json")
+    # dishonor_pxy = json.load(f)
 
     from collections import defaultdict
     resolver_to_is_dishonor_vote = {}

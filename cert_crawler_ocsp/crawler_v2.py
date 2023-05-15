@@ -46,6 +46,7 @@ def fetch(web_cn_tuple):
     except:
         pass
 
+
 def get_chunks(lst, n):
     ans = []
     """Yield successive n-sized chunks from lst."""

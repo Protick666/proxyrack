@@ -1,0 +1,422 @@
+{
+  "ocsp.e3m01.amazontrust.com": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.pki.goog": {
+    "org": "Google LLC",
+    "type": 1,
+    "delegation": false
+  },
+  "ocsp.global.sheca.com": {
+    "org": "Alibaba (US) Technology Co., Ltd.",
+    "type": 2,
+    "delegation": true
+  },
+  "ocsp2.globalsign.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": true
+  },
+  "status.thawte.com": {
+    "org": "MCI Communications Services, Inc. d/b/a Verizon Business",
+    "type": 1,
+    "delegation": false
+  },
+  "ocsp.incommon-ecc.org": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.globalsign.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": true
+  },
+  "twcasslocsp.twca.com.tw": {
+    "org": "Taiwan Fixed Network, Telco and Network Service Provider.",
+    "type": 4,
+    "delegation": true
+  },
+  "ocsp.msocsp.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": true
+  },
+  "xinchacha2ov.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "e1.o.lencr.org": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.digicert.com": {
+    "org": "MCI Communications Services, Inc. d/b/a Verizon Business",
+    "type": 3,
+    "delegation": false
+  },
+  "nijimo.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.comodoca.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "eMudhra.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "GEANT.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "xinchacha2dv.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "ocspx.digicert.com": {
+    "org": "MCI Communications Services, Inc. d/b/a Verizon Business",
+    "type": 1,
+    "delegation": false
+  },
+  "ocsp.r2m02.amazontrust.com": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.godaddy.com": {
+    "org": "Sucuri",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.e3m02.amazontrust.com": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp09.actalis.it": {
+    "org": "Aruba S.p.A.",
+    "type": 1,
+    "delegation": true
+  },
+  "zerossl.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "status.geotrust.com": {
+    "org": "MCI Communications Services, Inc. d/b/a Verizon Business",
+    "type": 1,
+    "delegation": false
+  },
+  "ocsp.securecore-ca.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "lh.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "ocsp.swisssign.net": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "alpiro.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.entrust.net": {
+    "org": "Akamai Technologies, Inc.",
+    "type": 3,
+    "delegation": true
+  },
+  "onesign.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.trustcor.ca": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": true
+  },
+  "globessl.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "statuse.digitalcertvalidation.com": {
+    "org": "MCI Communications Services, Inc. d/b/a Verizon Business",
+    "type": 1,
+    "delegation": false
+  },
+  "statusd.digitalcertvalidation.com": {
+    "org": "MCI Communications Services, Inc. d/b/a Verizon Business",
+    "type": 1,
+    "delegation": false
+  },
+  "nijimo3.ocsp.secomtrust.net": {
+    "org": "SECOM Trust Systems Co.,Ltd.",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.trust-provider.cn": {
+    "org": "Alibaba (US) Technology Co., Ltd.",
+    "type": 2,
+    "delegation": null
+  },
+  "ocsp.pca.dfn.de": {
+    "org": "Verein zur Foerderung eines Deutschen Forschungsnetzes e.V.",
+    "type": 4,
+    "delegation": true
+  },
+  "ocsp06.actalis.it": {
+    "org": "Aruba S.p.A.",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.sca1b.amazontrust.com": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.e2m02.amazontrust.com": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.wisekey.com": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": true
+  },
+  "ocsp.crlocsp.cn": {
+    "org": "Beijing Qihu Technology Company Limited",
+    "type": 4,
+    "delegation": null
+  },
+  "ocsp.r2m01.amazontrust.com": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.ssl.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": null
+  },
+  "ocsp.swiss.signdemo.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "commercial.ocsp.identrust.com": {
+    "org": "IdenTrust",
+    "type": 1,
+    "delegation": true
+  },
+  "shoperssl.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "dvcasha2.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "nazwassl2sha2.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "ocsp.sectigochina.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "niig7rsa.ocsp.secom-cert.jp": {
+    "org": "SECOM Trust Systems Co.,Ltd.",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.harica.gr": {
+    "org": "Aristotle University of Thessaloniki",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.netsolssl.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "genious.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "dv.g4.ocsp.pubcert.jprs.jp": {
+    "org": "SECOM Trust Systems Co.,Ltd.",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.trust.telia.com": {
+    "org": "Telia Company AB",
+    "type": 1,
+    "delegation": true
+  },
+  "tiTrust.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.starfieldtech.com": {
+    "org": "Sucuri",
+    "type": 4,
+    "delegation": true
+  },
+  "ocsp.e2m01.amazontrust.com": {
+    "org": "cloudfront",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.incommon-igtf.org": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.serverpass.telesec.de": {
+    "org": "T-Systems International GmbH",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsps.ssl.com": {
+    "org": "Amazon.com, Inc.",
+    "type": 2,
+    "delegation": true
+  },
+  "ocsp.int-r1.certainly.com": {
+    "org": "Fastly",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.apple.com": {
+    "org": "Apple Inc.",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.serpro.gov.br": {
+    "org": "SERVICO FEDERAL DE PROCESSAMENTO DE DADOS - SERPRO",
+    "type": 1,
+    "delegation": true
+  },
+  "esafer.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "h.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "oneocsp.microsoft.com": {
+    "org": "Microsoft Corporation",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.quovadisglobal.com": {
+    "org": "MCI Communications Services, Inc. d/b/a Verizon Business",
+    "type": 1,
+    "delegation": true
+  },
+  "ocsp.dcocsp.cn": {
+    "org": "Alibaba (US) Technology Co., Ltd.",
+    "type": 2,
+    "delegation": false
+  },
+  "status.rapidssl.com": {
+    "org": "MCI Communications Services, Inc. d/b/a Verizon Business",
+    "type": 1,
+    "delegation": false
+  },
+  "r3.o.lencr.org": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": false
+  },
+  "itrusdv.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "ocsp.usertrust.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.digicert.cn": {
+    "org": "Alibaba (US) Technology Co., Ltd.",
+    "type": 2,
+    "delegation": false
+  },
+  "ocsp.emSign.com": {
+    "org": "Bharti Airtel Limited",
+    "type": 4,
+    "delegation": true
+  },
+  "Certera.ocsp.sectigo.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.cntrus.oemssl.cn": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": false
+  },
+  "ocsp.uat.swissca.tech": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "rootnetworksdv.ocsp-certum.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "ocsp.comodoca4.com": {
+    "org": "Cloudflare, Inc.",
+    "type": 3,
+    "delegation": null
+  },
+  "ocsp.buypass.com": {
+    "org": "Akamai International B.V.",
+    "type": 3,
+    "delegation": true
+  },
+  "ocsp.int-e1.certainly.com": {
+    "org": "Fastly",
+    "type": 3,
+    "delegation": false
+  }
+}

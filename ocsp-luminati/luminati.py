@@ -3,7 +3,6 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 
 
-
 def get_files_from_dir(path):
     from os import listdir
     from os.path import isfile, join
@@ -44,14 +43,18 @@ for file in files:
 
 '''
     Meta:
-
+    
+    Post req <-> 
+                 
+                 
+                    
     Number of OCSP URL
     Number of req sent
-    Number of distinct serials
+    Number of distinct serials:
     Number of ASNs
 
-    Number of req sent succ
-    Number of req sent unsucc
+    # Number of req sent succ
+    # Number of req sent unsucc
 
 '''
 

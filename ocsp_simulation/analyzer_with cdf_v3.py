@@ -390,7 +390,7 @@ def do_so(dir):
     # with open("expv6/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
     #     json.dump(master_arr, fp=ouf)
 
-source_path = "/net/data/dns-ttl/pcap/zeek_logs"
+source_path = "data/zeek_logs"
 
 modes = ['cold', 'warm', 'normal']
 staple_modes = ['stapledon', 'stapledoff']

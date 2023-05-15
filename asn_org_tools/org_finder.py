@@ -7,10 +7,14 @@ from intervaltree import *
 
 
 class AS2ISP:
-    def __init__(self):
+    def __init__(self, path_of_asn_org=None):
 
-        self.raw_path = "asn_org_tools/data/"
-        self.export_path = "asn_org_tools/data/as2isp.json"
+        if not path_of_asn_org:
+            self.raw_path = "../asn_org_tools/data/"
+            self.export_path = "../asn_org_tools/data/as2isp.json"
+        else:
+            self.raw_path = "{}/data/".format(path_of_asn_org)
+            self.export_path = "{}/data/as2isp.json".format(path_of_asn_org)
 
 
         self.date = []

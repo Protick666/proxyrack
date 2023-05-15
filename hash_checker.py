@@ -29,8 +29,10 @@ for line in open('anon.x509.log', 'r'):
 
 # set_1 = ext_set.union(ocsp_set)
 # set_2 = fset_lower.union(fset_upper)
-
+print(len(serials_unhashed))
+print(len(ext_set))
 print(len(serials_unhashed.intersection(ext_set)))
+print(list(serials_unhashed.intersection(ext_set))[0])
 
 
 

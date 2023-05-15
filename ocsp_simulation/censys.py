@@ -19,11 +19,11 @@ api_lst = [
 ]
 
 
-
+# fingerprints['1997274781c233029a159c5b4ff38c7e5e0f68183223d6b758947766e6530ee0']['parsed']['extensions']['authority_info_access']['ocsp_urls'][0]
 # f = open("../fingerprint_to_meta.json")
 # fingerprints = json.load(f)
-# a = 1
-#
+a = 1
+
 # left_alone = set()
 # for k in fingerprints:
 #     try:
@@ -38,13 +38,14 @@ api_lst = [
 
 
 
-f = open("fingerprints_zeek_v2.json")
-fingerprints = json.load(f)
+# f = open("fingerprints_zeek_v2.json")
+# fingerprints = json.load(f)
 
 
 api_index = 0
 mother_bot = {}
 
+fingerprints = ['7b1f8d8eff5d7349fedb7eae89c29aacc41704f1503ae3c8c2eba10225d0f568']
 
 for fingerprint in fingerprints:
     api_index = (api_index + 1) % 3
@@ -62,7 +63,7 @@ for fingerprint in fingerprints:
         pass
 
 
-with open('fingerprint_to_meta_2.json', "w") as ouf:
-    json.dump(mother_bot, fp=ouf)
+# with open('fingerprint_to_meta_2.json', "w") as ouf:
+#     json.dump(mother_bot, fp=ouf)
 
 

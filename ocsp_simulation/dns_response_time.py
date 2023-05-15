@@ -1,7 +1,6 @@
 import dns.resolver
 import time
 
-
 def resolve_domains(domain_resolver_tuple):
     try:
         domain, resolver_ip = domain_resolver_tuple
@@ -13,7 +12,7 @@ def resolve_domains(domain_resolver_tuple):
         return answers.response.time, domain, resolver_ip
     except Exception as e:
         print("xxx")
-        return -1, domain, resolver_ip
+        return -1, 'x', 'x'
 
 def parse_dns(dir):
     base_path = dir + "/"
@@ -39,21 +38,22 @@ def get_qnames_from_nsec_exp():
 
     directories = get_dirs("/net/data/dns-ttl/pcap/zeek_logs/nsec")
 
-    q_names = []
+    ans = []
 
     with Pool() as pool:
-        for result in pool.imap_unordered(parse_dns, directories):
+        for res in pool.imap_unordered(parse_dns, directories):
             try:
-                q_names = q_names + result
+                ans = ans + res
             except:
                 pass
 
-    q_names = list(set(q_names))
+    ans = list(set(ans))
 
-    return q_names
+    return ans
 
 
 def load_qnames():
+    import json
 
     filename = 'data/q_names.json'
 
@@ -82,6 +82,7 @@ if __name__ == '__main__':
     from multiprocessing import Pool
 
     qname_tuples = []
+
     for resolver_ in ['8.8.8.8', '1.1.1.1']:
         for qname in qnames:
             # domain, resolver = domain_resolver_tuple

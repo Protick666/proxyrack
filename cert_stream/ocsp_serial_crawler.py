@@ -3,7 +3,7 @@ import time
 import certstream
 import redis
 
-LOCAL = False
+LOCAL = True
 
 LOCAL_REDIS_HOST = "pharah.cs.vt.edu"
 REMOTE_REDIS_HOST = "pharah-db.cs.vt.edu"
@@ -97,6 +97,7 @@ def transfer_akids():
 
     # ca_cert = fix_cert_indentation(r.get("ocsp:akid:" + akid).decode())
     all_keys = parent_r.keys("*ocsp:akid*")
+    a = 1
     for key in all_keys:
         key_decoded = key.decode()
         parent_value = parent_r.get(key).decode()
@@ -109,4 +110,4 @@ def check_redis():
                           password="certificatesarealwaysmisissued")
     a = 1
 
-# check_redis()
+# transfer_akids()
