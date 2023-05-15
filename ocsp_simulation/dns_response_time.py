@@ -1,5 +1,6 @@
 import dns.resolver
 import time
+import json
 
 
 def resolve_domains(domain_resolver_tuple):
