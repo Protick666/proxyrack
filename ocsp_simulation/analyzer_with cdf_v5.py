@@ -42,6 +42,7 @@ def load_time_lst():
                 time_lst.append((domain_to_start[domain], domain_to_end[domain], domain, domain_to_rank[domain]))
             except:
                 pass
+
         time_lst.sort()
         index_to_time_lst[log_index] = time_lst
 
@@ -74,13 +75,17 @@ def get_meta(time_lst, ts):
         mid = (l + r) // 2
         element_st = time_lst[mid][0]
         element_end = time_lst[mid][1]
+
         if element_st > ts:
             r = mid - 1
-        elif element_end < ts:
-            l = mid + 1
         else:
-            return time_lst[mid]
-
+            # ts >= element_st
+            if mid == len(time_lst) - 1:
+                return time_lst[mid]
+            elif ts >= time_lst[mid + 1][0]:
+                l = mid + 1
+            else:
+                return time_lst[mid]
     return []
 
 
@@ -403,7 +408,7 @@ def do_so(dir):
             pass
 
     from pathlib import Path
-    dump_directory = "simulation_results_2/{}/".format(mode)
+    dump_directory = "simulation_results_3/{}/".format(mode)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
     a = 1
     with open(dump_directory + "{}.json".format(file_name), "w") as ouf:
