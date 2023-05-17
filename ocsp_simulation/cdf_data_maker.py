@@ -327,8 +327,8 @@ def lum_error():
     # 'non-200-502' ?? 'decode-str-Unable to load OCSP response'
     skip_list = ['non-200-407','Response payload is not completed', 'Server disconnected', '[Errno 104] Connection reset by peer', '502, message=']
 #
-box_plot_of_lum("Asia")
-box_plot_of_lum("Americas")
+# box_plot_of_lum("Asia")
+# box_plot_of_lum("Americas")
 # lum_analyzer()
 # lum_analyzer_to_region()
 # lum_error()
@@ -1104,7 +1104,7 @@ def coalesce_entries():
         json.dump(arr, fp=ouf)
 
 
-# coalesce_entries()
+coalesce_entries()
 
 def one_million_analyzer():
     #f = open("/Users/protick.bhowmick/PriyoRepos/proxyRack/nsec_exp/data/ocsp_req.json")
