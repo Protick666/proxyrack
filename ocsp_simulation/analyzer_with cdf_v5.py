@@ -408,7 +408,7 @@ def do_so(dir):
             pass
 
     from pathlib import Path
-    dump_directory = "simulation_results_3/{}/".format(mode)
+    dump_directory = "simulation_results_4/{}/".format(mode)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
     a = 1
     with open(dump_directory + "{}.json".format(file_name), "w") as ouf:
@@ -450,6 +450,8 @@ for mode in modes:
         for result in pool.imap_unordered(do_so, directories):
             ans = result
 
+from cdf_data_maker import coalesce_entries
+coalesce_entries()
 
     # pool = ThreadPool(50)
     # results = pool.map(do_so, directories)
