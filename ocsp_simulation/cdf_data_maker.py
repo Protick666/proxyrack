@@ -671,6 +671,74 @@ def analyze_single_entry(e):
         a = 1
 
 ans_lst = []
+
+# TODO fill in
+domain_resolver_to_response_time = {}
+f = open("data/qname_resolver_to_response_time.json")
+domain_resolver_to_response_time = json.load(f)
+
+resolver_str = None
+
+def analyze_single_entry_by_public_resolver(tuple):
+    global domain_resolver_to_response_time
+    global resolver_str
+    try:
+        global ans_lst
+        # print("Inside")
+        e, index = tuple
+        # dns_start, dns_end, client_hello_time, server_hello_time, change_cipher_time_client, change_cipher_time_server, established_time, encrypted_data_time_app, ocsp_dns_1, ocsp_dns_2, ocsp_1, ocsp_2, server_name, meta, _ = e
+        dns_start, dns_end, client_hello_time, server_hello_time, change_cipher_time_client, change_cipher_time_server, established_time, encrypted_data_time_app, ocsp_dns_1, ocsp_dns_2, ocsp_1, ocsp_2, server_name = e
+
+        if "demdex" in server_name or "mozilla" in server_name:
+            return None
+
+        things_needed = [ocsp_dns_1, ocsp_dns_2, ocsp_1, ocsp_2, established_time, client_hello_time, dns_start, dns_end]
+        for e in things_needed:
+            if e is None:
+                return None
+
+        base_dns = dns_end - dns_start
+        ocsp_dns = ocsp_dns_2 - ocsp_dns_1
+        ocsp_http = ocsp_2 -ocsp_1
+        base_tls = established_time - client_hello_time
+        tot_ocsp_overhead = ocsp_2 - ocsp_dns_1
+
+        designated_resolver_a_look_up = domain_resolver_to_response_time['{}:{}'.format(server_name, resolver_str)]
+        # TODO
+        designated_resolver_ocsp_lookup = 16 / 1000
+
+        base_dns_start_new = dns_end - designated_resolver_a_look_up
+
+        ocsp_over_dns = designated_resolver_ocsp_lookup + designated_resolver_a_look_up
+
+        ocsp_diff = 0
+        # TODO super
+        #ocsp_diff = ocsp_dns - ocsp_over_dns
+        #new_ocsp_2 = ocsp_2 - ocsp_diff
+        new_ocsp_2 = ocsp_2
+        simulated_cname_ocsp_2 = base_dns_start_new + ocsp_over_dns
+
+        tot_time_wrt_hello = encrypted_data_time_app - client_hello_time
+        tot_time_wrt_dns = encrypted_data_time_app - base_dns_start_new
+
+
+        mom =  {
+            "tot_time_wrt_hello": tot_time_wrt_hello,
+            "tot_time_wrt_dns": tot_time_wrt_dns,
+            "ocsp_end": new_ocsp_2,
+            "encrypted_data_time_app": encrypted_data_time_app,
+            "established_time": established_time,
+            "simulated_cname_ocsp_2": simulated_cname_ocsp_2
+        }
+
+        ans_lst.append(mom)
+        print("Done with ".format(index))
+
+    except Exception as e:
+        print("{} - {}".format(index, e))
+        return None
+
+
 def analyze_single_entry_new(tuple):
     try:
         global ans_lst
@@ -811,6 +879,9 @@ def analyze_single_entry_new(tuple):
         return None
 
 def analyze_new_file():
+
+    global resolver_str
+    global ans_lst
     f = open("/Users/protick.bhowmick/ocsp_simulation/amulgum.json")
     d = json.load(f)
     print("Loaded file {}".format(len(d)))
@@ -826,7 +897,7 @@ def analyze_new_file():
     print("Loaded file again")
 
     pool = ThreadPool(50)
-    results = pool.map(analyze_single_entry_new, lines_with_number)
+    results = pool.map(analyze_single_entry_by_public_resolver, lines_with_number)
     pool.close()
     pool.join()
 
@@ -835,13 +906,68 @@ def analyze_new_file():
     #     for result in pool.imap_unordered(analyze_single_entry_new, lines_with_number):
     #         ans_lst.append(result)
 
-    with open("data/ans_lst.json", "w") as ouf:
+    with open("data/ans_lst_{}.json".format(resolver_str), "w") as ouf:
         json.dump(ans_lst, fp=ouf)
+
+
 
     # for e in d:
     #     result_tuple = analyze_single_entry_new(e)
 
-# analyze_new_file()
+def cdf_of_public_resolver(resolver):
+    from collections import defaultdict
+
+    arr = []
+
+    f = open("data/ans_lst_{}.json".format(resolver))
+    d = json.load(f)
+
+    for e in d:
+        tot_time_wrt_hello = e['tot_time_wrt_hello']
+        tot_time_wrt_dns = e['tot_time_wrt_dns']
+        ocsp_end = e['ocsp_end']
+        encrypted_data_time_app = e['encrypted_data_time_app']
+        established_time = e['established_time']
+        simulated_cname_ocsp_2 = e['simulated_cname_ocsp_2']
+
+        ocsp_simulated_end = simulated_cname_ocsp_2
+
+        if ocsp_end <= established_time and ocsp_simulated_end <= established_time:
+            delta = 0
+        elif ocsp_end <= established_time < ocsp_simulated_end:
+            delta = ocsp_simulated_end - established_time
+        elif ocsp_end > established_time >= ocsp_simulated_end:
+            delta = established_time - ocsp_end
+        elif ocsp_end > established_time and ocsp_simulated_end > established_time:
+            delta = ocsp_simulated_end - ocsp_end
+
+        arr.append((delta/tot_time_wrt_hello, delta/tot_time_wrt_dns))
+
+    with open("cdf_ocsp_simulation_{}.json".format(resolver), "w") as ouf:
+        json.dump(arr, fp=ouf)
+
+def yo():
+    global resolver_str, ans_lst
+    ans_lst = []
+    resolver_str = '1.1.1.1'
+    analyze_new_file()
+
+    ans_lst = []
+    resolver_str = '8.8.8.8'
+    analyze_new_file()
+
+def draw_cdf(resolver):
+    f = open("cdf_ocsp_simulation_{}.json".format(resolver))
+    d = json.load(f)
+    a = 1
+    cdf_multiple([[e[1] for e in d]], ["CDF"], resolver, "(%) gain")
+
+# yo()
+# cdf_of_public_resolver("1.1.1.1")
+# cdf_of_public_resolver("8.8.8.8")
+
+# draw_cdf("1.1.1.1")
+# draw_cdf("8.8.8.8")
 
 def cdf_of_diff_modes():
     from collections import defaultdict
@@ -891,8 +1017,12 @@ def cdf_of_diff_modes():
     with open("cdf_all_modes.json", "w") as ouf:
         json.dump(mode_to_sub_mode_to_arr, fp=ouf)
 
-# cdf_of_diff_modes()
 
+
+
+# cdf_of_diff_modes()
+# cdf_of_public_resolver("1.1.1.1")
+# cdf_of_public_resolver("8.8.8.8")
 
 def draw_cdf_of_simulations():
     print("here")
@@ -924,6 +1054,8 @@ def draw_cdf_of_simulations():
     #         arr_2 = [e[1] for e in arr]
     #         cdf_multiple([arr_1], ["CDF"], "{} - {}".format(element, p), "(%) gain")
     #         # cdf_multiple([arr_2], ["CDF"], "{} - {} - with respect to DNS".format(element, p), "(%) gain")
+
+
 
 
 # draw_cdf_of_simulations()
@@ -959,7 +1091,7 @@ def analyze_zeek_output(file):
 
 def coalesce_entries():
 
-    files = get_leaf_files("/home/protick/proxyrack/ocsp_simulation/simulation_results/nsec")
+    files = get_leaf_files("/home/protick/proxyrack/ocsp_simulation/simulation_results_4/nsec")
     arr = []
     for file in files:
         print("Analyzing file ",file)
@@ -967,7 +1099,8 @@ def coalesce_entries():
         d = json.load(f)
         arr = arr + d
 
-    with open("amulgum.json", "w") as ouf:
+    # amulgum ager ta
+    with open("amulgum_v2.json", "w") as ouf:
         json.dump(arr, fp=ouf)
 
 
