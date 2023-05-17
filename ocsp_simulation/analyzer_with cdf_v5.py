@@ -442,6 +442,7 @@ def get_dirs(path):
 
 load_time_lst()
 
+
 for mode in modes:
     directories = get_dirs("{}/{}".format(source_path, mode))
     print("Total directories to process {}".format(directories))
