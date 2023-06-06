@@ -12,7 +12,7 @@ def get_A_resolution_time_from_trace(trace):
     return None
 
 def get_dns_timing(website):
-    SAMPLE_PER_WEBSITE = 3
+    SAMPLE_PER_WEBSITE = 1
 
     resolution_time_list = []
 
@@ -64,5 +64,5 @@ if __name__ == '__main__':
             qname_to_response_time[domain] = resolution_time_list
 
     import json
-    with open("data/qname_worst_to_response_time_list.json", "w") as ouf:
+    with open("data/qname_worst_to_response_time_list_v2.json", "w") as ouf:
         json.dump(qname_to_response_time, fp=ouf)
