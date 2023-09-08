@@ -464,7 +464,25 @@ with Pool() as pool:
     for result in pool.imap_unordered(do_so, directories):
         ans = result
 
-from cdf_data_maker import coalesce_entries
+
+def coalesce_entries():
+    from pathlib import Path
+
+    files = get_leaf_files("/home/protick/proxyrack/ocsp_simulation/simulation_results_multi_ec2/{}".format(ec2_name))
+    arr = []
+    for file in files:
+        print("Coalescing file ",file)
+        f = open(file)
+        d = json.load(f)
+        arr = arr + d
+
+    dump_directory = "coalese/{}/".format(ec2_name)
+    Path(dump_directory).mkdir(parents=True, exist_ok=True)
+
+    with open("{}amulgum_v2.json".format(dump_directory), "w") as ouf:
+        json.dump(arr, fp=ouf)
+
+
 coalesce_entries()
 
     # pool = ThreadPool(50)
