@@ -420,8 +420,8 @@ def do_so(dir):
             master_arr.append(tp)
 
             a = 1
-        except:
-            pass
+        except Exception as e:
+            print("Exxxxx list 3: {}".format(e))
 
     print("Final list 3: {}".format(len(master_arr)))
 
