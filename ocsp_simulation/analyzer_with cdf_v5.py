@@ -423,6 +423,8 @@ def do_so(dir):
         except:
             pass
 
+    print("Final list 3: {}".format(len(master_arr)))
+
     from pathlib import Path
     dump_directory = "simulation_results_multi_ec2/{}/".format(ec2_name)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
