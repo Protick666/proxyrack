@@ -302,6 +302,7 @@ def do_so(dir):
     fingerprint_to_serial = get_cert_log()
 
     serial_num_to_tuples = analyze_custom_logs()
+    print("serial_num_to_tuples 1", serial_num_to_tuples)
 
     for key in serial_num_to_tuples:
         serial_num_to_tuples[key].sort()
@@ -354,6 +355,8 @@ def do_so(dir):
     build_dns(dns_log)
     # 643856ed9d2fce5408ca7ba627126996f20ceb0827f6ebd4fe7d80cea7a6a2c5
 
+    print("Final list 1: {}".format(final_list))
+
     for p in final_list:
         try:
             e = final_list[p]
@@ -378,6 +381,7 @@ def do_so(dir):
             pass
 
     version_set = set()
+    print("Final list: {}".format(final_list))
 
     # 1460
     master_arr = []
@@ -459,10 +463,11 @@ def get_dirs(path):
 
 directories = get_dirs("{}/{}".format(source_path, ec2_name))
 print("Total directories to process {}".format(directories))
-
-with Pool() as pool:
-    for result in pool.imap_unordered(do_so, directories):
-        ans = result
+for dir in directories:
+    do_so(dir)
+# with Pool() as pool:
+#     for result in pool.imap_unordered(do_so, directories):
+#         ans = result
 
 
 def coalesce_entries():
