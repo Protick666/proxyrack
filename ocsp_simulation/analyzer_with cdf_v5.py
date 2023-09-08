@@ -302,7 +302,7 @@ def do_so(dir):
     fingerprint_to_serial = get_cert_log()
 
     serial_num_to_tuples = analyze_custom_logs()
-    print("serial_num_to_tuples 1", serial_num_to_tuples)
+    print("serial_num_to_tuples 1", len(list(serial_num_to_tuples.keys())))
 
     for key in serial_num_to_tuples:
         serial_num_to_tuples[key].sort()
@@ -355,7 +355,9 @@ def do_so(dir):
     build_dns(dns_log)
     # 643856ed9d2fce5408ca7ba627126996f20ceb0827f6ebd4fe7d80cea7a6a2c5
 
-    print("Final list 1: {}".format(final_list))
+    print("DNS log 1: {}".format(len(dns_log)))
+
+    print("Final list 1: {}".format(len(final_list)))
 
     for p in final_list:
         try:
@@ -381,7 +383,7 @@ def do_so(dir):
             pass
 
     version_set = set()
-    print("Final list: {}".format(final_list))
+    print("Final list 2: {}".format(len(final_list)))
 
     # 1460
     master_arr = []
