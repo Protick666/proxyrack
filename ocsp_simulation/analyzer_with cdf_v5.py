@@ -93,6 +93,7 @@ def do_so(dir):
     initt = time.time()
     print("starting {}".format(dir))
     segments = dir.split("/")
+
     mode = segments[-2]
     file_name = segments[-1]
 
@@ -250,17 +251,26 @@ def do_so(dir):
             except Exception as e:
                 pass
 
+        # for e in ssl_log:
+        #     try:
+        #         uid = e['uid']
+        #         if uid in uid_to_info:
+        #             for key in e:
+        #                 uid_to_info[uid].__setattr__(key, e[key])
+        #     except Exception as e:
+        #         pass
+
         for e in ssl_log:
             try:
                 uid = e['uid']
                 if uid in uid_to_info:
                     for key in e:
                         uid_to_info[uid].__setattr__(key, e[key])
-                    ts = uid_to_info[uid].ts
-                    global index_to_time_lst, file_name_to_log_index
-
-                    meta_data = get_meta(index_to_time_lst[file_name_to_log_index[file_name]], ts)
-                    uid_to_info[uid].__setattr__('meta_data', meta_data)
+                    # ts = uid_to_info[uid].ts
+                    # global index_to_time_lst, file_name_to_log_index
+                    #
+                    # meta_data = get_meta(index_to_time_lst[file_name_to_log_index[file_name]], ts)
+                    # uid_to_info[uid].__setattr__('meta_data', meta_data)
             except Exception as e:
                 pass
 
@@ -408,7 +418,7 @@ def do_so(dir):
             pass
 
     from pathlib import Path
-    dump_directory = "simulation_results_4/{}/".format(mode)
+    dump_directory = "simulation_results_multi_ec2/{}/".format(ec2_name)
     Path(dump_directory).mkdir(parents=True, exist_ok=True)
     a = 1
     with open(dump_directory + "{}.json".format(file_name), "w") as ouf:
@@ -420,36 +430,39 @@ def do_so(dir):
     # with open("expv6/firefox_{}_{}-{}.json".format(mode, sesh - 500 + 1, sesh), "w") as ouf:
     #     json.dump(master_arr, fp=ouf)
 
-source_path = "/net/data/dns-ttl/pcap/zeek_logs"
+source_path = "/net/data/dns-ttl/pcap/zeek_logs/ec2"
 
-modes = ['nsec']
-# staple_modes = ['stapledon', 'stapledoff']
-# modes = ['cold_log']
+import argparse
 
-lft, rt = 1, 100
+parser = argparse.ArgumentParser()
+parser.add_argument('--name', type=str, required=True)
+args = parser.parse_args()
+ec2_name = args.name
+
+lft, rt = 1, 50
 while lft <= 2000000:
     temp = lft
     temp = temp - 1
     temp = temp // 100
     file_index = temp % 5
     file_name_to_log_index["{}-{}".format(lft, rt)] = file_index
-    lft += 100
-    rt += 100
+    lft += 50
+    rt += 50
 
 def get_dirs(path):
     import os
     return [os.path.join(path, name) for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
 
-load_time_lst()
+# load_time_lst()
 
 
-for mode in modes:
-    directories = get_dirs("{}/{}".format(source_path, mode))
-    print("Total directories to process {}".format(directories))
 
-    with Pool() as pool:
-        for result in pool.imap_unordered(do_so, directories):
-            ans = result
+directories = get_dirs("{}/{}".format(source_path, ec2_name))
+print("Total directories to process {}".format(directories))
+
+with Pool() as pool:
+    for result in pool.imap_unordered(do_so, directories):
+        ans = result
 
 from cdf_data_maker import coalesce_entries
 coalesce_entries()
